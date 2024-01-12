@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Item - Select Item</title>
+</head>
+<body>
+    <div>
+        <input type="number" value="{{ client.clientId }}" readonly><br>
+        {% if client.suffix%}
+            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix}}" readonly><br>
+        {% else %}
+            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}." readonly><br>
+        {%endif%}
+        <input type="text" value="{{client.yearLvl}}" readonly>
+        <input type="text" value="{{client.course}}" readonly><br>
+        <input type="text" value="{{client.graduating}}" readonly><br>
+        <input type="text" value="{{client.email}}" readonly><br>
+        <input type="text" value="{{client.contactNum}}" readonly><br>
+    </div>
+    <br>
+    {% if items %}
+    <div>
+        <form method="GET" action="{% url 'loan-item-transaction' client.clientId%}">
+            <div>
+                <label for="itemSelector">Choose Item:</label>
+                <select name="selectedItem" id="itemSelector">
+                    {% for item in items %}
+                        <option value="{{item.itemCat}}">{{item.itemCat}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="wednesdaycheckbox">Has Wednesday Class?</label>
+                <input type="checkbox" name="hasWednesdayClasses" id="wednesdaycheckbox">
+            </div>
+                
+                
+            <button type="submit" value="submit">Calculate</button>
+        </form>
+        
+    </div>
+    {% endif %}
+    <hr>
+    <form method="POST" action="">
+        {% csrf_token %}
+        {% if time and dateDue %}
+        <input type="datetime" name="dateloaned" value="{{time}}" readonly>
+        <input type="datetime" name="hiddendateloaned" value='{{time| date:"Y-m-d H:i:s:u"}}' hidden>
+        <input type="datetime" name="hiddendatedue" value='{{dateDue| date:"Y-m-d H:i:s:u"}}' hidden>
+        <input type="datetime" name="dateDue" value="{{dateDue}}" readonly>
+        <input type="text" name="dswsMemLoan" placeholder="dswsMemLoan">
+        <input type="text" name="remarks" placeholder="remarks">
+        <input type="hidden" name="itemCat" value="{{selectedItem.itemCat}}">
+        <button type="submit" value="submit">Confirm</button>
+        {% else %}
+        <input type="datetime" name="dateloaned" readonly>
+        <input type="datetime" name="dateDue" readonly>
+        <input type="text" name="dswsMemLoan" placeholder="dswsMemLoan" readonly>
+        <input type="text" name="remarks" placeholder="remarks" readonly>
+        <button type="submit" value="submit" disabled>Confirm</button>
+        {% endif %}
+    </form>
+    <hr>
+
+    <a href="{% url 'loan-item' %}">Cancel</a>
+</body>
+</html>

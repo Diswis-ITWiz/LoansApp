@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSWS Loans System</title>
+    <style>
+        body{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        a{
+            text-decoration: none;
+        }
+        #dashboard-title{
+            display: flex;
+        }
+        #dashboard-options{
+            border-color: gold;
+            border: 2px solid gold;
+            padding:2em 6em 2em 6em;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2em 1em;
+        }
+    </style>
+</head>
+<body>
+    <div id="dashboard-title">
+        <h1>
+            DSWS Loans System
+        </h1>
+    </div>
+    <div id="dashboard-options">
+        <a href="{% url 'loan-item' %}">Loan Item</a>
+        <a href="{% url 'return-item1' %}">Return Item</a>
+        <a href="{% url 'new-client'%}">Register User</a>
+        <a href="{% url 'admin-dashboard'%}">Admin</a>
+    </body>
+    </div>
+    
+    
+    
+</html>
+

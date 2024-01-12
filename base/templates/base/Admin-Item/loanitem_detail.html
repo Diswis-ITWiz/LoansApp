@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{item.itemCat}}</h1>
+    <p>{{item.description}}</p>
+    <p>{{item.status}}</p>
+    <p>{{item.lastClient}}</p>
+    <br>
+    <a href="{% url 'edit-item' item.itemCat %}">Edit Item</a>
+    <a href="{% url 'delete-item' item.itemCat %}">Delete Item</a>
+    <table>
+        <tr>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Date Loaned</th>
+            <th>Date Due</th>
+            <th>Loaned Out By</th>
+            <th>Date Returned</th>
+            <th>Recieved By</th>
+        </tr>
+        {% for transaction in transactions %}
+        <tr>
+            <td>
+                <a href="{% url 'client-details' transaction.clientId.clientId %}">
+                {{transaction.clientId.clientId}}
+                </a>
+            </td>
+            <td>{{transaction.status}}</td>
+            <td>{{transaction.dateLoaned}}</td>
+            <td>{{transaction.dateDue}}</td>
+            <td>{{transaction.dswsMemLoan}}</td>
+            <td>{{transaction.returnitem.dateReturned}}</td>
+            <td>{{transaction.returnitem.dswsMemRet}}</td>
+
+        </tr>
+        {% endfor%}
+    </table>
+    <button onclick="history.back()">Go Back</button>
+</body>
+</html>

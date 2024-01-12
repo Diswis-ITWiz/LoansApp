@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Item - Find Client Transaction</title>
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+        }
+        #search__box{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2em 0em 2em 0em;
+        }
+        #client__details{
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="search__box">
+        <form method="GET" action="{% url 'return-item1'%}">
+            <input id="clientSearch" type="number" name='q' placeholder="Client ID No.">
+        </form>
+        <br>
+    </div>
+    <div>
+        <div id="client__details">
+            {% if client %}
+        <input type="number" value="{{ client.clientId }}" readonly>
+        {% if client.suffix%}
+            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix}}" readonly>
+        {% else %}
+            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}." readonly>
+        {%endif%}
+        <input type="text" value="{{client.yearLvl}}" readonly>
+        <input type="text" value="{{client.course}}" readonly>
+        <input type="text" value="{{client.graduating}}" readonly>
+        <input type="text" value="{{client.email}}" readonly>
+        <input type="text" value="{{client.contactNum}}" readonly>
+        <input type="text" value="{{transaction.itemCat.itemCat}}">
+        </div>
+        <br>
+        <a href="{% url 'home' %}">Cancel</a>
+        {%if transaction %}
+        <a href="{%  url 'return-item2' transaction.id %}">Confirm</a>
+        {% else %}
+        <a href="" style="pointer-events: none;">Confirm</a>
+        {% endif %}
+        
+        {% else %}
+        <input type="text" placeholder="Client ID" readonly>
+        <input type="text" placeholder="Name" readonly>
+        <input type="text" placeholder="Yr Lvl" readonly>
+        <input type="text" placeholder="Course" readonly>
+        <input type="text" placeholder="Graduating" readonly>
+        <input type="text" placeholder="Email" readonly>
+        <input type="text" placeholder="Contact Num" readonly>
+        <br>
+        <a href="{% url 'home' %}">Cancel</a>
+        <a href="" style="pointer-events: none">Confirm</a>
+        {% endif %}
+    </div>
+</body>
+</html>

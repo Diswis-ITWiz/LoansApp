@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="admin__dashboard">
+        <div>
+            <a href="{% url 'item-panel' %}">Items</a>
+        </div>
+        <div>
+            <a href="{% url 'client-panel' %}">Clients</a>
+        </div>
+        <div>
+            <a href="{% url 'block-date' %}">Block Out Date</a>
+        </div>
+        <div>
+            <a href="{% url 'block-time' %}">Block Out Time</a>
+        </div>
+        <div>
+            <a href="{% url 'finals-week' %}">Finals Week</a>
+        </div>
+    </div>
+    <footer>
+        <a href="{% url 'home' %}">Logout</a>
+    </footer>
+        
+
+    
+    
+    
+    
+</body>
+</html>

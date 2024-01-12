@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Item</title>
+</head>
+<body>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <label for="loanitem_itemCat">Item Category: </label>
+        {{form.itemCat}}
+        {{form.description}}
+        {{form.status}}
+        <button type="submit">Submit</button>
+    </form>
+    <button onclick="history.back()">Cancel</button>
+</body>
+</html>

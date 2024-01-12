@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+            </tr>
+            {% for date in blockedDates%}
+            <tr>
+                <td>{{date.dateblocked}}</td>
+                <td>{{date.description}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <hr>
+    <form method="POST">
+        {% csrf_token %}
+        <form method="POST">
+            <input type="date" name="dateInput">
+            <input type="text" name="descriptionInput" placeholder="Description">
+            <button type="submit">Submit</button>
+        </form>
+    </form>
+    <a href="{% url 'admin-dashboard' %}">Cancel</a>
+</body>
+</html>

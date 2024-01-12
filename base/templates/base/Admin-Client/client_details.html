@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix|default_if_none:""}}</h1>
+    <p>Id No: {{client.clientId}} | Yr & Course: {{client.yearLvl}}-{{client.course}} | Graduating: {{client.graduating|yesno:"Yes,No"}}</p>
+    <p>Email: {{client.email}} | Contact: {{client.contactNum}}</p>
+    <p>{{client.dswsMemReg}} | {{client.dateReg}}</p>
+    <p>Borrowing: {{client.borrowing|yesno:"Borrowing,Free"}} Last Item: {{client.lastItem.itemCat}} Date: {{client.lastBorrowed}}</p>
+    <p>Warning Count: {{client.warningCount}}</p>
+    <p>Penalty Status: {{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}</p>
+    {%if temporaryBlackList %}
+    <p>{{client.tblStart}} - {{client.tblEnd}}</p>
+    {% endif %}
+    <p>
+        {{client.fine}}
+    </p>
+    <a href="{% url 'edit-client' client.clientId %}">Edit Client</a>
+    <a href="{% url 'lift-client-penalty' client.clientId%}">Lift Penalty</a>
+    <div>
+        <table>
+            <tr>
+                <th>Item Cat.</th>
+                <th>Status</th>
+                <th>Date Loaned</th>
+                <th>Date Due</th>
+                <th>Loaned Out By</th>
+                <th>Date Returned</th>
+                <th>Recieved By</th>
+            </tr>
+            {% for transaction in transactions %}
+            <tr>
+                <td>
+                    <a href="{% url 'item-details' transaction.itemCat.itemCat%}">{{transaction.itemCat.itemCat}}</a>
+                </td>
+                <td>{{transaction.status}}</td>
+                <td>{{transaction.dateLoaned}}</td>
+                <td>{{transaction.dateDue}}</td>
+                <td>{{transaction.dswsMemLoan}}</td>
+                <td>{{transaction.returnitem.dateReturned}}</td>
+                <td>{{transaction.returnitem.dswsMemRet}}</td>
+
+            </tr>
+            {% endfor%}
+        </table>
+    </div>
+    <footer><a href="{% url 'client-panel' %}">Back</a></footer>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Item - Client Search</title>
+    <style>
+        #search__box{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2em 0em 2em 0em;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="search__box">
+        <form method="GET" action="{% url 'loan-item'%}">
+            <input id="clientSearch" type="number" name='q' placeholder="Client ID No.">
+        </form>
+        <br>
+            {% if borrowingStatus %}
+                <p>UNFULFILLED TRANSACTION: PREVIOUS ITEM HAS NOT BEEN RETURNED</p>
+            {% endif %}
+            {% if input_validity == True %}
+                <a href="{% url 'new-client'%}">Client not found, create new client?</a>
+            {% endif%}
+    </div>
+    <div>
+        {% if client %}
+        <input type="number" value="{{ client.clientId }}" readonly>
+
+            {% if client.suffix%}
+                <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix}}" readonly>
+            {% else %}
+                <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}." readonly>
+            {%endif%}
+
+        <input type="text" value="{{client.yearLvl}}" readonly>
+        <input type="text" value="{{client.course}}" readonly>
+        <input type="text" value="{{client.graduating}}" readonly>
+        <input type="text" value="{{client.email}}" readonly>
+        <input type="text" value="{{client.contactNum}}" readonly>
+        <br>
+        <a href="{% url 'home' %}">Cancel</a>
+            {% if borrowingStatus %}
+                <a href="{%  url 'loan-item-transaction' client.clientId %}" style="pointer-events: none">Confirm</a>
+            {% else %}
+                <a href="{%  url 'loan-item-transaction' client.clientId %}">Confirm</a>
+            {% endif %}
+        
+        {% else %}
+        <input type="text" placeholder="Client ID" readonly>
+        <input type="text" placeholder="Name" readonly>
+        <input type="text" placeholder="Yr Lvl" readonly>
+        <input type="text" placeholder="Course" readonly>
+        <input type="text" placeholder="Graduating" readonly>
+        <input type="text" placeholder="Email" readonly>
+        <input type="text" placeholder="Contact Num" readonly>
+        <br>
+        <a href="{% url 'home' %}">Cancel</a>
+        <a href="" style="pointer-events: none">Confirm</a>
+        {% endif %}
+    </div>
+    
+</body>
+</html>
