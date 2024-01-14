@@ -44,7 +44,7 @@
                 <td>{{client.lastBorrowed}}</td>
                 <td>{{client.borrowing|yesno:"Borrowing,Free"}}</td>
                 <td>
-                    <a href="">Edit</a>
+                    <a href="{% url 'edit-client' client.clientId%}">Edit</a>
                 </td>
             </tr>
             {% endfor %}
