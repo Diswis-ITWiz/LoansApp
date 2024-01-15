@@ -50,28 +50,21 @@ def loanItemClientFinder(request):
         # Prevents Getting all clients
         if q == '':
             return render(request, 'base/Home-Item/find_client.html', context)
-        
         #Client May Not Exist
         try:
             client = Client.objects.get(clientId__exact=q)
+            # Check if Graduating senior or has currently borrowed an Item:
+            if client.gradwaiting == True or client.borrowing == True:
+                print('First one works')
+                context = {'client': client, 'borrowingStatus': client.borrowing, 'gradwaiting': client.gradwaiting}
+            else:
+                context = {'client':client}
         except Client.DoesNotExist:
             invalidInput = True
             context = {'input_validity': invalidInput}
-            return render(request, 'base/Home-Item/find_client.html', context)
-        
-
-        # Check if Graduating senior:
-        if client.gradwaiting == True:
-            context = {'gradwaiting': True}
-            return render(request, 'base/Home-Item/find_client.html', context)
-
-        if client.borrowing == True:
-            context = {'client': client, 'borrowingStatus': True}
-        else:
-            context = {'client':client}
 
         return render(request, 'base/Home-Item/find_client.html', context)
-    return render(request, 'base/Home-Item/find_client.html', context)
+
 
 def loanItemTransaction(request, pk):
     client = Client.objects.get(clientId__exact=pk)
