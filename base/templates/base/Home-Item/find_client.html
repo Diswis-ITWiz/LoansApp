@@ -28,9 +28,13 @@
             {% if borrowingStatus %}
                 <p>UNFULFILLED TRANSACTION: PREVIOUS ITEM HAS NOT BEEN RETURNED</p>
             {% endif %}
+            {% if gradwaiting %}
+                <p>Client is Graduating</p>
+            {% endif%}
             {% if input_validity == True %}
                 <a href="{% url 'new-client'%}">Client not found, create new client?</a>
             {% endif%}
+            
     </div>
     <div>
         {% if client %}

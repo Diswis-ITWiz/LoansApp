@@ -59,10 +59,17 @@ def loanItemClientFinder(request):
             context = {'input_validity': invalidInput}
             return render(request, 'base/Home-Item/find_client.html', context)
         
+
+        # Check if Graduating senior:
+        if client.gradwaiting == True:
+            context = {'gradwaiting': True}
+            return render(request, 'base/Home-Item/find_client.html', context)
+
         if client.borrowing == True:
             context = {'client': client, 'borrowingStatus': True}
         else:
             context = {'client':client}
+
         return render(request, 'base/Home-Item/find_client.html', context)
     return render(request, 'base/Home-Item/find_client.html', context)
 

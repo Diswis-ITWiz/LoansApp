@@ -10,13 +10,11 @@ class LoanItem(models.Model):
     LOANEDOUT = "LO"
     DAMAGED = "DM"
     LOST = "L"
-    RESERVE = "R"
     ITEM_STATUS = {
         INSTORAGE: 'In-Storage',
         LOANEDOUT: 'Loaned-Out', 
         DAMAGED: 'Damaged',
         LOST: 'Lost',
-        RESERVE: 'Reserved',
     }
     status = models.CharField(max_length=2, choices=ITEM_STATUS, default=INSTORAGE)
 
@@ -37,6 +35,7 @@ class Client(models.Model):
 
     course = models.CharField(max_length=50, null=False)
     graduating = models.BooleanField(default=False)
+    gradwaiting = models.BooleanField(default=False) #Boolean Value for graduating seniors
     dswsMemReg = models.CharField(max_length=50, null=False)
     dateReg = models.DateTimeField(auto_now_add=True)
 
@@ -68,12 +67,12 @@ class Transaction(models.Model):
     
     ONGOING = 'OG'
     COMPLETE = 'C'
-    UNRETURNED = 'UR'
+    DAMAGED = 'DM'
     LOST = 'L'
     TRANSACTION_STATUS = {
         ONGOING: 'On-going',
         COMPLETE: 'Complete',
-        UNRETURNED:'Unreturned',
+        DAMAGED:'Unreturned',
         LOST: 'Lost'
     }
     status = models.CharField(max_length=2, choices=TRANSACTION_STATUS, default=ONGOING)
