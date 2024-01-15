@@ -22,7 +22,6 @@ def newClient(request):
         try:
             client= Client.objects.get(clientId = request.POST.get('clientId'))
             context = {'form': form, 'duplicate': True}
-            return render(request, 'base/new_client.html', context)
         except Client.DoesNotExist:
             Client.objects.create(
                 clientId = request.POST.get('clientId'),
@@ -38,7 +37,8 @@ def newClient(request):
                 dswsMemReg = request.POST.get('dswsMemReg')
             )
             return redirect('home')
-    context = {'form': form}
+    else:
+        context = {'form': form}
     return render(request, 'base/Home-Client/new_client.html', context)
 
 
