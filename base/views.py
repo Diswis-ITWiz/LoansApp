@@ -461,7 +461,12 @@ def finalsWeek(request):
         return redirect('admin-dashboard')
     return render(request, 'base/Admin-Blockout/finals_week.html')
 
-
+def blockGraduating(request):
+    if request.method == 'POST':
+        clients = Client.objects.filter(graduating=True).update(gradwaiting=True)
+        return redirect('admin-dashboard')
+    return render(request, 'base/Admin-Blockout/block_graduating.html')
+    
 
 
 
