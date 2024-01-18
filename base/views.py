@@ -1,7 +1,7 @@
 from typing import Any
 from django.shortcuts import render, redirect
 from .forms import ClientForm, LoanItemForm
-from .models import Client, LoanItem, Transaction, ReturnItem, BlockOutDate, BlockOutTime
+from .models import Client, LoanItem, Transaction, BlockOutDate, BlockOutTime
 from datetime import datetime, timedelta
 from django.db.models import Q
 from django.utils import timezone
@@ -31,10 +31,10 @@ def newClient(request):
                 suffix = request.POST.get('suffix'),
                 contactNum = request.POST.get('contactNum'),
                 email = request.POST.get('email'),
-                yearLvl = request.POST.get('yearLvl'),
+                yearLevel = request.POST.get('yearLevel'),
                 course = request.POST.get('course'),
                 graduating = graduatingStatus,
-                dswsMemReg = request.POST.get('dswsMemReg')
+                dswsMemRegName = request.POST.get('dswsMemRegName')
             )
             return redirect('home')
     else:
@@ -54,9 +54,9 @@ def loanItemClientFinder(request):
         try:
             client = Client.objects.get(clientId__exact=q)
             # Check if Graduating senior or has currently borrowed an Item:
-            if client.gradwaiting == True or client.borrowing == True:
+            if client.gradWaiting == True or client.borrowing == True:
                 print('First one works')
-                context = {'client': client, 'borrowingStatus': client.borrowing, 'gradwaiting': client.gradwaiting}
+                context = {'client': client, 'borrowingStatus': client.borrowing, 'gradWaiting': client.gradWaiting}
             else:
                 context = {'client':client}
         except Client.DoesNotExist:
@@ -164,13 +164,13 @@ def loanItemTransaction(request, pk):
             clientId = client,
             itemCat = selectedItem,
             dateLoaned = time,
-            dateDue = dueDate,
-            dswsMemLoan = request.POST.get('dswsMemLoan'),
-            remarks = request.POST.get('remarks'),
+            dueDate = dueDate,
+            dswsMemLoanName = request.POST.get('dswsMemLoan'),
+            loanRemarks = request.POST.get('remarks'),
         )
 
-        client.lastBorrowed = time
-        client.lastItem = selectedItem
+        client.lastBorrowedDate = time
+        client.lastBorrowedItem = selectedItem
         client.borrowing = True
         client.save()
 
@@ -224,24 +224,17 @@ def returnItem2(request, pk):
     loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
     if request.method == 'POST':
         # Create ReturnItem Instance in DB
-        returnItem = ReturnItem.objects.create(
-            dateReturned = datetime.now(),
-            overdueDays = 0,
-            overdueHours = 0,
-            overdueMinutes = 0 ,
-            dswsMemRet = request.POST.get('dswsMemRet'),
-            remarks = request.POST.get('remarks'),
-            transactionId = transaction,
-            clientId = client,
-            itemCat = loanedItem,
-        )
-        returnItem.save()
-
+        transaction.dateReturned = datetime.now()
+        transaction.overdueDays = 0
+        transaction.overdueHours = 0
+        transaction.overdueMinutes = 0
+        transaction.dswsMemRetName = request.POST.get('dswsMemRet')
+        transaction.returnRemarks = request.POST.get('remarks')
+        transaction.status = 'C'
+        transaction.save()
         # Modify the statuses of the respective client, transaction, and loanItem
         client.borrowing = False
         client.save()
-        transaction.status = 'C'
-        transaction.save()
         loanedItem.status = 'IS'
         loanedItem.save()
 
@@ -264,7 +257,7 @@ def ifNoClasses(duedate, hasWednesdayClasses):
         if duedate.weekday() == 5 or duedate.weekday() == 6 or duedate.weekday() == 2:
             return True
     try:
-        blockedDate = BlockOutDate.objects.get(dateblocked=duedate.date())
+        blockedDate = BlockOutDate.objects.get(dateBlocked=duedate.date())
         return True
     except BlockOutDate.DoesNotExist:
         return False
@@ -328,7 +321,7 @@ def editItem(request, pk):
         item.description = request.POST.get('description')
         item.status = request.POST.get('status')
         item.save()
-        return redirect('item-details', pk=item.itemCat)
+        return redirect('item-panel')
     else:
         form = LoanItemForm(instance=item)
     context = {'form': form}
@@ -375,7 +368,7 @@ def editClient(request, pk):
         client.middleInitial = request.POST.get('middleInitial')
         client.lastName = request.POST.get('lastName')
         client.suffix = request.POST.get('suffix')
-        client.yearLvl = request.POST.get('yearLvl')
+        client.yearLevel = request.POST.get('yearLevel')
         client.course = request.POST.get('course')
         if request.POST.get('graduating') == 'on':
                 graduatingStatus = True
@@ -396,7 +389,7 @@ def liftClientPenalty(request, pk):
         client.temporaryBlackList = False
         client.blackListed = False
         client.holdOrder = False
-        client.fine = 0
+        client.fineAmount = 0
         client.tblStart = None
         client.tblEnd = None 
         client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
@@ -414,7 +407,7 @@ def blockOutDate(request):
     if request.method == 'POST':
         date = datetime.strptime(request.POST.get('dateInput',), '%Y-%m-%d')
         blockOutDate = BlockOutDate.objects.create(
-            dateblocked = date,
+            dateBlocked = date,
             description = request.POST.get('descriptionInput')
         )
         return redirect('admin-dashboard')
@@ -448,10 +441,10 @@ def finalsWeek(request):
         while weekday:
             print(dateWeekDay)
             try:
-                blockedDate = BlockOutDate.objects.get(dateblocked=date.date())
+                blockedDate = BlockOutDate.objects.get(dateBlocked=date.date())
             except BlockOutDate.DoesNotExist:    
                 blockOutDate = BlockOutDate.objects.create(
-                    dateblocked = date.date(),
+                    dateBlocked = date.date(),
                     description = 'FINALS'
                 )
             date += timedelta(days=1)
@@ -463,7 +456,7 @@ def finalsWeek(request):
 
 def blockGraduating(request):
     if request.method == 'POST':
-        clients = Client.objects.filter(graduating=True).update(gradwaiting=True)
+        clients = Client.objects.filter(graduating=True).update(gradWaiting=True)
         return redirect('admin-dashboard')
     return render(request, 'base/Admin-Blockout/block_graduating.html')
     

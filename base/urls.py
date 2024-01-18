@@ -25,6 +25,7 @@ urlpatterns = [
 
     path('block-date', views.blockOutDate, name='block-date'),
     path('block-time', views.blockOutTime, name='block-time'),
-    path('finals-week', views.finalsWeek, name='finals-week'),
     path('block-graduating', views.blockGraduating, name='block-gradwaiting'),
+    path('finals-week', views.finalsWeek, name='finals-week'),
+    
 ]

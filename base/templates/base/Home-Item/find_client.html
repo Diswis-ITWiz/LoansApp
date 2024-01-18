@@ -28,7 +28,7 @@
             {% if borrowingStatus %}
                 <p>UNFULFILLED TRANSACTION: PREVIOUS ITEM HAS NOT BEEN RETURNED</p>
             {% endif %}
-            {% if gradwaiting %}
+            {% if gradWaiting %}
                 <p>Client is Graduating</p>
             {% endif%}
             {% if input_validity == True %}
@@ -46,7 +46,7 @@
                 <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}." readonly>
             {%endif%}
 
-        <input type="text" value="{{client.yearLvl}}" readonly>
+        <input type="text" value="{{client.yearLevel}}" readonly>
         <input type="text" value="{{client.course}}" readonly>
         <input type="text" value="{{client.graduating}}" readonly>
         <input type="text" value="{{client.email}}" readonly>
@@ -62,7 +62,7 @@
         {% else %}
         <input type="text" placeholder="Client ID" readonly>
         <input type="text" placeholder="Name" readonly>
-        <input type="text" placeholder="Yr Lvl" readonly>
+        <input type="text" placeholder="Yr Level" readonly>
         <input type="text" placeholder="Course" readonly>
         <input type="text" placeholder="Graduating" readonly>
         <input type="text" placeholder="Email" readonly>

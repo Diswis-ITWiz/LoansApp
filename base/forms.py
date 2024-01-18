@@ -6,10 +6,11 @@ class ClientForm(ModelForm):
     class Meta:
         model = Client
         fields = '__all__'
-        exclude = ['borrowing', 'warningCount', 'status', 'dateReg', 
-                   'lastBorrowed', 'lastItem', 'HOcount', 'BLcount',
-                   'excuseLetter', 'holdOrder', 'blackListed', 'fine', 
-                    'temporaryBlackList', 'tblStart','tblEnd',] 
+        exclude = ['borrowing', 'warningCount', 'status', 'dateReg',
+                   'gradWaiting', 'lastBorrowedDate', 'lastBorrowedItem', 'HOcount', 
+                   'BLcount','excuseLetter', 'holdOrder', 'blackListed', 
+                    'fineAmount', 'temporaryBlackList', 'tblStart','tblEnd',
+                    ] 
 
 class LoanItemForm(ModelForm):
     class Meta:

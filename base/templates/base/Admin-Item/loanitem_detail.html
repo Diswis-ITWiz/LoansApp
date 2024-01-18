@@ -11,8 +11,6 @@
     <p>{{item.status}}</p>
     <p>{{item.lastClient}}</p>
     <br>
-    <a href="{% url 'edit-item' item.itemCat %}">Edit Item</a>
-    <a href="{% url 'delete-item' item.itemCat %}">Delete Item</a>
     <table>
         <tr>
             <th>Client</th>
@@ -32,10 +30,10 @@
             </td>
             <td>{{transaction.status}}</td>
             <td>{{transaction.dateLoaned}}</td>
-            <td>{{transaction.dateDue}}</td>
-            <td>{{transaction.dswsMemLoan}}</td>
-            <td>{{transaction.returnitem.dateReturned}}</td>
-            <td>{{transaction.returnitem.dswsMemRet}}</td>
+            <td>{{transaction.dueDate}}</td>
+            <td>{{transaction.dswsMemLoanName}}</td>
+            <td>{{transaction.dateReturned}}</td>
+            <td>{{transaction.dswsMemRetName}}</td>
 
         </tr>
         {% endfor%}

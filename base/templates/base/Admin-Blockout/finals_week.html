@@ -10,6 +10,7 @@
         {% csrf_token %}
         <p>Set Date format as YYYY-MM-DD</p>
         <input type="date" name="firstDay" placeholder="First Day">
+        <button type="submit">Submit</button>
     </form>
     <a href="{% url 'admin-dashboard' %}">Cancel</a>
 </body>

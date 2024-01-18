@@ -38,10 +38,10 @@
                 <td>{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix|default_if_none:""}}</td>
                 <td>{{client.contactNum}}</td>
                 <td>{{client.email}}</td>
-                <td>{{client.yearLvl}}-{{client.course}}</td>
+                <td>{{client.yearLevel}}-{{client.course}}</td>
                 <td>{{client.graduating|yesno:"Yes,No"}}</td>
-                <td>{{client.lastItem.itemCat}}</td>
-                <td>{{client.lastBorrowed}}</td>
+                <td>{{client.lastBorrowedItem.itemCat}}</td>
+                <td>{{client.lastBorrowedDate}}</td>
                 <td>{{client.borrowing|yesno:"Borrowing,Free"}}</td>
                 <td>
                     <a href="{% url 'edit-client' client.clientId%}">Edit</a>

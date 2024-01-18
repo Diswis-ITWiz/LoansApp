@@ -9,7 +9,7 @@
     <h1>{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix|default_if_none:""}}</h1>
     <p>Id No: {{client.clientId}} | Yr & Course: {{client.yearLvl}}-{{client.course}} | Graduating: {{client.graduating|yesno:"Yes,No"}}</p>
     <p>Email: {{client.email}} | Contact: {{client.contactNum}}</p>
-    <p>{{client.dswsMemReg}} | {{client.dateReg}}</p>
+    <p>{{client.dswsMemRegName}} | {{client.regDate}}</p>
     <p>Borrowing: {{client.borrowing|yesno:"Borrowing,Free"}} Last Item: {{client.lastItem.itemCat}} Date: {{client.lastBorrowed}}</p>
     <p>Warning Count: {{client.warningCount}}</p>
     <p>Penalty Status: {{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}</p>
@@ -39,10 +39,10 @@
                 </td>
                 <td>{{transaction.status}}</td>
                 <td>{{transaction.dateLoaned}}</td>
-                <td>{{transaction.dateDue}}</td>
-                <td>{{transaction.dswsMemLoan}}</td>
-                <td>{{transaction.returnitem.dateReturned}}</td>
-                <td>{{transaction.returnitem.dswsMemRet}}</td>
+                <td>{{transaction.dueDate}}</td>
+                <td>{{transaction.dswsMemLoanName}}</td>
+                <td>{{transaction.dateReturned}}</td>
+                <td>{{transaction.dswsMemRetName}}</td>
 
             </tr>
             {% endfor%}
