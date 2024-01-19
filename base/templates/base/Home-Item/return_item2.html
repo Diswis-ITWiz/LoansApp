@@ -3,7 +3,13 @@
     <input type="text" value="{{client.clientId}}">
     <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}.">
     <input type="text" value="{{loanedItem.itemCat}}">
+    <p>Item Type: {{itemType}}</p>
     <input type="text" value="{{transaction.dueDate}}">
+    {% if itemType == A %}
+    <input type="number" name="overDueDays" value="{{overDueDays}}">
+    {% else %}
+    <input type="number" name="overDueDays" value='0'>
+    {% endif %}
     <input type="text" name="dswsMemRet" placeholder="dswsMemLoan">
     <input type="text" name="remarks" placeholder="remarks">
     <button type="submit" value="submit">Confirm</button>
