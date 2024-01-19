@@ -131,6 +131,7 @@ def loanItemTransaction(request, pk):
         else:
             itemType = 'B'
             # Check if the client cannot return the item before closing time
+            dateDue += timedelta(hours=2)
             if dateDue >= closingtime:
                 dateDue += timedelta(days=1)
                 tempDateDue = dateDue.replace(hour=11, minute=00)
@@ -150,7 +151,6 @@ def loanItemTransaction(request, pk):
                    'dateDue': dateDue, 
                    'selectedItem': selectedItem}
         return render (request, 'base/Home-Item/loan_item_transaction.html', context)
-    
     if request.method == 'POST':
         selectedItem = items.get(itemCat__exact=request.POST.get('itemCat'))
         time = request.POST.get('hiddendateloaned')
@@ -163,19 +163,15 @@ def loanItemTransaction(request, pk):
             dswsMemLoanName = request.POST.get('dswsMemLoan'),
             loanRemarks = request.POST.get('remarks'),
         )
-
         client.lastBorrowedDate = time
         client.lastBorrowedItem = selectedItem
         client.borrowing = True
         client.save()
-
         selectedItem.lastClient = client.clientId
         selectedItem.status = 'LO'
         selectedItem.save()
-
         return redirect('home')
     
-
     # Standard Loading of Resources of View
     context = {'client': client, 'items': items}
     return render(request, 'base/Home-Item/loan_item_transaction.html', context)
@@ -217,10 +213,19 @@ def returnItem2(request, pk):
     transaction = Transaction.objects.get(id=pk)
     client = Client.objects.get(clientId=transaction.clientId.clientId)
     loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
+    overDueDays = 0
+    if checkItemType(loanedItem.itemCat) == 'A':
+        overDueDays = getItemTypeAOverdueDays(transaction.dueDate)
+    else:
+        print('Item Type B')
+    penalty = calculateTypeAPenalty(overDueDays, client)
+
+
+
     if request.method == 'POST':
         # Modify Transaction Instance in DB
-        transaction.dateReturned = datetime.now() #Timezone now
-        transaction.overdueDays = 0
+        transaction.dateReturned = timezone.localtime(timezone.now())
+        transaction.overdueDays = request.POST.get('overDueDays')
         transaction.overdueHours = 0
         transaction.overdueMinutes = 0
         transaction.dswsMemRetName = request.POST.get('dswsMemRet')
@@ -232,11 +237,14 @@ def returnItem2(request, pk):
         client.save()
         loanedItem.status = 'IS'
         loanedItem.save()
-        # getItemTypeAOverdueHours(transaction.dueDate)
-        print(calculateTypeAPenalty(4, client))
+        # # getItemTypeAOverdueHours(transaction.dueDate)
+        # print(calculateTypeAPenalty(4, client))
         return redirect('home')
     
-    context = {'transaction':transaction, 'client':client, 'loanedItem':loanedItem}
+    context = {'transaction':transaction, 'client':client, 
+               'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
+               'penalty': penalty, 'overDueDays': overDueDays}
+
     return render(request, 'base/Home-Item/return_item2.html', context)
 
 
@@ -272,14 +280,12 @@ def checkItemType(itemCat):
         return 'A'
     return 'B'
 
-def getItemTypeAOverdueHours(dueDate):
+def getItemTypeAOverdueDays(dueDate):
     formattedDueDate = dueDate.date()
     returnDate = timezone.localtime(timezone.now()).date()
     busdays = np.busday_count(formattedDueDate, returnDate)
     blockedDays = BlockOutDate.objects.filter(dateBlocked__range=[formattedDueDate, returnDate]).count()
     totaldays = busdays + 1 - blockedDays
-    print("Number of days:")
-    print(totaldays)
     return totaldays
     
 def calculateTypeAPenalty(overDueDays, client):
@@ -318,7 +324,18 @@ def calculateTypeAPenalty(overDueDays, client):
     client.save()
     return penalty
 
-
+def getItemTypeBOverdueTime(dueDate):
+    # Check if returned on same date of due date
+        # Check if the return date <=  to due date  
+        # Check if on same day and the due date < return date < closing time
+    # 
+    # 
+    # 
+    # 
+    # 
+    return True
+def calculateTypeBPenalty(overdueHours, client):
+    return True
 
 
 # ADMIN PANELS
