@@ -1,11 +1,12 @@
 from typing import Any
 from django.shortcuts import render, redirect
-from .forms import ClientForm, LoanItemForm
+from .forms import ClientForm, LoanItemForm, LoanItemEditForm
 from .models import Client, LoanItem, Transaction, BlockOutDate, BlockOutTime
 from datetime import datetime, timedelta
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.timezone import localtime
+import numpy as np
 # Create your views here.
 
 def home(request):
@@ -112,10 +113,10 @@ def loanItemTransaction(request, pk):
         itemCat = selectedItem.itemCat
         checkedWedBox = request.GET.get('hasWednesdayClasses')
         hasWednesdayClasses = True if checkedWedBox == 'on' else False
-
+        itemType = ''
         # Item type A - borrow for a whole day
-        if (itemCat.startswith('B') or itemCat.startswith('C') or itemCat.startswith('D') 
-            or itemCat.startswith('TR') or itemCat.startswith('U')):
+        if checkItemType(itemCat) == 'A':
+            itemType = 'A'
             dateDue += timedelta(days=1)
 
             # Keep adding 1 day to dateDue until we find a valid date
@@ -123,35 +124,29 @@ def loanItemTransaction(request, pk):
                 dateDue += timedelta(days=1)
             
             # Set Closing Time of due date
-            tempDateDue = None
-            if dateDue.weekday() == 2:
-                tempDateDue = dateDue.replace(hour=14, minute=00)
-            else:
-                tempDateDue = dateDue.replace(hour=17, minute=00)
+            tempDateDue = getClosingTime(dateDue)
             dateDue = tempDateDue
+
         # Item type B - borrow for only 2 hours
         else:
+            itemType = 'B'
             # Check if the client cannot return the item before closing time
             if dateDue >= closingtime:
                 dateDue += timedelta(days=1)
                 tempDateDue = dateDue.replace(hour=11, minute=00)
                 dateDue = tempDateDue
-                
                 while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
                     dateDue += timedelta(days=1)
                     tempDateDue = dateDue.replace(hour=11, minute=00, second=00, microsecond=00)
-                    dateDue = tempDateDue
-                    
+                    dateDue = tempDateDue                
             else:
                 dateDue += timedelta(hours=2)
                 while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
                     dateDue += timedelta(days=1)
                     tempDateDue = dateDue.replace(hour=11, minute=00, second=00, microsecond=00)
                     dateDue = tempDateDue
-
-        
         context = {'client': client, 'items': items, 
-                   'time': time,
+                   'time': time, 'itemType': itemType,
                    'dateDue': dateDue, 
                    'selectedItem': selectedItem}
         return render (request, 'base/Home-Item/loan_item_transaction.html', context)
@@ -223,8 +218,8 @@ def returnItem2(request, pk):
     client = Client.objects.get(clientId=transaction.clientId.clientId)
     loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
     if request.method == 'POST':
-        # Create ReturnItem Instance in DB
-        transaction.dateReturned = datetime.now()
+        # Modify Transaction Instance in DB
+        transaction.dateReturned = datetime.now() #Timezone now
         transaction.overdueDays = 0
         transaction.overdueHours = 0
         transaction.overdueMinutes = 0
@@ -237,7 +232,8 @@ def returnItem2(request, pk):
         client.save()
         loanedItem.status = 'IS'
         loanedItem.save()
-
+        # getItemTypeAOverdueHours(transaction.dueDate)
+        print(calculateTypeAPenalty(4, client))
         return redirect('home')
     
     context = {'transaction':transaction, 'client':client, 'loanedItem':loanedItem}
@@ -266,11 +262,61 @@ def getClosingTime(time):
     dayofweek = time.weekday()
     closingtime = time
     if dayofweek == 2:
-        closingtime.replace(hour=14, minute=00)
+        return closingtime.replace(hour=14, minute=00)
     else:
-        closingtime.replace(hour=17, minute=00)
-    return closingtime
+        return closingtime.replace(hour=17, minute=00)
 
+def checkItemType(itemCat):
+    if (itemCat.startswith('B') or itemCat.startswith('C') or itemCat.startswith('D') 
+            or itemCat.startswith('TR') or itemCat.startswith('U')):
+        return 'A'
+    return 'B'
+
+def getItemTypeAOverdueHours(dueDate):
+    formattedDueDate = dueDate.date()
+    returnDate = timezone.localtime(timezone.now()).date()
+    busdays = np.busday_count(formattedDueDate, returnDate)
+    blockedDays = BlockOutDate.objects.filter(dateBlocked__range=[formattedDueDate, returnDate]).count()
+    totaldays = busdays + 1 - blockedDays
+    print("Number of days:")
+    print(totaldays)
+    return totaldays
+    
+def calculateTypeAPenalty(overDueDays, client):
+    penalty = ""
+    if client.warningCount > 3:
+        client.blackListed = True
+        client.BLcount += 1
+        client.holdOrder = True
+        client.HOcount += 1
+        client.fineAmount = 1000
+        client.excuseLetter = True
+        penalty = "Black Listed\n Hold Order\n PHP 1000 Fine, EL"
+    elif 1 <= overDueDays <= 3:
+        client.warningCount = client.warningCount + 1
+        penalty = "Warning"
+    elif 4 <= overDueDays <= 10:
+        startDate = timezone.localtime(timezone.now())
+        print(startDate)
+        endDate = startDate + timedelta(days=14)
+        client.temporaryBlackList = True
+        client.tblStart = startDate
+        client.tblEnd = endDate
+        client.excuseLetter = True
+        penalty = "TBL, EL"
+    elif overDueDays > 10:
+        startDate = timezone.localtime(timezone.now())
+        endDate = startDate + timedelta(days=14)
+        client.temporaryBlackList = True
+        client.tblStart = startDate
+        client.tblEnd = endDate
+        client.holdOrder = True
+        client.HOcount += 1
+        client.fineAmount = 500
+        client.excuseLetter = True
+        penalty = 'TBL, HO, PHP 500 Fine, EL'
+    client.save()
+    return penalty
 
 
 
@@ -323,7 +369,7 @@ def editItem(request, pk):
         item.save()
         return redirect('item-panel')
     else:
-        form = LoanItemForm(instance=item)
+        form = LoanItemEditForm(instance=item)
     context = {'form': form}
     return render(request, 'base/Admin-Item/edit_item.html', context)
 

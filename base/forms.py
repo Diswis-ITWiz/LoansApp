@@ -16,6 +16,13 @@ class LoanItemForm(ModelForm):
     class Meta:
         model = LoanItem
         fields = '__all__'
+        exclude = ['dateReg', 'lastClient', 'status']
+        
+
+class LoanItemEditForm(ModelForm):
+    class Meta:
+        model = LoanItem
+        fields = '__all__'
         exclude = ['dateReg', 'lastClient']
 
         
