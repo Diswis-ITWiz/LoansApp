@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.timezone import localtime
 import numpy as np
+import math
 # Create your views here.
 
 def home(request):
@@ -56,7 +57,6 @@ def loanItemClientFinder(request):
             client = Client.objects.get(clientId__exact=q)
             # Check if Graduating senior or has currently borrowed an Item:
             if client.gradWaiting == True or client.borrowing == True:
-                print('First one works')
                 context = {'client': client, 'borrowingStatus': client.borrowing, 'gradWaiting': client.gradWaiting}
             else:
                 context = {'client':client}
@@ -213,12 +213,13 @@ def returnItem2(request, pk):
     transaction = Transaction.objects.get(id=pk)
     client = Client.objects.get(clientId=transaction.clientId.clientId)
     loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
-    overDueDays = 0
+    overdueDays = 0
     if checkItemType(loanedItem.itemCat) == 'A':
-        overDueDays = getItemTypeAOverdueDays(transaction.dueDate)
+        overdueDays = getItemTypeAOverdueDays(transaction.dueDate)
     else:
-        print('Item Type B')
-    penalty = calculateTypeAPenalty(overDueDays, client)
+        # overdueHours, overdueMinutes = getItemTypeBOverdueTime(transaction.dueDate)
+        overdueHours, overdueMinutes = getItemTypeBOverdueTime(transaction.dateLoaned)
+    penalty = calculateTypeAPenalty(overdueDays, client)
 
 
 
@@ -237,13 +238,12 @@ def returnItem2(request, pk):
         client.save()
         loanedItem.status = 'IS'
         loanedItem.save()
-        # # getItemTypeAOverdueHours(transaction.dueDate)
-        # print(calculateTypeAPenalty(4, client))
+
         return redirect('home')
     
     context = {'transaction':transaction, 'client':client, 
                'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
-               'penalty': penalty, 'overDueDays': overDueDays}
+               'penalty': penalty, 'overDueDays': overdueDays}
 
     return render(request, 'base/Home-Item/return_item2.html', context)
 
@@ -325,15 +325,22 @@ def calculateTypeAPenalty(overDueDays, client):
     return penalty
 
 def getItemTypeBOverdueTime(dueDate):
-    # Check if returned on same date of due date
-        # Check if the return date <=  to due date  
-        # Check if on same day and the due date < return date < closing time
-    # 
-    # 
-    # 
-    # 
-    # 
-    return True
+    returnDate = timezone.localtime(timezone.now())
+    # RETURN DATE < DUEDATE
+    if returnDate <= dueDate:
+        print('condition1')
+        overdueHours = 0
+        overdueMinutes = 0
+        return overdueHours, overdueMinutes
+    # SAME DAY: RETURN DATE > DUEDATE
+    elif (returnDate > dueDate) and returnDate.date() == dueDate.date():
+        difference = returnDate - dueDate #difference is timedelta
+        overdueHours = math.floor(3600/difference.total_seconds())
+        overdueMinutes = math.floor((difference.seconds//60)%60)
+        return overdueHours, overdueMinutes
+    # !SAME DAY: RETURN DATE > DUEDATE
+    else:
+        return 0, 0
 def calculateTypeBPenalty(overdueHours, client):
     return True
 
@@ -502,7 +509,6 @@ def finalsWeek(request):
         dateWeekDay =  date.weekday()
         weekday = True
         while weekday:
-            print(dateWeekDay)
             try:
                 blockedDate = BlockOutDate.objects.get(dateBlocked=date.date())
             except BlockOutDate.DoesNotExist:    
