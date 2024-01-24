@@ -112,7 +112,7 @@ def loanItemTransaction(request, pk):
         dateDue = time
         itemCat = selectedItem.itemCat
         checkedWedBox = request.GET.get('hasWednesdayClasses')
-        hasWednesdayClasses = True if checkedWedBox == 'on' else False
+        hasWednesdayClasses = True if (checkedWedBox == 'on' or time.weekday() == 2) else False
         itemType = ''
         # Item type A - borrow for a whole day
         if checkItemType(itemCat) == 'A':
@@ -141,7 +141,6 @@ def loanItemTransaction(request, pk):
                     tempDateDue = dateDue.replace(hour=11, minute=00, second=00, microsecond=00)
                     dateDue = tempDateDue                
             else:
-                dateDue += timedelta(hours=2)
                 while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
                     dateDue += timedelta(days=1)
                     tempDateDue = dateDue.replace(hour=11, minute=00, second=00, microsecond=00)
