@@ -213,12 +213,16 @@ def returnItem2(request, pk):
     client = Client.objects.get(clientId=transaction.clientId.clientId)
     loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
     overdueDays = 0
+    overdueHours = 0
+    overdueMinutes = 0
+    penalty = ''
     if checkItemType(loanedItem.itemCat) == 'A':
         overdueDays = getItemTypeAOverdueDays(transaction.dueDate)
+        penalty = calculateTypeAPenalty(overdueDays, client)
     else:
-        # overdueHours, overdueMinutes = getItemTypeBOverdueTime(transaction.dueDate)
-        overdueHours, overdueMinutes = getItemTypeBOverdueTime(transaction.dateLoaned)
-    penalty = calculateTypeAPenalty(overdueDays, client)
+        overdueHours, overdueMinutes = getItemTypeBOverdueTime(transaction.dueDate)
+        penalty = calculateTypeBPenalty(overdueHours, client)
+    
 
 
 
@@ -242,7 +246,9 @@ def returnItem2(request, pk):
     
     context = {'transaction':transaction, 'client':client, 
                'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
-               'penalty': penalty, 'overDueDays': overdueDays}
+               'penalty': penalty, 'overDueDays': overdueDays, 'overDueHours': overdueHours, 
+               'overdueMinutes': overdueMinutes}
+
 
     return render(request, 'base/Home-Item/return_item2.html', context)
 
@@ -269,9 +275,9 @@ def getClosingTime(time):
     dayofweek = time.weekday()
     closingtime = time
     if dayofweek == 2:
-        return closingtime.replace(hour=14, minute=00)
+        return closingtime.replace(hour=14, minute=00, second=00, microsecond=00)
     else:
-        return closingtime.replace(hour=17, minute=00)
+        return closingtime.replace(hour=17, minute=00, second=00, microsecond=00)
 
 def checkItemType(itemCat):
     if (itemCat.startswith('B') or itemCat.startswith('C') or itemCat.startswith('D') 
@@ -326,22 +332,78 @@ def calculateTypeAPenalty(overDueDays, client):
 def getItemTypeBOverdueTime(dueDate):
     returnDate = timezone.localtime(timezone.now())
     # RETURN DATE < DUEDATE
-    if returnDate <= dueDate:
+    if returnDate <= localtime(dueDate):
         print('condition1')
         overdueHours = 0
         overdueMinutes = 0
         return overdueHours, overdueMinutes
     # SAME DAY: RETURN DATE > DUEDATE
-    elif (returnDate > dueDate) and returnDate.date() == dueDate.date():
-        difference = returnDate - dueDate #difference is timedelta
-        overdueHours = math.floor(3600/difference.total_seconds())
+    elif (returnDate > localtime(dueDate)) and returnDate.date() == dueDate.date():
+        print('condition 2')
+        difference = returnDate - localtime(dueDate) #difference is timedelta
+        overdueHours = math.floor(difference.total_seconds()//3600)
         overdueMinutes = math.floor((difference.seconds//60)%60)
         return overdueHours, overdueMinutes
     # !SAME DAY: RETURN DATE > DUEDATE
     else:
-        return 0, 0
+        # Due Date Closing time - Due Date time
+        dueDateClosingTime = getClosingTime(localtime(dueDate))       
+        overDueTime = dueDateClosingTime - dueDate
+
+
+        dayBetween = localtime(dueDate)
+        while returnDate.date() > dayBetween.date():
+            dayBetween += timedelta(days=1)
+            if not ifNoClasses(dayBetween, True):
+                officeHours = timedelta(hours=7, minutes=30) if dayBetween.weekday() != 2 else timedelta(hours=4, minutes=30)
+                overDueTime += officeHours
+
+
+        returnDateOpeningTime = returnDate
+        returnDateDifference = returnDate - returnDateOpeningTime.replace(hour=9, minute=30, second=0, microsecond=0)
+        overDueTime += returnDateDifference
+        overdueHours = math.floor(overDueTime.total_seconds()//3600)
+        print(overdueHours)
+        overdueMinutes = math.floor((overDueTime.seconds//60)%60)
+        print(overdueMinutes)
+        return overdueHours, overdueMinutes
+
+
 def calculateTypeBPenalty(overdueHours, client):
-    return True
+    penalty = ""
+    if client.warningCount == 3:
+        client.blackListed = True
+        client.BLcount += 1
+        client.holdOrder = True
+        client.HOcount += 1
+        client.fineAmount = 1000
+        client.excuseLetter = True
+    elif 3 <= overdueHours <= 5:
+        client.warningCount +=1
+        penalty = 'Warning'
+    elif 6 <= overdueHours <= 10:
+        startDate = timezone.localtime(timezone.now())
+        print(startDate)
+        endDate = startDate + timedelta(days=14)
+        client.temporaryBlackList = True
+        client.tblStart = startDate
+        client.tblEnd = endDate
+        client.excuseLetter = True
+        penalty = "TBL, EL"
+    elif overdueHours > 10:
+        startDate = timezone.localtime(timezone.now())
+        endDate = startDate + timedelta(days=14)
+        client.temporaryBlackList = True
+        client.tblStart = startDate
+        client.tblEnd = endDate
+        client.holdOrder = True
+        client.HOcount += 1
+        client.fineAmount = 500
+        client.excuseLetter = True
+        penalty = 'TBL, HO, PHP 500 Fine, EL'
+    client.save()
+    return penalty 
+
 
 
 # ADMIN PANELS
