@@ -69,7 +69,7 @@ def loanItemClientFinder(request):
 
 def loanItemTransaction(request, pk):
     client = Client.objects.get(clientId__exact=pk)
-    items = LoanItem.objects.all()
+    items = LoanItem.objects.filter(status='IS')
     time = None
     closingtime = None
     dateDue = None
@@ -217,11 +217,11 @@ def returnItem2(request, pk):
     overdueMinutes = 0
     penalty = ''
     if checkItemType(loanedItem.itemCat) == 'A':
-        overdueDays = getItemTypeAOverdueDays(transaction.dueDate)
+        overdueDays = getItemTypeAOverdueDays(localtime(transaction.dueDate))
         penalty = calculateTypeAPenalty(overdueDays, client)
     else:
-        overdueHours, overdueMinutes = getItemTypeBOverdueTime(transaction.dueDate)
-        penalty = calculateTypeBPenalty(overdueHours, client)
+        overdueHours, overdueMinutes = getItemTypeBOverdueTime(localtime(transaction.dueDate))
+        penalty = calculateTypeBPenalty(overdueHours,overdueMinutes, client)
     
 
 
@@ -230,8 +230,8 @@ def returnItem2(request, pk):
         # Modify Transaction Instance in DB
         transaction.dateReturned = timezone.localtime(timezone.now())
         transaction.overdueDays = request.POST.get('overDueDays')
-        transaction.overdueHours = 0
-        transaction.overdueMinutes = 0
+        transaction.overdueHours = request.POST.get('overDueHours')
+        transaction.overdueMinutes = request.POST.get('overDueMinutes')
         transaction.dswsMemRetName = request.POST.get('dswsMemRet')
         transaction.returnRemarks = request.POST.get('remarks')
         transaction.status = 'C'
@@ -247,7 +247,7 @@ def returnItem2(request, pk):
     context = {'transaction':transaction, 'client':client, 
                'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
                'penalty': penalty, 'overDueDays': overdueDays, 'overDueHours': overdueHours, 
-               'overdueMinutes': overdueMinutes}
+               'overDueMinutes': overdueMinutes}
 
 
     return render(request, 'base/Home-Item/return_item2.html', context)
@@ -288,6 +288,8 @@ def checkItemType(itemCat):
 def getItemTypeAOverdueDays(dueDate):
     formattedDueDate = dueDate.date()
     returnDate = timezone.localtime(timezone.now()).date()
+    if returnDate <= formattedDueDate:
+        return 0
     busdays = np.busday_count(formattedDueDate, returnDate)
     blockedDays = BlockOutDate.objects.filter(dateBlocked__range=[formattedDueDate, returnDate]).count()
     totaldays = busdays + 1 - blockedDays
@@ -333,14 +335,19 @@ def getItemTypeBOverdueTime(dueDate):
     returnDate = timezone.localtime(timezone.now())
     # RETURN DATE < DUEDATE
     if returnDate <= localtime(dueDate):
-        print('condition1')
         overdueHours = 0
         overdueMinutes = 0
         return overdueHours, overdueMinutes
     # SAME DAY: RETURN DATE > DUEDATE
     elif (returnDate > localtime(dueDate)) and returnDate.date() == dueDate.date():
-        print('condition 2')
         difference = returnDate - localtime(dueDate) #difference is timedelta
+        blockedTimeOnReturnDate = BlockOutTime.objects.filter(dateBlocked=returnDate.date())
+        
+        if blockedTimeOnReturnDate.exists() and (localtime(dueDate) <= blockedTimeOnReturnDate[0].timeStart 
+                                                 and blockedTimeOnReturnDate[0].timeEnd <= returnDate):
+            blockedTimeSpan = blockedTimeOnReturnDate[0].timeEnd - blockedTimeOnReturnDate[0].timeStart
+            difference -= blockedTimeSpan
+            
         overdueHours = math.floor(difference.total_seconds()//3600)
         overdueMinutes = math.floor((difference.seconds//60)%60)
         return overdueHours, overdueMinutes
@@ -350,26 +357,39 @@ def getItemTypeBOverdueTime(dueDate):
         dueDateClosingTime = getClosingTime(localtime(dueDate))       
         overDueTime = dueDateClosingTime - dueDate
 
-
+        # Date of Borrowing
+        dueDateBlockedTime = BlockOutTime.objects.filter(dateBlocked=dueDate.date())
+        if dueDateBlockedTime.exists() and (localtime(dueDate) <= dueDateBlockedTime[0].timeStart and dueDateBlockedTime[0].timeEnd <= dueDateClosingTime):
+            blockedTimeSpan = dueDateBlockedTime[0].timeEnd - dueDateBlockedTime[0].timeStart
+            overDueTime -= blockedTimeSpan
+    
+        # Days in Between
         dayBetween = localtime(dueDate)
         while returnDate.date() > dayBetween.date():
             dayBetween += timedelta(days=1)
             if not ifNoClasses(dayBetween, True):
                 officeHours = timedelta(hours=7, minutes=30) if dayBetween.weekday() != 2 else timedelta(hours=4, minutes=30)
+                dayBetweenBlockedTime = BlockOutTime.objects.filter(dateBlocked=dayBetween.date())
+                if dayBetweenBlockedTime.exists():
+                    dayBetweenTimeSpan = dayBetweenBlockedTime[0].timeEnd - dayBetweenBlockedTime[0].timeStart
+                    officeHours -= dayBetweenTimeSpan
                 overDueTime += officeHours
 
 
         returnDateOpeningTime = returnDate
         returnDateDifference = returnDate - returnDateOpeningTime.replace(hour=9, minute=30, second=0, microsecond=0)
+        returnDateBlockedTIme = BlockOutTime.objects.filter(dateBlocked=returnDate.date())
+        if (returnDateBlockedTIme.exists() and 
+            (returnDateOpeningTime <= returnDateBlockedTIme[0].timeStart and returnDateBlockedTIme[0].timeEnd <= returnDate)):
+            returnDateBlockedTimeDifference = returnDateBlockedTIme[0].timeEnd - returnDateBlockedTIme[0].timeStart
+            returnDateDifference -= returnDateBlockedTimeDifference
         overDueTime += returnDateDifference
         overdueHours = math.floor(overDueTime.total_seconds()//3600)
-        print(overdueHours)
         overdueMinutes = math.floor((overDueTime.seconds//60)%60)
-        print(overdueMinutes)
         return overdueHours, overdueMinutes
 
 
-def calculateTypeBPenalty(overdueHours, client):
+def calculateTypeBPenalty(overdueHours, overdueMinutes,client):
     penalty = ""
     if client.warningCount == 3:
         client.blackListed = True
