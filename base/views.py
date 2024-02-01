@@ -354,19 +354,18 @@ def getItemTypeBOverdueTime(dueDate):
     # !SAME DAY: RETURN DATE > DUEDATE
     else:
         # Due Date Closing time - Due Date time
-        dueDateClosingTime = getClosingTime(localtime(dueDate))       
+        dueDateClosingTime = getClosingTime(localtime(dueDate)) 
         overDueTime = dueDateClosingTime - dueDate
-
+        print(overDueTime)
         # Date of Borrowing
         dueDateBlockedTime = BlockOutTime.objects.filter(dateBlocked=dueDate.date())
         if dueDateBlockedTime.exists() and (localtime(dueDate) <= dueDateBlockedTime[0].timeStart and dueDateBlockedTime[0].timeEnd <= dueDateClosingTime):
             blockedTimeSpan = dueDateBlockedTime[0].timeEnd - dueDateBlockedTime[0].timeStart
             overDueTime -= blockedTimeSpan
-    
+        print(overDueTime)
         # Days in Between
-        dayBetween = localtime(dueDate)
+        dayBetween = localtime(dueDate) + timedelta(days=1)
         while returnDate.date() > dayBetween.date():
-            dayBetween += timedelta(days=1)
             if not ifNoClasses(dayBetween, True):
                 officeHours = timedelta(hours=7, minutes=30) if dayBetween.weekday() != 2 else timedelta(hours=4, minutes=30)
                 dayBetweenBlockedTime = BlockOutTime.objects.filter(dateBlocked=dayBetween.date())
@@ -374,22 +373,23 @@ def getItemTypeBOverdueTime(dueDate):
                     dayBetweenTimeSpan = dayBetweenBlockedTime[0].timeEnd - dayBetweenBlockedTime[0].timeStart
                     officeHours -= dayBetweenTimeSpan
                 overDueTime += officeHours
-
-
-        returnDateOpeningTime = returnDate
-        returnDateDifference = returnDate - returnDateOpeningTime.replace(hour=9, minute=30, second=0, microsecond=0)
-        returnDateBlockedTIme = BlockOutTime.objects.filter(dateBlocked=returnDate.date())
-        if (returnDateBlockedTIme.exists() and 
-            (returnDateOpeningTime <= returnDateBlockedTIme[0].timeStart and returnDateBlockedTIme[0].timeEnd <= returnDate)):
-            returnDateBlockedTimeDifference = returnDateBlockedTIme[0].timeEnd - returnDateBlockedTIme[0].timeStart
+                print(overDueTime)
+            dayBetween += timedelta(days=1)
+        returnDateOpeningTime = returnDate.replace(hour=9, minute=30, second=0, microsecond=0)
+        returnDateDifference = returnDate - returnDateOpeningTime
+        returnDateBlockedTime = BlockOutTime.objects.filter(dateBlocked=returnDate.date())
+        if (returnDateBlockedTime.exists() and 
+            (returnDateOpeningTime <= returnDateBlockedTime[0].timeStart and returnDateBlockedTime[0].timeEnd <= returnDate)):
+            returnDateBlockedTimeDifference = returnDateBlockedTime[0].timeEnd - returnDateBlockedTime[0].timeStart
             returnDateDifference -= returnDateBlockedTimeDifference
         overDueTime += returnDateDifference
+        print(overDueTime)
         overdueHours = math.floor(overDueTime.total_seconds()//3600)
         overdueMinutes = math.floor((overDueTime.seconds//60)%60)
         return overdueHours, overdueMinutes
 
 
-def calculateTypeBPenalty(overdueHours, overdueMinutes,client):
+def calculateTypeBPenalty(overdueHours, overdueMinutes, client):
     penalty = ""
     if client.warningCount == 3:
         client.blackListed = True
