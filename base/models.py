@@ -34,10 +34,12 @@ class Client(models.Model):
     yearLevel = models.SmallIntegerField(default=1)
 
     course = models.CharField(max_length=50, null=False)
+    hasWednesdayClasses = models.BooleanField(default=True)
     graduating = models.BooleanField(default=False)
     gradWaiting = models.BooleanField(default=False) #Boolean Value for graduating seniors
     dswsMemRegName = models.CharField(max_length=50, null=False)
     regDate = models.DateTimeField(auto_now_add=True) # registrationDate
+
     borrowing = models.BooleanField(default=False)
     excuseLetter = models.BooleanField(default=False)
     holdOrder = models.BooleanField(default=False)

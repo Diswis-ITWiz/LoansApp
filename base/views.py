@@ -8,8 +8,9 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 import numpy as np
 import math
-# Create your views here.
 
+
+# Create your views here
 def home(request):
     return render(request, 'base/home.html')
 
@@ -73,7 +74,6 @@ def loanItemTransaction(request, pk):
     time = None
     closingtime = None
     dateDue = None
-    checkedWedBox = None
 
     def timeOverlap(challengertime):
         try:
@@ -105,14 +105,14 @@ def loanItemTransaction(request, pk):
         if q == '':
             context = {'client': client, 'items': items}
             return render(request, 'base/Home-Item/loan_item_transaction.html', context)
+        
         selectedItem = LoanItem.objects.get(itemCat__exact=q)
 
         time = timezone.localtime(timezone.now())
         closingtime = getClosingTime(time)
         dateDue = time
         itemCat = selectedItem.itemCat
-        checkedWedBox = request.GET.get('hasWednesdayClasses')
-        hasWednesdayClasses = True if (checkedWedBox == 'on' or time.weekday() == 2) else False
+        hasWednesdayClasses = client.hasWednesdayClasses
         itemType = ''
         # Item type A - borrow for a whole day
         if checkItemType(itemCat) == 'A':
@@ -217,16 +217,21 @@ def returnItem2(request, pk):
     overdueMinutes = 0
     penalty = ''
     if checkItemType(loanedItem.itemCat) == 'A':
-        overdueDays = getItemTypeAOverdueDays(localtime(transaction.dueDate))
+        overdueDays = getItemTypeAOverdueDays(localtime(transaction.dueDate), client)
         penalty = calculateTypeAPenalty(overdueDays, client)
     else:
-        overdueHours, overdueMinutes = getItemTypeBOverdueTime(localtime(transaction.dueDate))
+        overdueHours, overdueMinutes = getItemTypeBOverdueTime(localtime(transaction.dueDate), client)
         penalty = calculateTypeBPenalty(overdueHours,overdueMinutes, client)
     
 
 
 
     if request.method == 'POST':
+        if request.POST.get('itemType') == 'A':
+            applyTypeAPenalty(int(request.POST.get('overDueDays')), client)
+        else:
+            applyTypeBPenalty(int(request.POST.get('overDueHours')), request.POST.get('overDueHours'), client)
+
         # Modify Transaction Instance in DB
         transaction.dateReturned = timezone.localtime(timezone.now())
         transaction.overdueDays = request.POST.get('overDueDays')
@@ -285,18 +290,44 @@ def checkItemType(itemCat):
         return 'A'
     return 'B'
 
-def getItemTypeAOverdueDays(dueDate):
+# PENALTY HELPER METHODS
+def getItemTypeAOverdueDays(dueDate, client):
     formattedDueDate = dueDate.date()
     returnDate = timezone.localtime(timezone.now()).date()
-    if returnDate <= formattedDueDate:
-        return 0
-    busdays = np.busday_count(formattedDueDate, returnDate)
     blockedDays = BlockOutDate.objects.filter(dateBlocked__range=[formattedDueDate, returnDate]).count()
-    totaldays = busdays + 1 - blockedDays
-    return totaldays
-    
+    print(formattedDueDate)
+    print(returnDate)
+    if returnDate <= formattedDueDate:
+        print('Test1')
+        return 0
+    elif client.hasWednesdayClasses:
+        print('Test2')
+        currentDate = formattedDueDate + timedelta(days=1)
+        totaldays = 1
+        while currentDate != returnDate:
+            if not ifNoClasses(currentDate, client.hasWednesdayClasses):
+                totaldays += 1
+            currentDate += timedelta(days=1)
+        return totaldays
+    else:
+        print('Test3')
+        busdays = np.busday_count(formattedDueDate, returnDate)
+        totaldays = busdays + 1 - blockedDays
+        return totaldays
+   
 def calculateTypeAPenalty(overDueDays, client):
     penalty = ""
+    if client.warningCount > 3:
+        penalty = "Black Listed\n Hold Order\n PHP 1000 Fine, EL"
+    elif 1 <= overDueDays <= 3:
+        penalty = "Warning"
+    elif 4 <= overDueDays <= 10:
+        penalty = "TBL, EL"
+    elif overDueDays > 10:
+        penalty = 'TBL, HO, PHP 500 Fine, EL'
+    return penalty
+
+def applyTypeAPenalty(overDueDays, client):
     if client.warningCount > 3:
         client.blackListed = True
         client.BLcount += 1
@@ -304,10 +335,8 @@ def calculateTypeAPenalty(overDueDays, client):
         client.HOcount += 1
         client.fineAmount = 1000
         client.excuseLetter = True
-        penalty = "Black Listed\n Hold Order\n PHP 1000 Fine, EL"
     elif 1 <= overDueDays <= 3:
         client.warningCount = client.warningCount + 1
-        penalty = "Warning"
     elif 4 <= overDueDays <= 10:
         startDate = timezone.localtime(timezone.now())
         print(startDate)
@@ -316,7 +345,6 @@ def calculateTypeAPenalty(overDueDays, client):
         client.tblStart = startDate
         client.tblEnd = endDate
         client.excuseLetter = True
-        penalty = "TBL, EL"
     elif overDueDays > 10:
         startDate = timezone.localtime(timezone.now())
         endDate = startDate + timedelta(days=14)
@@ -327,11 +355,9 @@ def calculateTypeAPenalty(overDueDays, client):
         client.HOcount += 1
         client.fineAmount = 500
         client.excuseLetter = True
-        penalty = 'TBL, HO, PHP 500 Fine, EL'
     client.save()
-    return penalty
 
-def getItemTypeBOverdueTime(dueDate):
+def getItemTypeBOverdueTime(dueDate, client):
     returnDate = timezone.localtime(timezone.now())
     # RETURN DATE < DUEDATE
     if returnDate <= localtime(dueDate):
@@ -351,30 +377,33 @@ def getItemTypeBOverdueTime(dueDate):
         overdueHours = math.floor(difference.total_seconds()//3600)
         overdueMinutes = math.floor((difference.seconds//60)%60)
         return overdueHours, overdueMinutes
-    # !SAME DAY: RETURN DATE > DUEDATE
+    # Overdue by multiple days
     else:
         # Due Date Closing time - Due Date time
         dueDateClosingTime = getClosingTime(localtime(dueDate)) 
         overDueTime = dueDateClosingTime - dueDate
-        print(overDueTime)
+
+
         # Date of Borrowing
         dueDateBlockedTime = BlockOutTime.objects.filter(dateBlocked=dueDate.date())
         if dueDateBlockedTime.exists() and (localtime(dueDate) <= dueDateBlockedTime[0].timeStart and dueDateBlockedTime[0].timeEnd <= dueDateClosingTime):
             blockedTimeSpan = dueDateBlockedTime[0].timeEnd - dueDateBlockedTime[0].timeStart
             overDueTime -= blockedTimeSpan
-        print(overDueTime)
+
+
         # Days in Between
         dayBetween = localtime(dueDate) + timedelta(days=1)
         while returnDate.date() > dayBetween.date():
-            if not ifNoClasses(dayBetween, True):
+            if not ifNoClasses(dayBetween, client.hasWednesdayClasses):
                 officeHours = timedelta(hours=7, minutes=30) if dayBetween.weekday() != 2 else timedelta(hours=4, minutes=30)
                 dayBetweenBlockedTime = BlockOutTime.objects.filter(dateBlocked=dayBetween.date())
                 if dayBetweenBlockedTime.exists():
                     dayBetweenTimeSpan = dayBetweenBlockedTime[0].timeEnd - dayBetweenBlockedTime[0].timeStart
                     officeHours -= dayBetweenTimeSpan
                 overDueTime += officeHours
-                print(overDueTime)
             dayBetween += timedelta(days=1)
+
+
         returnDateOpeningTime = returnDate.replace(hour=9, minute=30, second=0, microsecond=0)
         returnDateDifference = returnDate - returnDateOpeningTime
         returnDateBlockedTime = BlockOutTime.objects.filter(dateBlocked=returnDate.date())
@@ -383,14 +412,23 @@ def getItemTypeBOverdueTime(dueDate):
             returnDateBlockedTimeDifference = returnDateBlockedTime[0].timeEnd - returnDateBlockedTime[0].timeStart
             returnDateDifference -= returnDateBlockedTimeDifference
         overDueTime += returnDateDifference
-        print(overDueTime)
         overdueHours = math.floor(overDueTime.total_seconds()//3600)
         overdueMinutes = math.floor((overDueTime.seconds//60)%60)
         return overdueHours, overdueMinutes
 
-
 def calculateTypeBPenalty(overdueHours, overdueMinutes, client):
     penalty = ""
+    if client.warningCount == 3:
+        penalty = "Black Listed\n Hold Order\n PHP 1000 Fine, EL"
+    elif 3 <= overdueHours <= 5:
+        penalty = 'Warning'
+    elif 6 <= overdueHours <= 10:
+        penalty = "TBL, EL"
+    elif overdueHours > 10:
+        penalty = 'TBL, HO, PHP 500 Fine, EL'
+    return penalty 
+
+def applyTypeBPenalty(overdueHours, overDueMinutes, client):
     if client.warningCount == 3:
         client.blackListed = True
         client.BLcount += 1
@@ -400,7 +438,6 @@ def calculateTypeBPenalty(overdueHours, overdueMinutes, client):
         client.excuseLetter = True
     elif 3 <= overdueHours <= 5:
         client.warningCount +=1
-        penalty = 'Warning'
     elif 6 <= overdueHours <= 10:
         startDate = timezone.localtime(timezone.now())
         print(startDate)
@@ -409,7 +446,6 @@ def calculateTypeBPenalty(overdueHours, overdueMinutes, client):
         client.tblStart = startDate
         client.tblEnd = endDate
         client.excuseLetter = True
-        penalty = "TBL, EL"
     elif overdueHours > 10:
         startDate = timezone.localtime(timezone.now())
         endDate = startDate + timedelta(days=14)
@@ -420,9 +456,11 @@ def calculateTypeBPenalty(overdueHours, overdueMinutes, client):
         client.HOcount += 1
         client.fineAmount = 500
         client.excuseLetter = True
-        penalty = 'TBL, HO, PHP 500 Fine, EL'
     client.save()
-    return penalty 
+
+
+
+
 
 
 
