@@ -10,6 +10,7 @@
         {% csrf_token %}
         <div>
             <p>Are you sure you want to lift "{{item}}" penalties?</p>
+            <p>If Client has a BlackList, all penalties are removed except for the blacklist itself</p>
         </div>
 
         <div>

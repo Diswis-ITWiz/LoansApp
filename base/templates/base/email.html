@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 
+        background = #59b1d7
+        Header = #1f689b
+        table color = #1f689b
+        footer = #ffec9d
+        Main Card background = #fdfdfd
+        text color = #ffffff
+     -->
+</head>
+<body   style="     background:#59b1d7;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;">
+    <article
+        style = "   background-color: #fdfdfd;  
+                    display: grid;
+                    grid-template-rows: 1fr 4fr 1fr;
+        ">
+        <header style=" background-color: #1f689b;
+                        margin-top: 0;
+        ">
+            <h1>LOANS RECEIPT</h1>
+
+        </header>
+        <div style="    padding-left: 2em;
+                        padding-right: 2em;  
+                        ">
+            <p>We hope you're enjoying your loaned item!</p>
+            <table style="border: 1px solid">
+                <tr>
+                    <th>Item no:</th>
+                    <th>Time borrowed</th>
+                    <th>Item due on</th>
+                </tr>
+                <tr>
+                    <td style="text-align: center">{{ itemCat }}</td>
+                    <td style="text-align: center">{{ dateBorrowed }}</td>
+                    <td style="text-align: center">{{ dueDate }}</td>
+                </tr>
+            </table>
+            <br>
+            <i>Late return and item loss penalties</i>
+            <table style="border: 1px solid">
+                <tr>
+                    <th style="border: 1px solid">Days overdue (Cat A.)</th>
+                    <th style="border: 1px solid">Days overdue (Cat B.)</th>
+                    <th style="border: 1px solid">Penalty</th>
+                </tr>
+                <tr>
+                    <td style=" text-align: center;
+                                border: 1px solid">1-3</th>
+                    <td style="text-align: center">3-5</th>
+                    <td style="text-align: center">Warning</th>
+                </tr>
+                <tr>
+                    <td style="text-align: center">4-10</th>
+                    <td style="text-align: center">6-10</th>
+                    <td style="text-align: center">TBL, Explanation Letter</th>
+                </tr>
+                <tr>
+                    <td style="text-align: center">>10</th>
+                    <td style="text-align: center">>10</th>
+                    <td style="text-align: center">TBL, HO, PHP 500 fine, Explanation Letter</th>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: center">Accumulation of 3 warnings</td>
+                    <td style="text-align: center">BL, HO, PHP 1000 fine, Explanation Letter</td>
+                </tr>
+            </table>
+            <div>
+                <p>HO - Hold Order; TBL - Temporary Blacklist(lifted immediately after completing sanctions)</p>
+                <p>BL - Permanent Blacklist (to be lifted after 15 weeks if sanctions are completed)</p>
+                <p>if appicable, it will be carried over to the next semester</p>
+                <p>Penalties may be waived or reconsidered depending on the explanation letter</p>
+            </div>
+            <div>
+                <p>If you have any inquiries, contact us at:</p>
+                <strong>Email: <a href="dsws.loans@gmail.com">dsws.loans@gmail.com</a></strong>
+            </div>
+        </div>
+        <footer>
+            <p>Department of Student Welfare and Services</p>
+            <p>MVP101</p>
+            <p>Loans Committee</p>
+            <p>MTTF 9:30AM-5:00PM | W 9:30AM-2:00PM</p>
+        </footer>
+            
+    </article>
+</body>
+</html>

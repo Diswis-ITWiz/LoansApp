@@ -27,5 +27,7 @@ urlpatterns = [
     path('block-time', views.blockOutTime, name='block-time'),
     path('block-graduating', views.blockGraduating, name='block-gradwaiting'),
     path('finals-week', views.finalsWeek, name='finals-week'),
+
+    path('email-template', views.emailTemplate, name='email'),
     
 ]

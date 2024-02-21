@@ -45,10 +45,12 @@ class Client(models.Model):
     holdOrder = models.BooleanField(default=False)
     blackListed = models.BooleanField(default=False)
     fineAmount = models.PositiveSmallIntegerField(default=0)
+    blacklistStart = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True, null=True)
+    blacklistEnd = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True, null=True)
+
 
     temporaryBlackList = models.BooleanField(default=False)
-    tblStart = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True, null=True)
-    tblEnd = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True, null=True)
+
     
     warningCount = models.SmallIntegerField(default=0, null = True, blank=True,)
     lastBorrowedDate = models.DateTimeField(default=None, null = True, blank=True)

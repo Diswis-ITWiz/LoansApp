@@ -28,7 +28,6 @@
                 <th>Last Item</th>
                 <th>Transaction Date</th>
                 <th>Borrowing</th>
-                <th>Edit</th>
             </tr>
             {% for client in clients %}
             <tr>           
@@ -43,9 +42,6 @@
                 <td>{{client.lastBorrowedItem.itemCat}}</td>
                 <td>{{client.lastBorrowedDate}}</td>
                 <td>{{client.borrowing|yesno:"Borrowing,Free"}}</td>
-                <td>
-                    <a href="{% url 'edit-client' client.clientId%}">Edit</a>
-                </td>
             </tr>
             {% endfor %}
         </table>
