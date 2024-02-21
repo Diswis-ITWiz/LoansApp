@@ -8,6 +8,10 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 import numpy as np
 import math
+from django.conf import settings
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 
 # Create your views here
@@ -22,24 +26,12 @@ def newClient(request):
         graduatingStatus = True if request.POST.get('graduating') == 'on' else False
         # if request.POST.get('graduating') == 'on':
         #         graduatingStatus = True
-        try:
-            client= Client.objects.get(clientId = request.POST.get('clientId'))
-            context = {'form': form, 'duplicate': True}
-        except Client.DoesNotExist:
-            Client.objects.create(
-                clientId = request.POST.get('clientId'),
-                lastName = request.POST.get('lastName'),
-                firstName = request.POST.get('firstName'),
-                middleInitial = request.POST.get('middleInitial'),
-                suffix = request.POST.get('suffix'),
-                contactNum = request.POST.get('contactNum'),
-                email = request.POST.get('email'),
-                yearLevel = request.POST.get('yearLevel'),
-                course = request.POST.get('course'),
-                graduating = graduatingStatus,
-                dswsMemRegName = request.POST.get('dswsMemRegName')
-            )
+        formData = ClientForm(request.POST)
+        if formData.is_valid():
+            formData.save()
             return redirect('home')
+        else:
+            context = {'form': form, 'duplicate': True}
     else:
         context = {'form': form}
     return render(request, 'base/Home-Client/new_client.html', context)
@@ -54,17 +46,22 @@ def loanItemClientFinder(request):
         if q == '':
             return render(request, 'base/Home-Item/find_client.html', context)
         #Client May Not Exist
-        try:
+
+        if Client.objects.filter(clientId__exact=q).exists():
             client = Client.objects.get(clientId__exact=q)
             # Check if Graduating senior or has currently borrowed an Item:
-            if client.gradWaiting == True or client.borrowing == True:
-                context = {'client': client, 'borrowingStatus': client.borrowing, 'gradWaiting': client.gradWaiting}
+            if client.gradWaiting == True:
+                context = {'client': client, 'borrowingStatus': False, 'gradWaiting': client.gradWaiting}
+            elif client.borrowing == True:
+                context = {'client': client, 'borrowingStatus': client.borrowing}
+            elif client.blackListed:
+                context = {'client': client, 'blackListed': True}
+            elif client.temporaryBlackList:
+                context = {'client': client, 'blackListed': True}
             else:
                 context = {'client':client}
-        except Client.DoesNotExist:
-            invalidInput = True
-            context = {'input_validity': invalidInput}
-
+        else:
+            context = {'input_validity': True}
         return render(request, 'base/Home-Item/find_client.html', context)
 
 
@@ -169,6 +166,33 @@ def loanItemTransaction(request, pk):
         selectedItem.lastClient = client.clientId
         selectedItem.status = 'LO'
         selectedItem.save()
+
+
+        formatted_borrow_date_datetime = datetime.strptime(time, '%Y-%m-%d %H:%M:%S:%f')
+        formatted_dueDate_datetime = datetime.strptime(dueDate, '%Y-%m-%d %H:%M:%S:%f')
+        email_borrow_date = formatted_borrow_date_datetime.strftime("%m/%d/%Y %I:%M %p")
+        email_return_date = formatted_dueDate_datetime.strftime("%m/%d/%Y %I:%M %p")
+        itemCatName = getItemTypeName(selectedItem.itemCat)
+        subject_matter = f'{itemCatName} [{selectedItem.itemCat}] is due on {email_return_date}'
+
+
+        email_context = {
+            "itemCat": selectedItem.itemCat,
+            "dateBorrowed": email_borrow_date,
+            "dueDate": email_return_date
+        }
+        html_message = render_to_string("base/email.html", context=email_context)
+        plain_message = "Plain Template"
+
+        message = EmailMultiAlternatives(
+            subject = subject_matter,
+            body= plain_message,
+            from_email=None,
+            to=[client.email]
+        )
+        message.attach_alternative(html_message, "text/html")
+        message.send()
+        
         return redirect('home')
     
     # Standard Loading of Resources of View
@@ -271,7 +295,7 @@ def ifNoClasses(duedate, hasWednesdayClasses):
         if duedate.weekday() == 5 or duedate.weekday() == 6 or duedate.weekday() == 2:
             return True
     try:
-        blockedDate = BlockOutDate.objects.get(dateBlocked=duedate.date())
+        blockedDate = BlockOutDate.objects.get(dateBlocked=duedate)
         return True
     except BlockOutDate.DoesNotExist:
         return False
@@ -338,19 +362,10 @@ def applyTypeAPenalty(overDueDays, client):
     elif 1 <= overDueDays <= 3:
         client.warningCount = client.warningCount + 1
     elif 4 <= overDueDays <= 10:
-        startDate = timezone.localtime(timezone.now())
-        print(startDate)
-        endDate = startDate + timedelta(days=14)
         client.temporaryBlackList = True
-        client.tblStart = startDate
-        client.tblEnd = endDate
         client.excuseLetter = True
     elif overDueDays > 10:
-        startDate = timezone.localtime(timezone.now())
-        endDate = startDate + timedelta(days=14)
         client.temporaryBlackList = True
-        client.tblStart = startDate
-        client.tblEnd = endDate
         client.holdOrder = True
         client.HOcount += 1
         client.fineAmount = 500
@@ -439,26 +454,34 @@ def applyTypeBPenalty(overdueHours, overDueMinutes, client):
     elif 3 <= overdueHours <= 5:
         client.warningCount +=1
     elif 6 <= overdueHours <= 10:
-        startDate = timezone.localtime(timezone.now())
-        print(startDate)
-        endDate = startDate + timedelta(days=14)
         client.temporaryBlackList = True
-        client.tblStart = startDate
-        client.tblEnd = endDate
         client.excuseLetter = True
     elif overdueHours > 10:
-        startDate = timezone.localtime(timezone.now())
-        endDate = startDate + timedelta(days=14)
         client.temporaryBlackList = True
-        client.tblStart = startDate
-        client.tblEnd = endDate
         client.holdOrder = True
         client.HOcount += 1
         client.fineAmount = 500
         client.excuseLetter = True
     client.save()
 
-
+# EMAILER METHODS
+def getItemTypeName(itemCat):
+    if itemCat.startswith('A'):
+        return 'Adapter'
+    elif itemCat.startswith('B'):
+        return 'Bible'
+    elif itemCat.startswith('C'):
+        return 'Calculator'
+    elif itemCat.startswith('D'):
+        return 'Dictionary/Transalator'
+    elif itemCat.startswith('LC'):
+        return 'Laptop Charger'
+    elif itemCat.startswith('PC'):
+        return 'Phone Charger'
+    elif itemCat.startswith('S'):
+        return 'Speaker'
+    elif itemCat.startswith('U'):
+        return 'Umbrella'
 
 
 
@@ -574,16 +597,27 @@ def editClient(request, pk):
 def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
-        client.excuseLetter = False
-        client.temporaryBlackList = False
-        client.blackListed = False
-        client.holdOrder = False
-        client.fineAmount = 0
-        client.tblStart = None
-        client.tblEnd = None 
-        client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
-        client.BLcount = 0 if client.BLcount == 0 else client.BLcount - 1
-        client.warningCount = 0 if client.warningCount ==0 else client.warningCount - 1
+        if client.blackListed == True:
+            timeStart = timezone.localtime(timezone.now())
+            timeEnd = timeStart + timedelta(days=105)
+            client.blackListed = True
+            client.holdOrder = False
+            client.excuseLetter = False
+            client.fineAmount = 0
+            client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
+            client.temporaryBlackList = False
+            client.blacklistStart = timeStart
+            client.blacklistEnd = timeEnd
+        elif client.temporaryBlackList == True:
+            client.temporaryBlackList = False
+            client.excuseLetter = False
+            client.holdOrder = False
+            client.fineAmount = 0
+            client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
+        else:
+            client.warningCount = 0 if client.warningCount == 0 else client.warningCount - 1
+            client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
+            client.BLcount = 0 if client.BLcount == 0 else client.BLcount - 1
         client.save()
         return redirect('client-details', pk=client.clientId)
 
@@ -649,7 +683,8 @@ def blockGraduating(request):
     return render(request, 'base/Admin-Blockout/block_graduating.html')
     
 
-
+def emailTemplate(request):
+    return render(request, 'base/email.html')
 
 
 

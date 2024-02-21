@@ -9,7 +9,7 @@ class ClientForm(ModelForm):
         exclude = ['borrowing', 'warningCount', 'status', 'dateReg',
                    'gradWaiting', 'lastBorrowedDate', 'lastBorrowedItem', 'HOcount', 
                    'BLcount','excuseLetter', 'holdOrder', 'blackListed', 
-                    'fineAmount', 'temporaryBlackList', 'tblStart','tblEnd',
+                    'fineAmount', 'temporaryBlackList', 'blacklistStart','blacklistEnd',
                     ] 
 
 class LoanItemForm(ModelForm):
