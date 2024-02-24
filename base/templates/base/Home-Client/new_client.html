@@ -2,10 +2,10 @@
 
 <form class="form" action="" method="POST">
     {%csrf_token%}
-    {% if duplicate %}
-    <p>Client ID Already Exists</p>
-    {% endif %}
-    {{form.as_p}}
+    <table>
+        {{form.as_table}}
+    </table>
+
     <input type="submit" value="Submit">
 </form>
 <a href="{% url 'home' %}">Cancel</a>

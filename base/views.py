@@ -12,6 +12,7 @@ from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.contrib import messages
 
 
 # Create your views here
@@ -20,21 +21,17 @@ def home(request):
 
 # Register Client
 def newClient(request):
-    form = ClientForm()
-    
     if request.method == 'POST':
-        graduatingStatus = True if request.POST.get('graduating') == 'on' else False
-        # if request.POST.get('graduating') == 'on':
-        #         graduatingStatus = True
-        formData = ClientForm(request.POST)
-        if formData.is_valid():
-            formData.save()
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Client added.') # <- Needs Bootstrap
             return redirect('home')
-        else:
-            context = {'form': form, 'duplicate': True}
+        return render(request, 'base/Home-Client/new_client.html', {'form': form})
     else:
+        form = ClientForm()
         context = {'form': form}
-    return render(request, 'base/Home-Client/new_client.html', context)
+        return render(request, 'base/Home-Client/new_client.html', context)
 
 
 # Loan Item
@@ -573,26 +570,31 @@ def clientDetails(request, pk):
 
 def editClient(request, pk):
     client = Client.objects.get(clientId=pk)
-    if request.method == 'POST':
-        form = ClientForm(request.POST)
-        client.clientId = request.POST.get('clientId')
-        client.firstName = request.POST.get('firstName')
-        client.middleInitial = request.POST.get('middleInitial')
-        client.lastName = request.POST.get('lastName')
-        client.suffix = request.POST.get('suffix')
-        client.yearLevel = request.POST.get('yearLevel')
-        client.course = request.POST.get('course')
-        if request.POST.get('graduating') == 'on':
-                graduatingStatus = True
-        client.graduating = graduatingStatus
-        client.email = request.POST.get('email')
-        client.contactNum = request.POST.get('contactNum')
-        client.save()
+    form = ClientForm(request.POST, instance=client)
+    if form.is_valid():
+        form.save()
         return redirect('client-details', pk=client.clientId)
-    else:
-        form = ClientForm(instance=client)
-        context = {'form': form}
-        return render(request, 'base/Admin-Client/edit_client.html', context)
+    return render(request, 'base/Admin-Client/edit_client.html', {'form': form})
+    # if request.method == 'POST':
+    #     form = ClientForm(request.POST)
+    #     client.clientId = request.POST.get('clientId')
+    #     client.firstName = request.POST.get('firstName')
+    #     client.middleInitial = request.POST.get('middleInitial')
+    #     client.lastName = request.POST.get('lastName')
+    #     client.suffix = request.POST.get('suffix')
+    #     client.yearLevel = request.POST.get('yearLevel')
+    #     client.course = request.POST.get('course')
+    #     if request.POST.get('graduating') == 'on':
+    #             graduatingStatus = True
+    #     client.graduating = graduatingStatus
+    #     client.email = request.POST.get('email')
+    #     client.contactNum = request.POST.get('contactNum')
+    #     client.save()
+    #     return redirect('client-details', pk=client.clientId)
+    # else:
+    #     form = ClientForm(instance=client)
+    #     context = {'form': form}
+        # return render(request, 'base/Admin-Client/edit_client.html', context)
 
 def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)
