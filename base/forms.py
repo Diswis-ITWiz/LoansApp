@@ -12,6 +12,7 @@ class ClientForm(ModelForm):
                     'fineAmount', 'temporaryBlackList', 'blacklistStart','blacklistEnd',
                     ] 
 
+
 class LoanItemForm(ModelForm):
     class Meta:
         model = LoanItem

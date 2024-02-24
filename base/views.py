@@ -511,9 +511,9 @@ def addItem(request):
         if form.is_valid():
             form.save()
             return redirect('item-panel')
+        return render(request, 'base/Admin-Item/add_item.html', {'form': form})
     else:
         form = LoanItemForm()
-
     context={'form': form}
     return render(request, 'base/Admin-Item/add_item.html',context)
 
