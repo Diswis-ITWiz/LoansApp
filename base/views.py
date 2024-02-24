@@ -570,31 +570,15 @@ def clientDetails(request, pk):
 
 def editClient(request, pk):
     client = Client.objects.get(clientId=pk)
-    form = ClientForm(request.POST, instance=client)
-    if form.is_valid():
-        form.save()
-        return redirect('client-details', pk=client.clientId)
-    return render(request, 'base/Admin-Client/edit_client.html', {'form': form})
-    # if request.method == 'POST':
-    #     form = ClientForm(request.POST)
-    #     client.clientId = request.POST.get('clientId')
-    #     client.firstName = request.POST.get('firstName')
-    #     client.middleInitial = request.POST.get('middleInitial')
-    #     client.lastName = request.POST.get('lastName')
-    #     client.suffix = request.POST.get('suffix')
-    #     client.yearLevel = request.POST.get('yearLevel')
-    #     client.course = request.POST.get('course')
-    #     if request.POST.get('graduating') == 'on':
-    #             graduatingStatus = True
-    #     client.graduating = graduatingStatus
-    #     client.email = request.POST.get('email')
-    #     client.contactNum = request.POST.get('contactNum')
-    #     client.save()
-    #     return redirect('client-details', pk=client.clientId)
-    # else:
-    #     form = ClientForm(instance=client)
-    #     context = {'form': form}
-        # return render(request, 'base/Admin-Client/edit_client.html', context)
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('client-details', pk=client.clientId)
+        return render(request, 'base/Admin-Client/edit_client.html', {'form': form, 'client':client.clientId})
+    else:
+        form = ClientForm(instance=client)
+        return render(request, 'base/Admin-Client/edit_client.html', {'form': form, 'client':client.clientId})
 
 def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)

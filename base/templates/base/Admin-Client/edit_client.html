@@ -10,7 +10,8 @@
         {% csrf_token %}
         {{form.as_p}}
         <button type="submit">Submit</button>
-        <button onclick="history.back()">Cancel</button>
+        <a href="{%url 'client-details' client%}">Cancel</a>
+        <a href="{% url 'admin-dashboard'%}">Home</a>
     </form>
 </body>
 </html>
