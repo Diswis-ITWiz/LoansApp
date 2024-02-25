@@ -1,6 +1,6 @@
 from typing import Any
 from django.shortcuts import render, redirect
-from .forms import ClientForm, LoanItemForm, LoanItemEditForm
+from .forms import ClientForm, LoanItemForm, LoanItemEditForm, LoanItemATransactionForm
 from .models import Client, LoanItem, Transaction, BlockOutDate, BlockOutTime
 from datetime import datetime, timedelta
 from django.db.models import Q
@@ -97,7 +97,8 @@ def loanItemTransaction(request, pk):
     if request.method == 'GET':
         q = request.GET.get('selectedItem', '')
         if q == '':
-            context = {'client': client, 'items': items}
+            form = LoanItemATransactionForm()
+            context = {'client': client, 'items': items, 'form':form}
             return render(request, 'base/Home-Item/loan_item_transaction.html', context)
         
         selectedItem = LoanItem.objects.get(itemCat__exact=q)
@@ -139,62 +140,60 @@ def loanItemTransaction(request, pk):
                     dateDue += timedelta(days=1)
                     tempDateDue = dateDue.replace(hour=11, minute=00, second=00, microsecond=00)
                     dateDue = tempDateDue
-        context = {'client': client, 'items': items, 
-                   'time': time, 'itemType': itemType,
-                   'dateDue': dateDue, 
-                   'selectedItem': selectedItem}
-        return render (request, 'base/Home-Item/loan_item_transaction.html', context)
+
+                    
+        form = LoanItemATransactionForm(
+            initial={"clientId": client.clientId,
+                    "itemCat": itemCat,
+                    "dateLoaned": time,
+                    "dueDate": dateDue,
+            }
+        )
+        context = {'client': client, 'items': items,  'itemType': itemType, 'form':form}
+        return render(request, 'base/Home-Item/loan_item_transactionA.html', context)
     if request.method == 'POST':
-        selectedItem = items.get(itemCat__exact=request.POST.get('itemCat'))
-        time = request.POST.get('hiddendateloaned')
-        dueDate = request.POST.get('hiddendatedue')
-        Transaction.objects.create(
-            clientId = client,
-            itemCat = selectedItem,
-            dateLoaned = time,
-            dueDate = dueDate,
-            dswsMemLoanName = request.POST.get('dswsMemLoan'),
-            loanRemarks = request.POST.get('remarks'),
-        )
-        client.lastBorrowedDate = time
-        client.lastBorrowedItem = selectedItem
-        client.borrowing = True
-        client.save()
-        selectedItem.lastClient = client.clientId
-        selectedItem.status = 'LO'
-        selectedItem.save()
+        form = LoanItemATransactionForm(request.POST)
+        if form.is_valid():
+            selectedItem = items.get(itemCat__exact=request.POST.get('itemCat'))
+            form.save()
+            client.lastBorrowedDate = time
+            client.lastBorrowedItem = selectedItem
+            client.borrowing = True
+            client.save()
+            selectedItem.lastClient = client.clientId
+            selectedItem.status = 'LO'
+            selectedItem.save()
+            messages.success(request, 'Transaction added.')
+            return redirect('home')
+        context = {'client': client, 'items': items, 'form':form}
+        return render(request, 'base/Home-Item/loan_item_transaction.html', context)
 
 
-        formatted_borrow_date_datetime = datetime.strptime(time, '%Y-%m-%d %H:%M:%S:%f')
-        formatted_dueDate_datetime = datetime.strptime(dueDate, '%Y-%m-%d %H:%M:%S:%f')
-        email_borrow_date = formatted_borrow_date_datetime.strftime("%m/%d/%Y %I:%M %p")
-        email_return_date = formatted_dueDate_datetime.strftime("%m/%d/%Y %I:%M %p")
-        itemCatName = getItemTypeName(selectedItem.itemCat)
-        subject_matter = f'{itemCatName} [{selectedItem.itemCat}] is due on {email_return_date}'
+
+        # formatted_borrow_date_datetime = datetime.strptime(time, '%Y-%m-%d %H:%M:%S:%f')
+        # formatted_dueDate_datetime = datetime.strptime(dueDate, '%Y-%m-%d %H:%M:%S:%f')
+        # email_borrow_date = formatted_borrow_date_datetime.strftime("%m/%d/%Y %I:%M %p")
+        # email_return_date = formatted_dueDate_datetime.strftime("%m/%d/%Y %I:%M %p")
+        # itemCatName = getItemTypeName(selectedItem.itemCat)
+        # subject_matter = f'{itemCatName} [{selectedItem.itemCat}] is due on {email_return_date}'
 
 
-        email_context = {
-            "itemCat": selectedItem.itemCat,
-            "dateBorrowed": email_borrow_date,
-            "dueDate": email_return_date
-        }
-        html_message = render_to_string("base/email.html", context=email_context)
-        plain_message = "Plain Template"
+        # email_context = {
+        #     "itemCat": selectedItem.itemCat,
+        #     "dateBorrowed": email_borrow_date,
+        #     "dueDate": email_return_date
+        # }
+        # html_message = render_to_string("base/email.html", context=email_context)
+        # plain_message = "Plain Template"
 
-        message = EmailMultiAlternatives(
-            subject = subject_matter,
-            body= plain_message,
-            from_email=None,
-            to=[client.email]
-        )
-        message.attach_alternative(html_message, "text/html")
-        message.send()
-        
-        return redirect('home')
-    
-    # Standard Loading of Resources of View
-    context = {'client': client, 'items': items}
-    return render(request, 'base/Home-Item/loan_item_transaction.html', context)
+        # message = EmailMultiAlternatives(
+        #     subject = subject_matter,
+        #     body= plain_message,
+        #     from_email=None,
+        #     to=[client.email]
+        # )
+        # message.attach_alternative(html_message, "text/html")
+        # message.send()
 
 
 #Return Item
@@ -207,26 +206,21 @@ def returnItem1(request):
         if q == '':
             return render(request, 'base/Home-Item/return_item.html', context)
         
-        #Client May Not Exist
+        #Client May Not Exist        
         try:
             client = Client.objects.get(clientId__exact=q)
+            try:
+                transaction = Transaction.objects.get(
+                    Q(clientId__exact=client.clientId) & Q(status__exact='OG')
+                )
+            except Transaction.DoesNotExist:
+                transaction = False
+            context = {'client': client, 'transaction': transaction}
+            return render(request, 'base/Home-Item/return_item.html', context)
         except Client.DoesNotExist:
             invalidInput = True
             context = {'input_validity': invalidInput}
             return render(request, 'base/Home-Item/return_item.html', context)
-        
-        # Find transaction of the client
-        try:
-            transaction = Transaction.objects.get(
-                Q(clientId__exact=client.clientId) &
-                Q(status__exact='OG')
-            )
-        except Transaction.DoesNotExist:
-            transaction = False
-
-        context = {'client': client, 'transaction': transaction}
-        return render(request, 'base/Home-Item/return_item.html', context)
-    
     return render(request, 'base/Home-Item/return_item.html')
 
 def returnItem2(request, pk):

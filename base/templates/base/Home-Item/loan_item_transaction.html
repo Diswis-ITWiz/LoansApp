@@ -31,8 +31,6 @@
                     {% endfor %}
                 </select>
             </div>
-                
-                
             <button type="submit" value="submit">Calculate</button>
         </form>
         
@@ -41,23 +39,14 @@
     <hr>
     <form method="POST" action="">
         {% csrf_token %}
-        {% if time and dateDue %}
-        <input type="datetime" name="dateloaned" value="{{time}}" readonly>
-        <input type="datetime" name="hiddendateloaned" value='{{time| date:"Y-m-d H:i:s:u"}}' hidden>
-        <input type="datetime" name="hiddendatedue" value='{{dateDue| date:"Y-m-d H:i:s:u"}}' hidden>
-        <p>Item Type: {{itemType}}</p>
-        <input type="datetime" name="dateDue" value="{{dateDue}}" readonly>
-        <input type="text" name="dswsMemLoan" placeholder="dswsMemLoan">
-        <input type="text" name="remarks" placeholder="remarks">
-        <input type="hidden" name="itemCat" value="{{selectedItem.itemCat}}">
-        <button type="submit" value="submit">Confirm</button>
-        {% else %}
-        <input type="datetime" name="dateloaned" readonly>
-        <input type="datetime" name="dateDue" readonly>
-        <input type="text" name="dswsMemLoan" placeholder="dswsMemLoan" readonly>
-        <input type="text" name="remarks" placeholder="remarks" readonly>
-        <button type="submit" value="submit" disabled>Confirm</button>
-        {% endif %}
+        <form class="form" action="" method="POST">
+            {%csrf_token%}
+            <table>
+                {{form.as_table}}
+            </table>
+    
+        <input type="submit" value="Submit">
+        </form>
     </form>
     <hr>
 
