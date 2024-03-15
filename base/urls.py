@@ -9,6 +9,8 @@ urlpatterns = [
     path('loan-item2/<str:pk>', views.loanItemTransaction, name='loan-item-transaction'),
     path('return-item', views.returnItem1, name='return-item1'),
     path('retuern-transaction/<str:pk>', views.returnItem2, name='return-item2'),
+    path('late-transactions', views.lateTransactions, name='late-transactions'),
+    path('late-transactions/<str:pk>', views.lateTranscactionDetails, name='late-transaction-details'),
 
     path('admin-dashboard/', views.adminDashboard, name='admin-dashboard'),
 

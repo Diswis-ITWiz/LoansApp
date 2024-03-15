@@ -150,7 +150,7 @@ def loanItemTransaction(request, pk):
             }
         )
         context = {'client': client, 'items': items,  'itemType': itemType, 'form':form}
-        return render(request, 'base/Home-Item/loan_item_transactionA.html', context)
+        return render(request, 'base/Home-Item/loan_item_transaction.html', context)
     if request.method == 'POST':
         form = LoanItemATransactionForm(request.POST)
         if form.is_valid():
@@ -272,8 +272,34 @@ def returnItem2(request, pk):
 
     return render(request, 'base/Home-Item/return_item2.html', context)
 
+# Overdue Transactions
+def lateTransactions(request):
+    currentTime = timezone.localtime(timezone.now())
+    transactions = Transaction.objects.filter(
+        Q(status__exact='OG') & Q(dueDate__lt=currentTime))
+    context = {'currentTime':currentTime, 'transactions':transactions}
+    return render(request, 'base/Home-item/late_transactions.html', context)
 
-
+def lateTranscactionDetails(request, pk):
+    transaction = Transaction.objects.get(id=pk)
+    client = Client.objects.get(clientId=transaction.clientId.clientId)
+    loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
+    overdueDays = 0
+    overdueHours = 0
+    overdueMinutes = 0
+    penalty = ''
+    if checkItemType(loanedItem.itemCat) == 'A':
+        overdueDays = getItemTypeAOverdueDays(localtime(transaction.dueDate), client)
+        penalty = calculateTypeAPenalty(overdueDays, client)
+    else:
+        overdueHours, overdueMinutes = getItemTypeBOverdueTime(localtime(transaction.dueDate), client)
+        print(overdueHours)
+        penalty = calculateTypeBPenalty(overdueHours,overdueMinutes, client)
+    context = {'transaction':transaction, 'client':client, 
+               'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
+               'penalty': penalty, 'overDueDays': overdueDays, 'overDueHours': overdueHours, 
+               'overDueMinutes': overdueMinutes}
+    return render(request, 'base/Home-item/late_transactions_detail.html', context)
 
 
 

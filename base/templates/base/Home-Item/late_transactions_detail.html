@@ -1,0 +1,18 @@
+<h1>Why Not!</h1>
+{{client.clientId}}
+{{loanedItem.itemCat}}
+{{transaction.dateLoaned}}
+{{transaction.dueDate}}
+{{transaction.dswsMemLoanName}}
+{% if itemType == 'A' %}
+    <p>Overdue: {{overDueDays}}</p>
+{% else %}
+    <p>
+        Overdue: {{overDueHours}} hrs {{overDueMinutes}} minutes
+    </p>
+{% endif %}
+<p>
+    Penalty: {{penalty}}
+</p>
+<a href="{% url 'late-transactions'%}">Back</a>
+<a href="{% url 'home'%}">Home</a>
