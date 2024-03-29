@@ -24,8 +24,10 @@
     <form method="POST">
         {% csrf_token %}
         <form method="POST">
-            <input type="date" name="dateInput">
-            <input type="text" name="descriptionInput" placeholder="Description">
+            <table>
+                {{form.as_table}}
+            </table>
+            
             <button type="submit">Submit</button>
         </form>
     </form>

@@ -16,6 +16,17 @@
             </form>
         </div>
     </div>
+    <br>
+    <div>
+        <form method="GET" action="">
+            <input type="checkbox" name="filter4BorrowingClients" id=""
+            {%if filtered%}
+                checked
+            {% endif %}
+            >
+            <button type="submit" name="filterBorrowingClientsBtn" value="Submit">Filter</button>
+        </form>
+    </div>
     <div>
         <table>
             <tr>

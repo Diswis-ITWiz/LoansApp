@@ -1,29 +1,11 @@
 <form method="POST" action="">
     {%csrf_token%}
-    <input type="text" value="{{client.clientId}}">
-    <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}.">
-    <input type="text" value="{{loanedItem.itemCat}}">
-    <input type="text" value="{{transaction.dueDate}}">
-
-    <div>
-        <input type="text" name="itemType" value="{{itemType}}" hidden>
-        <input type="text" name="itemType" value="{{itemType}}" readonly> 
-        <!-- Will update the above to better ui in the future -->
-    </div>
-    {% if itemType == 'A' %}
-    <input type="number" name="overDueDays" value="{{overDueDays}}">
-    <input type="number" name="overDueHours" value='{{overDueHours}}' hidden>
-    <input type="number" name="overDueMinutes" value='{{overDueMinutes}}' hidden>
-    {% else %}
-    <input type="number" name="overDueDays" value="{{overDueDays}}" hidden>
-    <input type="number" name="overDueHours" value='{{overDueHours}}'>
-    <input type="number" name="overDueMinutes" value='{{overDueMinutes}}'>
-    {% endif %}
+    <table>
+        {{form.as_table}}
+    </table>
 
     <p>Penalty: {{penalty}}</p>
-    <input type="text" name="dswsMemRet" placeholder="dswsMemLoan">
-    <input type="text" name="remarks" placeholder="remarks">
-    <button type="submit" value="submit">Confirm</button>
+    <button type="submit" name ="{{itemType}}" value="{{itemType}}">Confirm</button>
 </form>
 
 <a href="{% url 'home'%}">Cancel</a>

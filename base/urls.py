@@ -12,6 +12,9 @@ urlpatterns = [
     path('late-transactions', views.lateTransactions, name='late-transactions'),
     path('late-transactions/<str:pk>', views.lateTranscactionDetails, name='late-transaction-details'),
 
+    path('login', views.adminLogin, name='login'),
+    path('logout', views.adminLogout, name='logout'),
+
     path('admin-dashboard/', views.adminDashboard, name='admin-dashboard'),
 
     path('item-panel/', views.itemPanel, name='item-panel'),
