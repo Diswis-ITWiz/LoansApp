@@ -137,3 +137,5 @@ EMAIL_PORT = 587
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'dsws.receipts@gmail.com'
 EMAIL_HOST_PASSWORD = 'pvoz kxvj ayzl qohi'
+
+

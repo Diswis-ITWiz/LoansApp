@@ -160,7 +160,7 @@ def loanItemTransaction(request, pk):
     if request.method == 'POST':
         form = LoanItemTransactionForm(request.POST)
         if form.is_valid():
-            selectedItem = items.get(itemCat__exact=request.POST.get('itemCat'))
+            selectedItem = LoanItem.objects.get(itemCat=form.cleaned_data["itemCat"].itemCat)
             form.save()
             client.lastBorrowedDate = time
             client.lastBorrowedItem = selectedItem
@@ -170,36 +170,18 @@ def loanItemTransaction(request, pk):
             selectedItem.status = 'LO'
             selectedItem.save()
             messages.success(request, 'Transaction added.')
+
+            # Email Functionality
+            email_borrow_date = form.cleaned_data["dateLoaned"].strftime("%m/%d/%Y %I:%M %p")
+            email_due_date = form.cleaned_data["dueDate"].strftime("%m/%d/%Y %I:%M %p")
+            itemCatName = getItemTypeName(selectedItem.itemCat)
+
+            sendTransactionEmail(selectedItem.itemCat, itemCatName, email_borrow_date, email_due_date, client.email)
+            
             return redirect('home')
         context = {'client': client, 'items': items, 'form':form}
         return render(request, 'base/Home-Item/loan_item_transaction.html', context)
 
-
-
-        # formatted_borrow_date_datetime = datetime.strptime(time, '%Y-%m-%d %H:%M:%S:%f')
-        # formatted_dueDate_datetime = datetime.strptime(dueDate, '%Y-%m-%d %H:%M:%S:%f')
-        # email_borrow_date = formatted_borrow_date_datetime.strftime("%m/%d/%Y %I:%M %p")
-        # email_return_date = formatted_dueDate_datetime.strftime("%m/%d/%Y %I:%M %p")
-        # itemCatName = getItemTypeName(selectedItem.itemCat)
-        # subject_matter = f'{itemCatName} [{selectedItem.itemCat}] is due on {email_return_date}'
-
-
-        # email_context = {
-        #     "itemCat": selectedItem.itemCat,
-        #     "dateBorrowed": email_borrow_date,
-        #     "dueDate": email_return_date
-        # }
-        # html_message = render_to_string("base/email.html", context=email_context)
-        # plain_message = "Plain Template"
-
-        # message = EmailMultiAlternatives(
-        #     subject = subject_matter,
-        #     body= plain_message,
-        #     from_email=None,
-        #     to=[client.email]
-        # )
-        # message.attach_alternative(html_message, "text/html")
-        # message.send()
 
 
 #Return Item

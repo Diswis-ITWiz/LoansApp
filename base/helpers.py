@@ -8,6 +8,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import math
 import numpy as np
+import threading
+from threading import Thread
 
 
 # FRONT PAGE VIEW HELPER METHODS
@@ -206,5 +208,52 @@ def getItemTypeName(itemCat):
         return 'Speaker'
     elif itemCat.startswith('U'):
         return 'Umbrella'
+
+
+class TransactionEmailThread(threading.Thread):
+    def __init__(self, subject, message, email):
+        self.subject = subject
+        self.message = message
+        self.email_to = email
+        threading.Thread.__init__(self)
+    def run(self):
+        email_from = settings.EMAIL_HOST_USER
+        send_mail(self.subject, self.message, email_from, recipient_list = [self.email_to, ], fail_silently=True)
+
+
+def sendTransactionEmail(itemCat, itemCatName, loanDate, dueDate, email):
+    subject_matter = f'{itemCatName} [{itemCat}] is due on {dueDate}'
+    message = f"""
+                LOANS RECEIPT
+
+                We hope you're enjoying your loaned item. 
+                --------------------
+                Item Number: {itemCatName}
+                Time Borrowed: {loanDate}
+                Due Date: {dueDate}
+                --------------------
+                If you have any concerns or inquiries, contact us at:
+                Email: dsws.loans@gmail.com
+                """
+    msg = TransactionEmailThread(subject_matter, message, email)
+    msg.start()
+
+def sendDeadlineEmail(itemCat, itemCatName, loanDate, dueDate, email):
+    subject_matter = f'Reminder: {itemCatName} [{itemCat}] is due on {dueDate}'
+    message = f"""
+                REMINDER
+
+                We hope you're enjoying your loaned item.
+                Please remember to return your loaned item soon. 
+                --------------------
+                Item Number: {itemCatName}
+                Time Borrowed: {loanDate}
+                Due Date: {dueDate}
+                --------------------
+                If you have any concerns or inquiries, contact us at:
+                Email: dsws.loans@gmail.com
+                """
+    msg = TransactionEmailThread(subject_matter, message, email)
+    msg.start()
 
 

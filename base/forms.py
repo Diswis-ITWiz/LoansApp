@@ -90,3 +90,4 @@ class BlockDateForm(forms.Form):
         widget = forms.Textarea(attrs={'rows':'2'}),
         required=False
     )
+
