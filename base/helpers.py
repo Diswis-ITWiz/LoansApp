@@ -199,7 +199,9 @@ def getItemTypeName(itemCat):
     elif itemCat.startswith('C'):
         return 'Calculator'
     elif itemCat.startswith('D'):
-        return 'Dictionary/Transalator'
+        return 'Dictionary'
+    elif itemCat.startswith('TR'):
+        return 'Transalor Dictionary'
     elif itemCat.startswith('LC'):
         return 'Laptop Charger'
     elif itemCat.startswith('PC'):
@@ -239,7 +241,7 @@ def sendTransactionEmail(itemCat, itemCatName, loanDate, dueDate, email):
     msg.start()
 
 def sendDeadlineEmail(itemCat, itemCatName, loanDate, dueDate, email):
-    subject_matter = f'Reminder: {itemCatName} [{itemCat}] is due on {dueDate}'
+    subject_matter = f'Reminder: Your borrowed item {itemCatName} [{itemCat}] is due today!! {dueDate}'
     message = f"""
                 REMINDER
 
@@ -252,6 +254,43 @@ def sendDeadlineEmail(itemCat, itemCatName, loanDate, dueDate, email):
                 --------------------
                 If you have any concerns or inquiries, contact us at:
                 Email: dsws.loans@gmail.com
+                """
+    msg = TransactionEmailThread(subject_matter, message, email)
+    msg.start()
+
+def sendOverdueItemAEmail(itemCat, itemCatName, loanDate, dueDate, email, overdueDays):
+    subject_matter = f'Notice: Loaned item {itemCatName} [{itemCat}] is {overdueDays} day/s overdue!'
+    message = f"""
+NOTICE
+
+The item that you borrowed from us is overdue
+--------------------
+Item Number: {itemCatName}
+Time Borrowed: {loanDate}
+Due Date: {dueDate}
+Days overdue: {overdueDays}
+--------------------
+If you have any concerns or inquiries, contact us at:
+Email: dsws.loans@gmail.com
+                """
+    msg = TransactionEmailThread(subject_matter, message, email)
+    msg.start()
+
+def sendOverdueItemBEmail(itemCat, itemCatName, loanDate, dueDate, email, overdueHours, overdueMinutes):
+    subject_matter = f'Notice: Loaned item {itemCatName} [{itemCat}] is {overdueHours} hr/s {overdueMinutes} min/s overdue!'
+    message = f"""
+NOTICE
+
+The item that you borrowed from us is overdue
+--------------------
+Item Number: {itemCatName}
+Time Borrowed: {loanDate}
+Due Date: {dueDate}
+Hours overdue: {overdueHours}
+Minutes overdue: {overdueMinutes}
+--------------------
+If you have any concerns or inquiries, contact us at:
+Email: dsws.loans@gmail.com
                 """
     msg = TransactionEmailThread(subject_matter, message, email)
     msg.start()

@@ -11,10 +11,23 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Get all ongoing items
+        overdueItems = Transaction.objects.filter(  Q(status__exact='OG') &
+                                                    (   Q(itemCat__itemCat__startswith='PC') |
+                                                        Q(itemCat__itemCat__startswith='LC') |
+                                                        Q(itemCat__itemCat__startswith='A') |
+                                                        Q(itemCat__itemCat__startswith='S')
+                                                    )        
+                                                )        
         # Get current date
+        today = timezone.localtime(timezone.now())
         # Loop
+        for x in overdueItems:
+            print('Checking for overdue')
             # Check if their overdue by comparing the current date with their due date
-            # If late calculate overdue
+             # If late calculate overdue
+            if x.dueDate < today:
+                overdueHours, overdueMinutes = getItemTypeBOverdueTime(x.dueDate, x.clientId.clientId)
+           
             # call emailer method
         stuff = 'This command send emails at the beginning of the day to inform clients of their due items'
         self.stdout.write(stuff)

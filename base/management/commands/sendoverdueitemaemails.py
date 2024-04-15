@@ -11,12 +11,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Get all overdue items
-        overdueItems = Transaction.objects.filter(status='OG')
-        overdueItems = (overdueItems.filter(itemCat__itemCat='B') |
-                        overdueItems.filter(itemCat__itemCat='U') |
-                        overdueItems.filter(itemCat__itemCat='TR') |
-                        overdueItems.filter(itemCat__itemCat='D') |
-                        overdueItems.filter(itemCat__itemCat='C'))
+        overdueItems = Transaction.objects.filter(  Q(status='OG') &
+                                                    (   Q(itemCat__itemCat__startswith='B') |
+                                                        Q(itemCat__itemCat__startswith='U') |
+                                                        Q(itemCat__itemCat__startswith='TR') |
+                                                        Q(itemCat__itemCat__startswith='D') |
+                                                        Q(itemCat__itemCat__startswith='C')
+                                                    )
+                                                  )
         # Get current date
         today = timezone.localtime(timezone.now()).date()
         
