@@ -20,6 +20,7 @@ class ClientForm(ModelForm):
                     ] 
 
 
+
 class LoanItemForm(ModelForm):
     class Meta:
         model = LoanItem
@@ -36,7 +37,7 @@ class LoanItemEditForm(ModelForm):
 class LoanItemTransactionForm(ModelForm):
     class Meta:
         model = Transaction
-        fields = ['clientId', 'itemCat', 'dateLoaned', 'dueDate', 'dswsMemLoanName', 'loanRemarks']
+        fields = ['itemCat', 'clientId', 'dateLoaned', 'dueDate', 'dswsMemLoanName', 'loanRemarks']
         widgets = {
             "clientId": forms.NumberInput(attrs={"readonly":"readonly"}),
             "itemCat": forms.TextInput(attrs={"readonly":"readonly"}),
@@ -91,3 +92,10 @@ class BlockDateForm(forms.Form):
         required=False
     )
 
+
+class LoanItemSelectForm(forms.Form):
+    def __init__ (self, item_choices, *args, **kwargs):
+        super(LoanItemSelectForm, self).__init__(*args, **kwargs)
+        self.fields['item'].choices = item_choices
+    
+    items = forms.ChoiceField(choices=(), required=True)

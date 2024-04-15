@@ -4,74 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Item - Client Search</title>
-    <style>
-        #search__box{
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2em 0em 2em 0em;
-        }
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-        }
-    </style>
 </head>
 <body>
     <div id="search__box">
         <form method="GET" action="{% url 'loan-item'%}">
-            <input id="clientSearch" type="number" name='q' placeholder="Client ID No.">
+            <label for="clientId">Client ID</label>
+            <input id="clientSearch" id="clientId" type="number" name='q' placeholder="Client ID No." value="{{client.clientId}}">
         </form>
         <br>
-            {% if borrowingStatus %}
-                <p>UNFULFILLED TRANSACTION: PREVIOUS ITEM HAS NOT BEEN RETURNED</p>
-            {% endif %}
             {% if gradWaiting %}
                 <p>Client is Graduating</p>
             {% endif%}
             {% if input_validity == True %}
-                <a href="{% url 'new-client'%}">Client not found, create new client?</a>
+                <a href="{% url 'new-client'%}">Register New Client</a>
             {% endif%}
             
     </div>
-    <div>
-        {% if client %}
-        <input type="number" value="{{ client.clientId }}" readonly>
-
-            {% if client.suffix%}
-                <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix}}" readonly>
-            {% else %}
-                <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}." readonly>
-            {%endif%}
-
-        <input type="text" value="{{client.yearLevel}}" readonly>
-        <input type="text" value="{{client.course}}" readonly>
-        <input type="text" value="{{client.graduating}}" readonly>
-        <input type="text" value="{{client.email}}" readonly>
-        <input type="text" value="{{client.contactNum}}" readonly>
-        <br>
+    {% if client%}
+    <div style="display: flex; flex-direction: column;">
+        <div>
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" value="{{client.firstName}}" readonly>
+        </div>
+        <div>
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" value="{{client.lastName}}" readonly>
+        </div>
+        <div>
+            <label for="middleInitial">M.I.</label>
+            <input type="text" id="middleInitial" value="{{client.middleInitial}}" readonly>
+            <label for="suffic">Suffix</label>
+            <input type="text" id="suffix" value="{{client.suffix}}" readonly>
+        </div>
+        <div>
+            <label for="borrowing">Borrowing</label>
+            <input type="checkbox" id="borrowing" value="{{client.borrowing}}" disabled>
+        </div>
+        <div>
+            <label for="dateDue">Due Date</label>
+            <input type="datetime-local" id="dateDue" value="{{dueDate}}" readonly>
+        </div>
+        <!-- <div>
+            <label for="status">Status</label>
+            <input type="text" id="status">
+        </div> -->
+        <div>
+            <label for="borrowCount">Borrowing Count</label>
+            <input type="number" id="borrowCount" value="{{borrowCount}}" readonly>
+        </div>
+        <div>
+            <label for="warningCount">Warning Count</label>
+            <input type="number" id="warningCount" value="{{client.warningCount}}" readonly>
+        </div>
         <a href="{% url 'home' %}">Cancel</a>
-            {% if borrowingStatus or gradWaiting or blackListed %}
-                <a href="{%  url 'loan-item-transaction' client.clientId %}" style="pointer-events: none">Confirm</a>
-            {% else %}
-                <a href="{%  url 'loan-item-transaction' client.clientId %}">Confirm</a>
-            {% endif %}
-        
+        {% if gradWaiting or blackListed %}
+        <a href="#" style="pointer-events: none;">Confirm</a>
         {% else %}
-        <input type="text" placeholder="Client ID" readonly>
-        <input type="text" placeholder="Name" readonly>
-        <input type="text" placeholder="Yr Level" readonly>
-        <input type="text" placeholder="Course" readonly>
-        <input type="text" placeholder="Graduating" readonly>
-        <input type="text" placeholder="Email" readonly>
-        <input type="text" placeholder="Contact Num" readonly>
-        <br>
-        <a href="{% url 'home' %}">Cancel</a>
-        <a href="" style="pointer-events: none">Confirm</a>
+        <a href="{% url 'loan-item-transaction' client.clientId %}">Confirm</a>
         {% endif %}
     </div>
+    {% else%}
+        <div>
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" value="{{client.firstName}}" readonly>
+        </div>
+        <div>
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" value="{{client.lastName}}" readonly>
+        </div>
+        <div>
+            <label for="middleInitial">M.I.</label>
+            <input type="text" id="middleInitial" value="{{client.middleInitial}}" readonly>
+            <label for="suffic">Suffix</label>
+            <input type="text" id="suffix" value="{{client.suffix}}" readonly>
+        </div>
+        <div>
+            <label for="borrowing">Borrowing</label>
+            <input type="checkbox" id="borrowing" value="{{client.borrowing}}" disabled>
+        </div>
+        <div>
+            <label for="dateDue">Due Date</label>
+            <input type="datetime-local" id="dateDue" value="{{dueDate}}" readonly>
+        </div>
+        <!-- <div>
+            <label for="status">Status</label>
+            <input type="text" id="status">
+        </div> -->
+        <div>
+            <label for="borrowCount">Borrowing Count</label>
+            <input type="number" id="borrowCount" value="{{borrowCount}}" readonly>
+        </div>
+        <div>
+            <label for="warningCount">Warning Count</label>
+            <input type="number" id="warningCount" value="{{client.warningCount}}" readonly>
+        </div>
+        <a href="{% url 'home' %}">Cancel</a>
+        {% if gradWaiting or blackListed %}
+            <a href="#" style="pointer-events: none;">Confirm</a>
+        {% else %}
+            <a href="#" style="pointer-events: none;">Confirm</a>
+        {% endif %}
+    {% endif %}
+   
     
 </body>
 </html>

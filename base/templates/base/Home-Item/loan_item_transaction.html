@@ -6,28 +6,29 @@
     <title>Loan Item - Select Item</title>
 </head>
 <body>
-    <div>
-        <input type="number" value="{{ client.clientId }}" readonly><br>
-        {% if client.suffix%}
-            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix}}" readonly><br>
-        {% else %}
-            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}." readonly><br>
-        {%endif%}
-        <input type="text" value="{{client.yearLevel}}" readonly>
-        <input type="text" value="{{client.course}}" readonly><br>
-        <input type="text" value="{{client.graduating}}" readonly><br>
-        <input type="text" value="{{client.email}}" readonly><br>
-        <input type="text" value="{{client.contactNum}}" readonly><br>
-    </div>
-    <br>
     {% if items %}
     <div>
         <form method="GET" action="{% url 'loan-item-transaction' client.clientId%}">
             <div>
                 <label for="itemSelector">Choose Item:</label>
                 <select name="selectedItem" id="itemSelector">
+                    <option disabled
+                    {% if selectedItem is not True%}
+                    selected
+                    {% endif%} value="">Select Item ID</option>
                     {% for item in items %}
+
+                    {%if selectedItem%}
+                        <option value="{{item.itemCat}}" 
+                        {% if selectedItem == item.itemCat %} 
+                        selected 
+                        {% endif %}>
+                            {{item.itemCat}}
+                        </option>
+                    {% else %}
                         <option value="{{item.itemCat}}">{{item.itemCat}}</option>
+                    {% endif%}
+
                     {% endfor %}
                 </select>
             </div>
@@ -36,7 +37,6 @@
         
     </div>
     {% endif %}
-    <hr>
     <form method="POST" action="">
         {% csrf_token %}
         <form class="form" action="" method="POST">
