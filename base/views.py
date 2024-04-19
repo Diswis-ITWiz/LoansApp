@@ -49,28 +49,21 @@ def loanItemClientFinder(request):
         if Client.objects.filter(clientId__exact=q).exists():
             client = Client.objects.get(clientId__exact=q)
             transactions = Transaction.objects.filter(clientId__exact=q)
-            context = {}
+            context = {'client':client, 'borrowCount': transactions.count()}
             if client.borrowing == True:
-                context={
-                    'client':client,
-                    'borrowCount': transactions.count(),
+                context.update({
                     'dueDate': transactions[0].dueDate,
                     'gradWaiting': True,
-                    'blackListed': True
-                }
+                    'blackListed': True,
+                    'borrowing': True
+                })
             elif client.gradWaiting or client.blackListed or client.temporaryBlackList:
-                context={
-                        'client':client,
-                        'borrowCount': transactions.count(),
-                        'gradWaiting': True,
-                        'blackListed': True
-                    }
+                context.update({
+                    'gradWaiting': True,
+                    'blackListed': True
+                })
             else:
-                context={
-                        'client':client,
-                        'borrowCount': transactions.count()
-                }
-            # Check if Graduating senior or has currently borrowed an Item:
+                return render(request, 'base/Home-Item/find_client.html', context)
             return render(request, 'base/Home-Item/find_client.html', context)
         else:
             return redirect('new-client')
@@ -112,7 +105,7 @@ def loanItemTransaction(request, pk):
         q = request.GET.get('selectedItem', '')
         if q == '':
             form = LoanItemTransactionForm()
-            context = {'client': client, 'items': items, 'form':form, 'selectedItem': None}
+            context = {'client': client, 'items': items, 'form': form, 'selectedItem': None}
             return render(request, 'base/Home-Item/loan_item_transaction.html', context)
         
         selectedItem = LoanItem.objects.get(itemCat__exact=q)
@@ -157,13 +150,11 @@ def loanItemTransaction(request, pk):
 
 
         form = LoanItemTransactionForm(
-            initial={"clientId": client.clientId,
-                    "itemCat": itemCat,
-                    "dateLoaned": time,
-                    "dueDate": dateDue,
+            initial={"itemCat": itemCat,
+                    "dateDue": dateDue,
+                    "dateLoaned": time
             }
         )
-        form.fields['dueDate'].initial = dateDue
         context = {'client': client, 'items': items,  'itemType': itemType, 'form':form, 'selectedItem':itemCat}
         return render(request, 'base/Home-Item/loan_item_transaction.html', context)
     
@@ -171,8 +162,15 @@ def loanItemTransaction(request, pk):
     if request.method == 'POST':
         form = LoanItemTransactionForm(request.POST)
         if form.is_valid():
-            selectedItem = LoanItem.objects.get(itemCat=form.cleaned_data["itemCat"].itemCat)
-            form.save()
+            selectedItem = LoanItem.objects.get(itemCat=form.cleaned_data["itemCat"])
+            transaction = Transaction.objects.create(
+                clientId = client,
+                itemCat = selectedItem,
+                dswsMemLoanName = form.cleaned_data["reciever"],
+                loanRemarks = form.cleaned_data["remarks"],
+                dateLoaned = form.cleaned_data["dateLoaned"],
+                dueDate = form.cleaned_data["dateDue"]
+            )
             client.lastBorrowedDate = time
             client.lastBorrowedItem = selectedItem
             client.borrowing = True
@@ -184,7 +182,7 @@ def loanItemTransaction(request, pk):
 
             # Email Functionality
             email_borrow_date = form.cleaned_data["dateLoaned"].strftime("%m/%d/%Y %I:%M %p")
-            email_due_date = form.cleaned_data["dueDate"].strftime("%m/%d/%Y %I:%M %p")
+            email_due_date = form.cleaned_data["dateDue"].strftime("%m/%d/%Y %I:%M %p")
             itemCatName = getItemTypeName(selectedItem.itemCat)
             sendTransactionEmail(selectedItem.itemCat, itemCatName, email_borrow_date, email_due_date, client.email)
             

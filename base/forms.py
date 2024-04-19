@@ -34,16 +34,19 @@ class LoanItemEditForm(ModelForm):
         fields = '__all__'
         exclude = ['dateReg', 'lastClient']
 
-class LoanItemTransactionForm(ModelForm):
-    class Meta:
-        model = Transaction
-        fields = ['itemCat', 'clientId', 'dateLoaned', 'dueDate', 'dswsMemLoanName', 'loanRemarks']
-        widgets = {
-            "clientId": forms.NumberInput(attrs={"readonly":"readonly"}),
-            "itemCat": forms.TextInput(attrs={"readonly":"readonly"}),
-            "dateLoaned": forms.DateTimeInput(attrs={"readonly":"readonly"}),
-            "dueDate": DateTimePickerInput(),
-        }
+
+
+class LoanItemTransactionForm(forms.Form):
+    dateLoaned = forms.DateTimeField(widget=forms.HiddenInput())
+    dateDue = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly"}))
+    itemCat = forms.CharField(widget=forms.HiddenInput())
+    reciever = forms.CharField()
+    remarks = forms.CharField(
+        widget = forms.Textarea(attrs={'rows':'2'}),
+        required=False
+    )
+    
+
 
 class ReturnItemATransactionForm(forms.Form):
     clientIDNo = forms.IntegerField(widget=forms.NumberInput(attrs={'readonly' : 'readonly'}))

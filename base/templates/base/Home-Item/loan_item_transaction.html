@@ -10,7 +10,7 @@
     <div>
         <form method="GET" action="{% url 'loan-item-transaction' client.clientId%}">
             <div>
-                <label for="itemSelector">Choose Item:</label>
+                <label for="itemSelector">Item Category Number:</label>
                 <select name="selectedItem" id="itemSelector">
                     <option disabled
                     {% if selectedItem is not True%}
