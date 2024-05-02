@@ -4,52 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Item - Select Item</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    {% if items %}
-    <div>
-        <form method="GET" action="{% url 'loan-item-transaction' client.clientId%}">
-            <div>
-                <label for="itemSelector">Item Category Number:</label>
-                <select name="selectedItem" id="itemSelector">
-                    <option disabled
-                    {% if selectedItem is not True%}
-                    selected
-                    {% endif%} value="">Select Item ID</option>
-                    {% for item in items %}
-
-                    {%if selectedItem%}
-                        <option value="{{item.itemCat}}" 
-                        {% if selectedItem == item.itemCat %} 
-                        selected 
-                        {% endif %}>
-                            {{item.itemCat}}
-                        </option>
-                    {% else %}
-                        <option value="{{item.itemCat}}">{{item.itemCat}}</option>
-                    {% endif%}
-
-                    {% endfor %}
-                </select>
+    <div class="container">
+        <div class="row align-items-center" style="height: 80vh;">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="card bg-light p-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">Last Item Returned:</div>
+                            <div class="col">{{client.lastBorrowedItem.itemCat}} at {{client.lastBorrowedDate}}</div>
+                        </div>
+                        <br>
+                        {% if items %}
+                        <div>
+                            <form method="GET" action="{% url 'loan-item-transaction' client.clientId%}">
+                                <div class="row">
+                                    <div class="col"><label for="itemSelector">Item Category Number:</label></div>
+                                    <div class="col">
+                                        <div class="input-group mb-3">
+                                            <select name="selectedItem" id="itemSelector" class="form-select-sm">
+                                                <option disabled
+                                                    {% if selectedItem is not True%}
+                                                    selected
+                                                    {% endif%} value=""
+                                                >
+                                                    Select Item ID
+                                                </option>
+                                                {% for item in items %}
+                                                
+                                                {%if selectedItem%}
+                                                <option value="{{item.itemCat}}" 
+                                                    {% if selectedItem == item.itemCat %} 
+                                                    selected 
+                                                    {% endif %}
+                                                >
+                                                {{item.itemCat}}
+                                                </option>
+                                                {% else %}
+                                                <option value="{{item.itemCat}}">{{item.itemCat}}</option>
+                                                {% endif%}
+                                                
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" value="submit">Calculate</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        {% endif %}
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-sm-3">Item Type</div>
+                                    <div class="col-sm-3">
+                                        <div class="d-flex">
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" name="radio1" value="A"
+                                                {% if itemType == 'A'%}
+                                                    checked
+                                                {% else %}
+                                                    disabled
+                                                {% endif %}
+                                                >A
+                                                <label for="radio1" class="form-check-label"></label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" name="radio2" value="B"
+                                                {% if itemType == 'B'%}
+                                                    checked
+                                                {% else %}
+                                                    disabled
+                                                {% endif %}
+                                                >B
+                                                <label for="radio2" class="form-check-label"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pt-1">
+                                    {{form.dateLoaned}}
+                                    {{form.itemCat}}
+                                    <div class="col-sm-3">{{form.dateDue.label}}</div>
+                                    <div class="col">{{form.dateDue}}</div>
+                                </div>
+                                <div class="row pt-1">
+                                    <div class="col-sm-3">{{form.reciever.label}}</div>
+                                    <div class="col">{{form.reciever}}</div>
+                                </div>
+                                <div class="row pt-1">
+                                    <div class="col-sm-3">{{form.remarks.label}}</div>
+                                    <div class="col">{{form.remarks}}</div>
+                                </div>
+                                <br>
+                                <div class="row pt-1">
+                                    <div class="col-sm-3">  <input type="submit" value="Submit" class="btn btn-primary">    </div>
+                                    <div class="col-sm-3">  <a href="{% url 'loan-item' %}" class="btn btn-secondary">Cancel</a>  </div>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-3"></div>
             </div>
-            <button type="submit" value="submit">Calculate</button>
-        </form>
+        </div>
         
     </div>
-    {% endif %}
-    <form method="POST" action="">
-        {% csrf_token %}
-        <form class="form" action="" method="POST">
-            <p>Item Type: {{itemType}}</p>
-            <table>
-                {{form.as_table}}
-            </table>
-    
-        <input type="submit" value="Submit">
-        </form>
-    </form>
-    <hr>
-
-    <a href="{% url 'loan-item' %}">Cancel</a>
 </body>
 </html>

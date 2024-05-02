@@ -79,7 +79,7 @@ class Transaction(models.Model):
         COMPLETE: 'Complete',
         DAMAGED:'Damaged',
         LOST: 'Lost',
-        UNRETURNED: 'Unreturned'
+        UNRETURNED: 'Unreturned',
     }
     status = models.CharField(max_length=2, choices=TRANSACTION_STATUS, default=ONGOING)
 

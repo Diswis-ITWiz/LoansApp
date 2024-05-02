@@ -4,110 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Item - Client Search</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <div id="search__box">
-        <form method="GET" action="{% url 'loan-item'%}">
-            <label for="clientId">Client ID</label>
-            <input id="clientSearch" id="clientId" type="number" name='q' placeholder="Client ID No." value="{{client.clientId}}">
-        </form>
-        <br>
-            {% if gradWaiting %}
-                <p>Client is Graduating</p>
-            {% endif%}
-            {% if input_validity == True %}
-                <a href="{% url 'new-client'%}">Register New Client</a>
-            {% endif%}
+    <div class="container">
+        <div class="row align-items-center" style="height: 80vh;">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="card bg-light p-3">
+                    <div class="card-body">
+                        <form method="GET" action="{% url 'loan-item'%}">
+                            <div class="row">
+                            <div class="col-sm-3">   <label for="clientId" class="form-label">Client ID</label>  </div>    
+                            <div class="col">   <input id="clientSearch" id="clientId" type="number" name='q' class="form-control form-control-sm" placeholder="Input Id No." value="{{client.clientId}}">    </div>    
+                            </div>
+                        </form>
+                        <br>
+                            {% if input_validity == True %}
+                                <a href="{% url 'new-client'%}">Register New Client</a>
+                            {% endif%}
+                        {% if client%}
+                        <div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="firstName" class="form-label">First Name</label>    </div>
+                                <div class="col">   
+                                    <input type="text" id="firstName" class="form-control form-control-sm" value="{{client.firstName}}" readonly>   
+                                </div>
+                                
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="lastName" class="form-label">Last Name</label>  </div>
+                                <div class="col">   
+                                    <input type="text" id="lastName" class="form-control form-control-sm" value="{{client.lastName}}" readonly> 
+                                </div>
+                                
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-1">  <label for="middleInitial" class="form-label">M.I.</label>      </div>
+                                <div class="col-sm-2">  <input type="text" id="middleInitial" class="form-control form-control-sm" value="{{client.middleInitial}}" readonly>       </div>
+                                <div class="col-sm-1">  <label for="suffix" class="form-label">Suffix</label>   </div>
+                                <div class="col-sm-2">  <input type="text" id="suffix" class="form-control form-control-sm" value="{{client.suffix}}" readonly>     </div>
+                            </div>
+                            <div class="row pt-2">
+                                <div class="col-sm-3">  <label for="borrowing" class="form-label">Borrowing</label> </div>
+                                <div class="col">
+                                    <input type="checkbox" id="borrowing" value="{{client.borrowing}}" disabled
+                                    {% if client.borrowing == True %}
+                                    checked="checked"
+                                    {% endif %}>
+                                </div>
+                            </div>
+                            <div class="row pt-2">
+                                <div class="col-sm-3"><label for="last item" class="form-label">Last Item</label></div>
+                                <div class="col"><input type="text" id="last item" class="form-control form-control-sm" value="{{client.lastBorrowedItem.itemCat}}" readonly></div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="dateDue" class="form-label">Due Date</label>    </div>
+                                <div class="col">
+                                    <input type="datetime" id="dateDue" class="form-control form-control-sm" value="{{dueDate}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="borrowCount" class="form-label">Borrow Count</label> </div>
+                                <div class="col">
+                                    <input type="number" id="borrowCount" class="form-control form-control-sm" value="{{borrowCount}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3"><label for="warningCount" class="form-label">Warning Count</label></div>
+                                <div class="col">
+                                    <input type="number" id="warningCount" class="form-control form-control-sm" value="{{client.warningCount}}" readonly>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <a
+                                        {% if gradWaiting or blackListed %}
+                                            class="btn btn-warning disabled"
+                                            href="#"
+                                            style="pointer-events: none;"
+                                        {% else %}
+                                            class="btn btn-primary"
+                                            href="{% url 'loan-item-transaction' client.clientId %}"
+                                        {% endif %}
+                                    >
+                                        {% if gradWaiting %}
+                                            Graduating
+                                        {% elif blackListed %}
+                                            Penalized
+                                        {% else %}
+                                            Confirm
+                                        {% endif %}
+                                    </a>
+
+                                </div>
+                                <div class="col-sm-3"><a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a></div>
+                            </div>
+                            
+                            
+                        </div>
+                        {% else%}
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="firstName" class="form-label">First Name</label>    </div>
+                                <div class="col">   <input type="text" id="firstName" class="form-control form-control-sm" value="{{client.firstName}}" readonly>   </div>
+                                
+                                
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="lastName" class="form-label">Last Name</label>  </div>
+                                <div class="col">
+                                    <input type="text" id="lastName" class="form-control form-control-sm" value="{{client.lastName}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-1">  <label for="middleInitial" class="form-label">M.I.</label>  </div>
+                                <div class="col-sm-2">  <input type="text" id="middleInitial" class="form-control form-control-sm" value="{{client.middleInitial}}" readonly>   </div>
+                                <div class="col-sm-1">  <label for="suffix" class="form-label">Suffix</label>   </div>
+                                <div class="col-sm-2">  <input type="text" id="suffix" class="form-control form-control-sm" value="{{client.suffix}}" readonly> </div>
+                            </div>
+                            <div class="row pt-2">
+                                <div class="col-sm-3">  <label for="borrowing" class="form-check-label">Borrowing</label></div>
+                                <div class="col">
+                                    <input type="checkbox" id="borrowing" class="form-check-input" value="{{client.borrowing}}" disabled
+                                    {% if client.borrowing == True %}
+                                    checked="checked"
+                                    {% endif %}
+                                    >
+                                </div>
+                            </div>
+                            <div class="row pt-2">
+                                <div class="col-sm-3"><label for="last item" class="form-label">Last Item</label></div>
+                                <div class="col"><input type="text" id="last item" class="form-control form-control-sm" value="{{client.lastBorrowedItem}}" readonly></div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="dateDue" class="form-label">Due Date</label>    </div>
+                                <div class="col">
+                                    <input type="datetime" id="dateDue" class="form-control form-control-sm" value="{{dueDate}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="borrowCount" class="form-label">Borrow Count</label> </div>
+                                <div class="col">
+                                    <input type="number" id="borrowCount" class="form-control form-control-sm" value="{{borrowCount}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">  <label for="warningCount" class="form-label">Warning Count</label>  </div>
+                                <div class="col">
+                                    <input type="number" id="warningCount" class="form-control form-control-sm" value="{{client.warningCount}}" readonly>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <a href="#" style="pointer-events: none;" class="btn btn-warning disabled">
+                                        No Client !
+                                    </a>
+                                </div>
+                                <div class="col-sm-3">  <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>   </div>
+                            </div>
+                            
+                            
+                        {% endif %}
+                    </div>
+        
+                </div>
+            </div>
+            <div class="col-md-3"></div>
             
+            
+        </div>
     </div>
-    {% if client%}
-    <div style="display: flex; flex-direction: column;">
-        <div>
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" value="{{client.firstName}}" readonly>
-        </div>
-        <div>
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" value="{{client.lastName}}" readonly>
-        </div>
-        <div>
-            <label for="middleInitial">M.I.</label>
-            <input type="text" id="middleInitial" value="{{client.middleInitial}}" readonly>
-            <label for="suffic">Suffix</label>
-            <input type="text" id="suffix" value="{{client.suffix}}" readonly>
-        </div>
-        <div>
-            <label for="borrowing">Borrowing</label>
-            <input type="checkbox" id="borrowing" value="{{client.borrowing}}" disabled
-            {% if client.borrowing == True %}
-            checked="checked"
-            {% endif %}>
-        </div>
-        <div>
-            <label for="dateDue">Due Date</label>
-            <input type="datetime" id="dateDue" value="{{dueDate}}" readonly>
-        </div>
-        <div>
-            <label for="borrowCount">Borrowing Count</label>
-            <input type="number" id="borrowCount" value="{{borrowCount}}" readonly>
-        </div>
-        <div>
-            <label for="warningCount">Warning Count</label>
-            <input type="number" id="warningCount" value="{{client.warningCount}}" readonly>
-        </div>
-        <a href="{% url 'home' %}">Cancel</a>
-        {% if gradWaiting or blackListed %}
-        <a href="#" style="pointer-events: none;">Confirm</a>
-        {% else %}
-        <a href="{% url 'loan-item-transaction' client.clientId %}">Confirm</a>
-        {% endif %}
-    </div>
-    {% else%}
-        <div>
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" value="{{client.firstName}}" readonly>
-        </div>
-        <div>
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" value="{{client.lastName}}" readonly>
-        </div>
-        <div>
-            <label for="middleInitial">M.I.</label>
-            <input type="text" id="middleInitial" value="{{client.middleInitial}}" readonly>
-            <label for="suffic">Suffix</label>
-            <input type="text" id="suffix" value="{{client.suffix}}" readonly>
-        </div>
-        <div>
-            <label for="borrowing">Borrowing</label>
-            <input type="checkbox" id="borrowing" value="{{client.borrowing}}" disabled
-            {% if client.borrowing == True %}
-            checked="checked"
-            {% endif %}
-            >
-        </div>
-        <div>
-            <label for="dateDue">Due Date</label>
-            <input type="datetime" id="dateDue" value="{{dueDate}}" readonly>
-        </div>
-        <!-- <div>
-            <label for="status">Status</label>
-            <input type="text" id="status">
-        </div> -->
-        <div>
-            <label for="borrowCount">Borrowing Count</label>
-            <input type="number" id="borrowCount" value="{{borrowCount}}" readonly>
-        </div>
-        <div>
-            <label for="warningCount">Warning Count</label>
-            <input type="number" id="warningCount" value="{{client.warningCount}}" readonly>
-        </div>
-        <a href="{% url 'home' %}">Cancel</a>
-        {% if gradWaiting or blackListed %}
-            <a href="#" style="pointer-events: none;">Confirm</a>
-        {% else %}
-            <a href="#" style="pointer-events: none;">Confirm</a>
-        {% endif %}
-    {% endif %}
+    
    
     
 </body>

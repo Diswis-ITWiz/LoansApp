@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from datetime import datetime
 
 class LoginForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
+    username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
 
 class ClientForm(ModelForm):
     class Meta:
@@ -38,11 +38,11 @@ class LoanItemEditForm(ModelForm):
 
 class LoanItemTransactionForm(forms.Form):
     dateLoaned = forms.DateTimeField(widget=forms.HiddenInput())
-    dateDue = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly"}))
+    dateDue = forms.DateTimeField(widget=DateTimePickerInput(attrs={"class":"form-control form-control-sm", "label":"Date Due"}))
     itemCat = forms.CharField(widget=forms.HiddenInput())
-    reciever = forms.CharField()
+    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "label": "DSWS Member"}))
     remarks = forms.CharField(
-        widget = forms.Textarea(attrs={'rows':'2'}),
+        widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm", "label":"Remarks"}),
         required=False
     )
     
