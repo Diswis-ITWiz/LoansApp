@@ -72,6 +72,7 @@ def loanItemClientFinder(request):
 def loanItemTransaction(request, pk):
     client = Client.objects.get(clientId__exact=pk)
     items = LoanItem.objects.filter(status='IS')
+    latestTransaction = Transaction.objects.filter(clientId__exact=pk).first()
     time = None
     closingtime = None
     dateDue = None
@@ -105,7 +106,7 @@ def loanItemTransaction(request, pk):
         q = request.GET.get('selectedItem', '')
         if q == '':
             form = LoanItemTransactionForm()
-            context = {'client': client, 'items': items, 'form': form, 'selectedItem': None}
+            context = {'client': client, 'items': items, 'form': form, 'selectedItem': None, "latestTransaction": latestTransaction}
             return render(request, 'base/Home-Item/loan_item_transaction.html', context)
         
         selectedItem = LoanItem.objects.get(itemCat__exact=q)
@@ -155,7 +156,7 @@ def loanItemTransaction(request, pk):
                     "dateLoaned": time
             }
         )
-        context = {'client': client, 'items': items,  'itemType': itemType, 'form':form, 'selectedItem':itemCat}
+        context = {'client': client, 'items': items,  'itemType': itemType, 'form':form, 'selectedItem':itemCat, "latestTransaction": latestTransaction}
         return render(request, 'base/Home-Item/loan_item_transaction.html', context)
     
     

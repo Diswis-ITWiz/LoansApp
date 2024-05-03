@@ -10,11 +10,12 @@
 </head>
 <body>
     <div class="container">
-        <div class="row align-items-center" style="height: 80vh;">
+        <div class="row align-items-center mt-5" style="height: 80vh;">
             <div class="col-md-3"></div>
             <div class="col-md-6">
                 <div class="card bg-light p-3">
                     <div class="card-body">
+                        <h2 class="text-center">Return Item - Find Client</h2>
                         <form method="GET" action="{% url 'return-item1'%}">
                             <div class="row">
                                 <div class="col-sm-3"><label for="q"></label>Client ID</div>
@@ -23,121 +24,38 @@
                                 </div>
                             </div>
                         </form>
-                        <br>
-                        {% if client %}
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
-                                    <label for="clientName">Name</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" 
-                                        id="clientName"
-                                        class="form-control form-control-sm"
-                                        {% if client.suffix%}
-                                        value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}" 
-                                        {% else %}
-                                        value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}} {{client.suffix}}"
+                        <div class="row mb-4 mt-4" id="Client Name">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" id="clientName" class="form-control form-control-sm" placeholder="a"
+                                        {% if client and client.suffix%}
+                                            value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}" 
+                                        {% elif client and not client.suffix %}
+                                            value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}} {{client.suffix}}"
                                         {%endif%}
                                         readonly
                                     >
+                                    <label for="clientName">Name</label>
                                 </div>
-                            </div>                                                                
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
+                            </div>
+                        </div>
+                        <div class="row mb-4 mt-4" id="Year and Course">
+                            <div class="col-md-3">
+                                <div class="form-floating">
+                                    <input type="text" id="yrlvl" class="form-control form-control-sm" placeholder="a" value="{{client.yearLevel}}" readonly>
                                     <label for="yrlvl">Yr Lvl</label>
                                 </div>
-                                <div class="col">
-                                    <input type="text" id="yrlvl" class="form-control form-control-sm" value="{{client.yearLevel}}" readonly>
-                                </div>
                             </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
+                            <div class="col-md-3">
+                                <div class="form-floating">
+                                    <input type="text" id="course" class="form-control form-control-sm" placeholder="a" value="{{client.course}}" readonly>
                                     <label for="course">Course</label>
                                 </div>
-                                <div class="col">
-                                    <input type="text" id="course" class="form-control form-control-sm" value="{{client.course}}" readonly>
-                                </div>
                             </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
-                                    <label for="graduating">Graduating?</label>
-                                </div>
-                                <div class="col">
-                                    <!-- <input type="text" id="graduating" class="form-control form-control-sm" value="{{client.graduating}}" readonly> -->
-                                    <input type="checkbox" id="graduating" class="form-check-input" value="{{client.graduating}}" 
-                                    disabled
-                                    {% if client.graduating == True %}
-                                        checked="checked"
-                                    {% endif %}
-                                    >
-                                </div>
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
-                                    <label for="email">Email</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" id="email" class="form-control form-control-sm" value="{{client.email}}" readonly>
-                                </div>
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
-                                    <label for="contactNum">Contact No.</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" id="contactNum" class="form-control form-control-sm" value="{{client.contactNum}}" readonly>
-                                </div>
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
-                                    <label for="itemCat">Last Borrowed Item</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" id="itemCat" class="form-control form-control-sm" value="{{transaction.itemCat.itemCat}}" readonly>
-                                </div>
-                            </div>
-                        <br>
-                        {% else %}
-                        <div class="row pt-1">
-                            <div class="col-sm-3">
-                                <label for="clientName">Name</label>
-                            </div>
-                            <div class="col">
-                                <input type="text" 
-                                    id="clientName"
-                                    class="form-control form-control-sm"
-                                    {% if client.suffix%}
-                                    value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}" 
-                                    {% else %}
-                                    value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}} {{client.suffix}}"
-                                    {%endif%}
-                                    readonly
-                                >
-                            </div>
-                        </div>                                
-                            
-                        <div class="row pt-1">
-                            <div class="col-sm-3">
-                                <label for="yrlvl">Yr Lvl</label>
-                            </div>
-                            <div class="col">
-                                <input type="text" id="yrlvl" class="form-control form-control-sm" value="{{client.yearLevel}}" readonly>
-                            </div>
-                        </div>
-                        <div class="row pt-1">
-                            <div class="col-sm-3">
-                                <label for="course">Course</label>
-                            </div>
-                            <div class="col">
-                                <input type="text" id="course" class="form-control form-control-sm" value="{{client.course}}" readonly>
-                            </div>
-                        </div>
-                        <div class="row pt-1">
-                            <div class="col-sm-3">
+                            <div class="col-md-3 pt-3">
                                 <label for="graduating">Graduating?</label>
                             </div>
-                            <div class="col">
-                                <!-- <input type="text" id="graduating" class="form-control form-control-sm" value="{{client.graduating}}" readonly> -->
+                            <div class="col  pt-3">
                                 <input type="checkbox" id="graduating" class="form-check-input" value="{{client.graduating}}" 
                                 disabled
                                 {% if client.graduating == True %}
@@ -146,33 +64,30 @@
                                 >
                             </div>
                         </div>
-                        <div class="row pt-1">
-                            <div class="col-sm-3">
-                                <label for="email">Email</label>
+
+                        <div class="row mb-4 mt-4" id="Contact and Email">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" id="email" class="form-control form-control-sm" placeholder="a" value="{{client.email}}" readonly>
+                                    <label for="email">Email</label>
+                                </div>
                             </div>
                             <div class="col">
-                                <input type="text" id="email" class="form-control form-control-sm" value="{{client.email}}" readonly>
+                                <div class="form-floating">
+                                    <input type="text" id="contactNum" class="form-control form-control-sm" placeholder="a" value="{{client.contactNum}}" readonly>
+                                    <label for="contactNum">Contact No.</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="row pt-1">
-                            <div class="col-sm-3">
-                                <label for="contactNum">Contact No.</label>
-                            </div>
+                        <div class="row mb-4 mt-4" id="Borrowed Item">
                             <div class="col">
-                                <input type="text" id="contactNum" class="form-control form-control-sm" value="{{client.contactNum}}" readonly>
+                                <div class="form-floating">
+                                    <input type="text" id="itemCat" class="form-control form-control-sm" placeholder="a" value="{{transaction.itemCat.itemCat}}" readonly>
+                                    <label for="itemCat">Last Borrowed Item</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="row pt-1">
-                            <div class="col-sm-3">
-                                <label for="itemCat">Last Borrowed Item</label>
-                            </div>
-                            <div class="col">
-                                <input type="text" id="itemCat" class="form-control form-control-sm" value="{{transaction.itemCat.itemCat}}" readonly>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <br>
-                        <div class="row pt-1">
+                        <div class="row  mb-4 mt-4">
                             <div class="col-sm-3">
                                 {%if transaction %}
                                     <a href="{%  url 'return-item2' transaction.id %}" class="btn btn-primary">Confirm</a>

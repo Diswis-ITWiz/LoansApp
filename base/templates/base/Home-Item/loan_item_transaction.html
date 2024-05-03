@@ -10,49 +10,53 @@
 </head>
 <body>
     <div class="container">
-        <div class="row align-items-center" style="height: 80vh;">
+        <div class="row align-items-center mt-5" style="height: 80vh;">
             <div class="col-md-3"></div>
             <div class="col-md-6">
                 <div class="card bg-light p-3">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col">Last Item Returned:</div>
-                            <div class="col">{{client.lastBorrowedItem.itemCat}} at {{client.lastBorrowedDate}}</div>
+                            <div class="col">
+                                <div class="form-floating mb-1 mt-1">
+                                    <input type="text" id="lastitem" class="form-control form-control-sm" placeholder="Enter First Name"  value="{{latestTransaction.itemCat}}" readonly>
+                                    <label for="lastitem">Last Item Borrowed</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-floating mb-1 mt-1">
+                                    <input type="text" id="dateReturned" class="form-control form-control-sm" placeholder="Enter First Name"  value="{{latestTransaction.dateReturned}}" readonly>
+                                    <label for="dateReturned">Date Returned</label>
+                                </div>
+                            </div>
                         </div>
-                        <br>
+                        <hr>
                         {% if items %}
                         <div>
                             <form method="GET" action="{% url 'loan-item-transaction' client.clientId%}">
-                                <div class="row">
-                                    <div class="col"><label for="itemSelector">Item Category Number:</label></div>
+                                <div class="row mb-1 mt-1">
                                     <div class="col">
-                                        <div class="input-group mb-3">
-                                            <select name="selectedItem" id="itemSelector" class="form-select-sm">
-                                                <option disabled
-                                                    {% if selectedItem is not True%}
-                                                    selected
-                                                    {% endif%} value=""
-                                                >
-                                                    Select Item ID
-                                                </option>
+                                        <div class="form-floating">
+                                            <select name="selectedItem" id="itemSelector" class="form-select">
                                                 {% for item in items %}
-                                                
-                                                {%if selectedItem%}
-                                                <option value="{{item.itemCat}}" 
-                                                    {% if selectedItem == item.itemCat %} 
-                                                    selected 
-                                                    {% endif %}
-                                                >
-                                                {{item.itemCat}}
-                                                </option>
-                                                {% else %}
-                                                <option value="{{item.itemCat}}">{{item.itemCat}}</option>
-                                                {% endif%}
+                                                    {%if selectedItem%}
+                                                        <option value="{{item.itemCat}}" 
+                                                            {% if selectedItem == item.itemCat %} 
+                                                            selected 
+                                                            {% endif %}
+                                                        >
+                                                            {{item.itemCat}}
+                                                        </option>
+                                                    {% else %}
+                                                        <option value="{{item.itemCat}}">{{item.itemCat}}</option>
+                                                    {% endif%}
                                                 
                                                 {% endfor %}
                                             </select>
-                                            <button type="submit" value="submit">Calculate</button>
-                                        </div>
+                                            <label for="itemSelector">Select Item Cat.</label>
+                                        </div>    
+                                    </div>
+                                    <div class="col-md-3 d-grid">
+                                        <button type="submit" value="submit" class="btn btn-primary btn-block">Calculate</button>
                                     </div>
                                 </div>
                             </form>
@@ -60,28 +64,28 @@
                         {% endif %}
                         <form method="POST" action="">
                             {% csrf_token %}
-                                <div class="row">
-                                    <div class="col-sm-3">Item Type</div>
-                                    <div class="col-sm-3">
-                                        <div class="d-flex">
-                                            <div class="form-check">
+                                <div class="row mb-4 mt-4">
+                                    <h6 class="text-center">Item Type</h6>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="form-check me-5">
                                                 <input type="radio" class="form-check-input" name="radio1" value="A"
                                                 {% if itemType == 'A'%}
                                                     checked
                                                 {% else %}
                                                     disabled
                                                 {% endif %}
-                                                >A
+                                                >Category A
                                                 <label for="radio1" class="form-check-label"></label>
                                             </div>
-                                            <div class="form-check">
+                                            <div class="form-check ms-5">
                                                 <input type="radio" class="form-check-input" name="radio2" value="B"
                                                 {% if itemType == 'B'%}
                                                     checked
                                                 {% else %}
                                                     disabled
                                                 {% endif %}
-                                                >B
+                                                >Category B
                                                 <label for="radio2" class="form-check-label"></label>
                                             </div>
                                         </div>
@@ -93,13 +97,23 @@
                                     <div class="col-sm-3">{{form.dateDue.label}}</div>
                                     <div class="col">{{form.dateDue}}</div>
                                 </div>
-                                <div class="row pt-1">
-                                    <div class="col-sm-3">{{form.reciever.label}}</div>
-                                    <div class="col">{{form.reciever}}</div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1 mt-1">
+                                            {{form.reciever}}
+                                            <label for="reciever">{{form.reciever.label}}</label>
+                                            <!-- {{form.reciever.label}} -->
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="row pt-1">
-                                    <div class="col-sm-3">{{form.remarks.label}}</div>
-                                    <div class="col">{{form.remarks}}</div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1 mt-1">
+                                            {{form.remarks}}
+                                            <label for="remarks">{{form.remarks.label}}</label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <br>
                                 <div class="row pt-1">
