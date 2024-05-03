@@ -25,141 +25,103 @@
                             {% if input_validity == True %}
                                 <a href="{% url 'new-client'%}">Register New Client</a>
                             {% endif%}
-                        {% if client%}
-                        <div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="firstName" class="form-label">First Name</label>    </div>
-                                <div class="col">   
-                                    <input type="text" id="firstName" class="form-control form-control-sm" value="{{client.firstName}}" readonly>   
-                                </div>
-                                
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="lastName" class="form-label">Last Name</label>  </div>
-                                <div class="col">   
-                                    <input type="text" id="lastName" class="form-control form-control-sm" value="{{client.lastName}}" readonly> 
-                                </div>
-                                
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-2"></div>
-                                <div class="col-sm-1">  <label for="middleInitial" class="form-label">M.I.</label>      </div>
-                                <div class="col-sm-2">  <input type="text" id="middleInitial" class="form-control form-control-sm" value="{{client.middleInitial}}" readonly>       </div>
-                                <div class="col-sm-1">  <label for="suffix" class="form-label">Suffix</label>   </div>
-                                <div class="col-sm-2">  <input type="text" id="suffix" class="form-control form-control-sm" value="{{client.suffix}}" readonly>     </div>
-                            </div>
-                            <div class="row pt-2">
-                                <div class="col-sm-3">  <label for="borrowing" class="form-label">Borrowing</label> </div>
-                                <div class="col">
-                                    <input type="checkbox" id="borrowing" value="{{client.borrowing}}" disabled
-                                    {% if client.borrowing == True %}
-                                    checked="checked"
-                                    {% endif %}>
-                                </div>
-                            </div>
-                            <div class="row pt-2">
-                                <div class="col-sm-3"><label for="last item" class="form-label">Last Item</label></div>
-                                <div class="col"><input type="text" id="last item" class="form-control form-control-sm" value="{{client.lastBorrowedItem.itemCat}}" readonly></div>
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="dateDue" class="form-label">Due Date</label>    </div>
-                                <div class="col">
-                                    <input type="datetime" id="dateDue" class="form-control form-control-sm" value="{{dueDate}}" readonly>
-                                </div>
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="borrowCount" class="form-label">Borrow Count</label> </div>
-                                <div class="col">
-                                    <input type="number" id="borrowCount" class="form-control form-control-sm" value="{{borrowCount}}" readonly>
-                                </div>
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3"><label for="warningCount" class="form-label">Warning Count</label></div>
-                                <div class="col">
-                                    <input type="number" id="warningCount" class="form-control form-control-sm" value="{{client.warningCount}}" readonly>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">
-                                    <a
-                                        {% if gradWaiting or blackListed %}
-                                            class="btn btn-warning disabled"
-                                            href="#"
-                                            style="pointer-events: none;"
-                                        {% else %}
-                                            class="btn btn-primary"
-                                            href="{% url 'loan-item-transaction' client.clientId %}"
-                                        {% endif %}
-                                    >
-                                        {% if gradWaiting %}
-                                            Graduating
-                                        {% elif blackListed %}
-                                            Penalized
-                                        {% else %}
-                                            Confirm
-                                        {% endif %}
-                                    </a>
 
-                                </div>
-                                <div class="col-sm-3"><a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a></div>
-                            </div>
-                            
-                            
-                        </div>
-                        {% else%}
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="firstName" class="form-label">First Name</label>    </div>
-                                <div class="col">   <input type="text" id="firstName" class="form-control form-control-sm" value="{{client.firstName}}" readonly>   </div>
-                                
-                                
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="lastName" class="form-label">Last Name</label>  </div>
+                        <section name="Form Fields">
+                            <div class="row">
                                 <div class="col">
-                                    <input type="text" id="lastName" class="form-control form-control-sm" value="{{client.lastName}}" readonly>
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="text" id="firstName" class="form-control form-control-sm" placeholder="Enter First Name"  value="{{client.firstName}}" readonly>
+                                        <label for="firstName">First Name</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="text" id="lastName" class="form-control" placeholder="Enter Last Name" value="{{client.lastName}}"readonly>
+                                        <label for="lastName">Last Name</label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-2"></div>
-                                <div class="col-sm-1">  <label for="middleInitial" class="form-label">M.I.</label>  </div>
-                                <div class="col-sm-2">  <input type="text" id="middleInitial" class="form-control form-control-sm" value="{{client.middleInitial}}" readonly>   </div>
-                                <div class="col-sm-1">  <label for="suffix" class="form-label">Suffix</label>   </div>
-                                <div class="col-sm-2">  <input type="text" id="suffix" class="form-control form-control-sm" value="{{client.suffix}}" readonly> </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="text" id="middleInitial" class="form-control form-control-sm" placeholder="middle init" value="{{client.middleInitial}}" readonly>
+                                        <label for="middleInitial">M.I.</label> 
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="text" id="suffix" class="form-control form-control-sm" placeholder="suffix" value="{{client.suffix}}" readonly>
+                                        <label for="suffix">Suffix</label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="row pt-2">
+                            <div class="row mb-1 mt-1">
                                 <div class="col-sm-3">  <label for="borrowing" class="form-check-label">Borrowing</label></div>
                                 <div class="col">
-                                    <input type="checkbox" id="borrowing" class="form-check-input" value="{{client.borrowing}}" disabled
+                                    <input type="checkbox" id="borrowing" class="form-check-input" disabled
                                     {% if client.borrowing == True %}
                                     checked="checked"
                                     {% endif %}
                                     >
                                 </div>
                             </div>
-                            <div class="row pt-2">
-                                <div class="col-sm-3"><label for="last item" class="form-label">Last Item</label></div>
-                                <div class="col"><input type="text" id="last item" class="form-control form-control-sm" value="{{client.lastBorrowedItem}}" readonly></div>
-                            </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="dateDue" class="form-label">Due Date</label>    </div>
+                            <div class="row">
                                 <div class="col">
-                                    <input type="datetime" id="dateDue" class="form-control form-control-sm" value="{{dueDate}}" readonly>
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="text" id="last item" class="form-control form-control-sm" placeholder="Enter Prev Item" value="{{client.lastBorrowedItem.itemCat}}" readonly>
+                                        <label for="last item">Last Item</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="datetime" id="dateDue" class="form-control form-control-sm" placeholder="Enter Date" value="{{client.lastBorrowedDate}}" readonly>
+                                        <label for="dateDue" class="form-label">Due Date</label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="borrowCount" class="form-label">Borrow Count</label> </div>
+                            <div class="row">
                                 <div class="col">
-                                    <input type="number" id="borrowCount" class="form-control form-control-sm" value="{{borrowCount}}" readonly>
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="number" id="borrowCount" class="form-control form-control-sm"  placeholder="enter count" value="{{borrowCount}}" readonly>
+                                        <label for="borrowCount">Borrow Count</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1 mt-1">
+                                        <input type="number" id="warningCount" class="form-control form-control-sm"  placeholder="enter count" value="{{client.warningCount}}" readonly>
+                                        <label for="warningCount">Warning Count</label>  
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row pt-1">
-                                <div class="col-sm-3">  <label for="warningCount" class="form-label">Warning Count</label>  </div>
-                                <div class="col">
-                                    <input type="number" id="warningCount" class="form-control form-control-sm" value="{{client.warningCount}}" readonly>
-                                </div>
-                            </div>
+                        </section>
                             <br>
+                        <section name="Button">
+                            {% if client%}
+                                <div class="row pt-1">
+                                    <div class="col-sm-3">
+                                        <a
+                                            {% if gradWaiting or blackListed %}
+                                                class="btn btn-warning disabled"
+                                                href="#"
+                                                style="pointer-events: none;"
+                                            {% else %}
+                                                class="btn btn-primary"
+                                                href="{% url 'loan-item-transaction' client.clientId %}"
+                                            {% endif %}
+                                        >
+                                            {% if gradWaiting %}
+                                                Graduating
+                                            {% elif blackListed %}
+                                                Penalized
+                                            {% else %}
+                                                Confirm
+                                            {% endif %}
+                                        </a>
+
+                                    </div>
+                                    <div class="col-sm-3"><a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a></div>
+                                </div>
+                            {% else%}
                             <div class="row pt-1">
                                 <div class="col-sm-3">
                                     <a href="#" style="pointer-events: none;" class="btn btn-warning disabled">
@@ -168,9 +130,10 @@
                                 </div>
                                 <div class="col-sm-3">  <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>   </div>
                             </div>
-                            
-                            
-                        {% endif %}
+                                
+                                
+                            {% endif %}
+                        </section>
                     </div>
         
                 </div>

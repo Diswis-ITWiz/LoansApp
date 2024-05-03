@@ -4,70 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Return Item - Find Client Transaction</title>
-    <style>
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-        }
-        #search__box{
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2em 0em 2em 0em;
-        }
-        #client__details{
-            display: flex;
-            flex-direction: column;
-            align-content: center;
-        }
-        
-    </style>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <div id="search__box">
-        <form method="GET" action="{% url 'return-item1'%}">
-            <input id="clientSearch" type="number" name='q' placeholder="Client ID No.">
-        </form>
-        <br>
-    </div>
-    <div>
-        <div id="client__details">
-            {% if client %}
-        <input type="number" value="{{ client.clientId }}" readonly>
-        {% if client.suffix%}
-            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix}}" readonly>
-        {% else %}
-            <input type="text" value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}." readonly>
-        {%endif%}
-        <input type="text" value="{{client.yearLevel}}" readonly>
-        <input type="text" value="{{client.course}}" readonly>
-        <input type="text" value="{{client.graduating}}" readonly>
-        <input type="text" value="{{client.email}}" readonly>
-        <input type="text" value="{{client.contactNum}}" readonly>
-        <input type="text" value="{{transaction.itemCat.itemCat}}">
+    <div class="container">
+        <div class="row align-items-center" style="height: 80vh;">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="card bg-light p-3">
+                    <div class="card-body">
+                        <form method="GET" action="{% url 'return-item1'%}">
+                            <div class="row">
+                                <div class="col-sm-3"><label for="q"></label>Client ID</div>
+                                <div class="col">
+                                    <input id="clientSearch" type="number" class="form-control form-control-sm" name='q' placeholder="Client ID No." value="{{client.clientId}}">
+                                </div>
+                            </div>
+                        </form>
+                        <br>
+                        {% if client %}
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <label for="clientName">Name</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" 
+                                        id="clientName"
+                                        class="form-control form-control-sm"
+                                        {% if client.suffix%}
+                                        value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}" 
+                                        {% else %}
+                                        value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}} {{client.suffix}}"
+                                        {%endif%}
+                                        readonly
+                                    >
+                                </div>
+                            </div>                                                                
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <label for="yrlvl">Yr Lvl</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="yrlvl" class="form-control form-control-sm" value="{{client.yearLevel}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <label for="course">Course</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="course" class="form-control form-control-sm" value="{{client.course}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <label for="graduating">Graduating?</label>
+                                </div>
+                                <div class="col">
+                                    <!-- <input type="text" id="graduating" class="form-control form-control-sm" value="{{client.graduating}}" readonly> -->
+                                    <input type="checkbox" id="graduating" class="form-check-input" value="{{client.graduating}}" 
+                                    disabled
+                                    {% if client.graduating == True %}
+                                        checked="checked"
+                                    {% endif %}
+                                    >
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <label for="email">Email</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="email" class="form-control form-control-sm" value="{{client.email}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <label for="contactNum">Contact No.</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="contactNum" class="form-control form-control-sm" value="{{client.contactNum}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-sm-3">
+                                    <label for="itemCat">Last Borrowed Item</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="itemCat" class="form-control form-control-sm" value="{{transaction.itemCat.itemCat}}" readonly>
+                                </div>
+                            </div>
+                        <br>
+                        {% else %}
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                <label for="clientName">Name</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" 
+                                    id="clientName"
+                                    class="form-control form-control-sm"
+                                    {% if client.suffix%}
+                                    value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}" 
+                                    {% else %}
+                                    value="{{client.lastName}}, {{client.firstName}} {{client.middleInitial}} {{client.suffix}}"
+                                    {%endif%}
+                                    readonly
+                                >
+                            </div>
+                        </div>                                
+                            
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                <label for="yrlvl">Yr Lvl</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" id="yrlvl" class="form-control form-control-sm" value="{{client.yearLevel}}" readonly>
+                            </div>
+                        </div>
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                <label for="course">Course</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" id="course" class="form-control form-control-sm" value="{{client.course}}" readonly>
+                            </div>
+                        </div>
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                <label for="graduating">Graduating?</label>
+                            </div>
+                            <div class="col">
+                                <!-- <input type="text" id="graduating" class="form-control form-control-sm" value="{{client.graduating}}" readonly> -->
+                                <input type="checkbox" id="graduating" class="form-check-input" value="{{client.graduating}}" 
+                                disabled
+                                {% if client.graduating == True %}
+                                    checked="checked"
+                                {% endif %}
+                                >
+                            </div>
+                        </div>
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                <label for="email">Email</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" id="email" class="form-control form-control-sm" value="{{client.email}}" readonly>
+                            </div>
+                        </div>
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                <label for="contactNum">Contact No.</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" id="contactNum" class="form-control form-control-sm" value="{{client.contactNum}}" readonly>
+                            </div>
+                        </div>
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                <label for="itemCat">Last Borrowed Item</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" id="itemCat" class="form-control form-control-sm" value="{{transaction.itemCat.itemCat}}" readonly>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <br>
+                        <div class="row pt-1">
+                            <div class="col-sm-3">
+                                {%if transaction %}
+                                    <a href="{%  url 'return-item2' transaction.id %}" class="btn btn-primary">Confirm</a>
+                                {% else %}
+                                    <a href="" style="pointer-events: none;" class="btn btn-primary">Confirm</a>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-3">  <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>   </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+
         </div>
-        <br>
-        <a href="{% url 'home' %}">Cancel</a>
-        {%if transaction %}
-        <a href="{%  url 'return-item2' transaction.id %}">Confirm</a>
-        {% else %}
-        <a href="" style="pointer-events: none;">Confirm</a>
-        {% endif %}
-        
-        {% else %}
-        <input type="text" placeholder="Client ID" readonly>
-        <input type="text" placeholder="Name" readonly>
-        <input type="text" placeholder="Yr Lvl" readonly>
-        <input type="text" placeholder="Course" readonly>
-        <input type="text" placeholder="Graduating" readonly>
-        <input type="text" placeholder="Email" readonly>
-        <input type="text" placeholder="Contact Num" readonly>
-        <br>
-        <a href="{% url 'home' %}">Cancel</a>
-        <a href="" style="pointer-events: none">Confirm</a>
-        {% endif %}
+
     </div>
+    
 </body>
 </html>

@@ -4,6 +4,7 @@ from .models import Client, Transaction, LoanItem, BlockOutDate, BlockOutTime
 from .widgets import DatePickerInput, TimePickerInput, DateTimePickerInput
 from django.contrib.auth.models import User
 from datetime import datetime
+from django.utils.translation import gettext_lazy as _
 
 class LoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}))
@@ -18,6 +19,39 @@ class ClientForm(ModelForm):
                    'BLcount','excuseLetter', 'holdOrder', 'blackListed', 
                     'fineAmount', 'temporaryBlackList', 'blacklistStart','blacklistEnd',
                     ] 
+        labels = {
+            "clientId": _("Client ID No"),
+            "lastName": _("Last Name"),
+            "firstName": _("First Name"),
+            "middleInitial": _("Middle Initial"),
+            "suffix": _("Suffix"),
+            "contactNum": _("Contact No"),
+            "email": _("Email"),
+            "yearLevel": _("Yr Lvl"),
+            "course": _("Course"),
+            "hasWednesdayClasses": _("Wednesday Class"),
+            "graduating": _("Graduating"),
+            "dswsMemRegName": _("DSWS Member Name"),
+        }
+
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Form Class
+        self.fields['clientId'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['lastName'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['firstName'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['middleInitial'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['suffix'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['contactNum'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['email'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['yearLevel'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['course'].widget.attrs['class'] = 'form-control form-control-sm'
+        self.fields['hasWednesdayClasses'].widget.attrs['class'] = 'form-check-input'
+        self.fields['graduating'].widget.attrs['class'] = 'form-check-input'
+        self.fields['dswsMemRegName'].widget.attrs['class'] = 'form-control form-control-sm'
+
 
 
 
