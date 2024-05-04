@@ -10,22 +10,145 @@
 </head>
 <body>
     <div class="container">
-        <h1>{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix|default_if_none:""}}</h1>
-        <p>Id No: {{client.clientId}} | Yr & Course: {{client.yearLvl}}-{{client.course}} | Graduating: {{client.graduating|yesno:"Yes,No"}}</p>
-        <p>Email: {{client.email}} | Contact: {{client.contactNum}}</p>
-        <p>{{client.dswsMemRegName}} | {{client.regDate}}</p>
-        <p>Borrowing: {{client.borrowing|yesno:"Borrowing,Free"}} Last Item: {{client.lastItem.itemCat}} Date: {{client.lastBorrowed}}</p>
-        <p>Warning Count: {{client.warningCount}}</p>
-        <p>Penalty Status: {{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}</p>
-        {%if temporaryBlackList %}
-        <p>{{client.tblStart}} - {{client.tblEnd}}</p>
-        {% endif %}
+        <div class="row mt-5">
+            <h1 class="text-center">
+                {{client.clientId}} - {{client.lastName}}, {{client.firstName}} {{client.middleInitial}} {{client.suffix|default_if_none:""}}
+            </h1>
+            <div class="col">
+                <div class="d-flex">
+                    <button class="btn btn-info me-1" data-bs-toggle="collapse" data-bs-target="#clientDetails">
+                        Client Details
+                    </button>
+                    <div id="clientDetails" class="collapse card mt-2">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input type="text" class="form-control" id="email" placeholder="Enter email" value="{{client.email}}">
+                                        <label for="email">Email</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input type="text" class="form-control" id="contact" placeholder="Enter email" value="{{client.contactNum}}">
+                                        <label for="contact">Contact No</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input type="text" class="form-control" id="year+course" placeholder="Enter email" value="{{client.yearLevel}} - {{client.course}}">
+                                        <label for="year+course">Yr - Course</label>
+                                    </div>
+                                </div>
+                                <div class="col d-flex flex-column justify-content-center">
+                                    <div class="d-flex">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="grad" disabled
+                                            {% if client.graduating == True %}
+                                            checked="checked"
+                                            {% endif %}
+                                            >
+                                            <label for="" class="form-check-label">Graduating</label>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input type="text" class="form-control" id="register" placeholder="Enter email" value="{{client.dswsMemRegName}}">
+                                        <label for="register">Registered By</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input type="text" class="form-control" id="regDate" placeholder="Enter email" value="{{client.regDate}}">
+                                        <label for="regDate">Date of Registration</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input  type="text" 
+                                                class="form-control" 
+                                                id="borrowingStatus" 
+                                                placeholder="status" 
+                                                value="{{client.borrowing|yesno:'Borrowing,Free'}}"
+                                        >
+                                        <label for="borrowingStatus">Transaction Status</label>
+    
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input  type="text"
+                                                class="form-control"
+                                                id="lastItem"
+                                                placeholder="last item"
+                                                value="{{client.lastBorrowedItem}}"
+                                        >
+                                        <label for="lastItem">Last Borrowed Item</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input  type="text" class="form-control"
+                                                id="borrowDate" placeholder="date"
+                                                value="{{client.lastBorrowedDate}}"
+                                        >
+                                        <label for="borrowDate">Date</label>
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input type="number" class="form-control"
+                                                id="warningCount" placeholder="0"
+                                                value="{{client.warningCount}}"
+                                        >
+                                        <label for="warningCount">Warning Count</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input  type="text" class="form-control"
+                                                id="penalty" placeholder="1"
+                                                value='{{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}'
+                                        >
+                                        <label for="penalty">Penalty</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <input  type="text" class="form-control"
+                                                id="tblrange" placeholder="a"
+                                                {%if temporaryBlackList %}
+                                                value = "{{client.tblStart}} - {{client.tblEnd}}"
+                                                {% else %}
+                                                value="N/A"
+                                                {% endif %}
+                                        >
+                                        <label for="tblrange">Temporary Black List Range</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'edit-client' client.clientId %}" class="btn btn-warning me-1">Edit Client</a>
+                    <a href="{% url 'lift-client-penalty' client.clientId%}" class="btn btn-danger">Lift Penalties</a>
+                </div>
+            </div>
+        </div>
+        
+        
         <p>
             {{client.fine}}
         </p>
-        <a href="{% url 'edit-client' client.clientId %}">Edit Client</a>
-        <a href="{% url 'lift-client-penalty' client.clientId%}">Lift Penalties</a>
-        <div>
+        
+        <div class="overflow-auto mb-2"style="height: 50vh;">
             <table class="table table-hover table-striped">
                 <tr>
                     <th>Item Cat.</th>
@@ -39,7 +162,7 @@
                 {% for transaction in transactions %}
                 <tr>
                     <td>
-                        <a href="{% url 'item-details' transaction.itemCat.itemCat%}">{{transaction.itemCat.itemCat}}</a>
+                        <a href="{% url 'item-details' transaction.itemCat.itemCat%}" class="btn btn-outline-info">{{transaction.itemCat.itemCat}}</a>
                     </td>
                     <td>{{transaction.status}}</td>
                     <td>{{transaction.dateLoaned}}</td>
@@ -52,7 +175,7 @@
                 {% endfor%}
             </table>
         </div>
-        <footer><a href="{% url 'client-panel' %}">Back</a></footer>
+        <footer><a href="{% url 'client-panel' %}" class="btn btn-secondary">Back</a></footer>
     </div>    
 </body>
 </html>

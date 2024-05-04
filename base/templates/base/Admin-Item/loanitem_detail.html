@@ -10,39 +10,68 @@
 </head>
 <body>
     <div class="container">
-        <h1>{{item.itemCat}}</h1>
-        <p>{{item.description}}</p>
-        <p>{{item.status}}</p>
-        <p>{{item.lastClient}}</p>
+        <div class="row mt-5">
+            <h1 class="text-center">{{item.itemCat}}</h1>
+            <div class="col">
+                <button class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#itemDetails">Item Details</button>
+                <div id="itemDetails" class="collapse card mt-2">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-floating mb-3 mt-3">
+                                    <input type="text" class="form-control" id="description" placeholder="Enter email" name="email" value="{{item.description}}">
+                                    <label for="description">Description</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-floating mb-3 mt-3">
+                                    <input type="text" class="form-control" id="itemStatus" placeholder="Enter email" name="email" value="{{item.status}}">
+                                    <label for="itemStatus">Item Status</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-floating mb-3 mt-3">
+                                    <input type="text" class="form-control" id="lastClient" placeholder="Enter email" name="email" value="{{item.lastClient}}">
+                                    <label for="lastClient">Last Borrowed By Client Id No.</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <br>
-        <table class="table table-hover table-striped">
-            <tr>
-                <th>Client</th>
-                <th>Status</th>
-                <th>Date Loaned</th>
-                <th>Date Due</th>
-                <th>Loaned Out By</th>
-                <th>Date Returned</th>
-                <th>Recieved By</th>
-            </tr>
-            {% for transaction in transactions %}
-            <tr>
-                <td>
-                    <a href="{% url 'client-details' transaction.clientId.clientId %}">
-                    {{transaction.clientId.clientId}}
-                    </a>
-                </td>
-                <td>{{transaction.status}}</td>
-                <td>{{transaction.dateLoaned}}</td>
-                <td>{{transaction.dueDate}}</td>
-                <td>{{transaction.dswsMemLoanName}}</td>
-                <td>{{transaction.dateReturned}}</td>
-                <td>{{transaction.dswsMemRetName}}</td>
-    
-            </tr>
-            {% endfor%}
-        </table>
-        <button onclick="history.back()">Go Back</button>
+        <div class="overflow-auto mb-2"style="height: 50vh;">
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>Client</th>
+                    <th>Status</th>
+                    <th>Date Loaned</th>
+                    <th>Date Due</th>
+                    <th>Loaned Out By</th>
+                    <th>Date Returned</th>
+                    <th>Recieved By</th>
+                </tr>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>
+                        <a href="{% url 'client-details' transaction.clientId.clientId %}" class="btn btn-outline-info">
+                        {{transaction.clientId.clientId}}
+                        </a>
+                    </td>
+                    <td>{{transaction.status}}</td>
+                    <td>{{transaction.dateLoaned}}</td>
+                    <td>{{transaction.dueDate}}</td>
+                    <td>{{transaction.dswsMemLoanName}}</td>
+                    <td>{{transaction.dateReturned}}</td>
+                    <td>{{transaction.dswsMemRetName}}</td>
+        
+                </tr>
+                {% endfor%}
+            </table>
+        </div>
+        <a href="{% url 'item-panel' %}" class="btn btn-secondary">Back</a>
     </div> 
 </body>
 </html>
