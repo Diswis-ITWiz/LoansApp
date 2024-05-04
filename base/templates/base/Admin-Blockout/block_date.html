@@ -3,34 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Block Out Date</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <div>
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-            </tr>
-            {% for date in blockedDates%}
-            <tr>
-                <td>{{date.dateBlocked}}</td>
-                <td>{{date.description}}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <hr>
-    <form method="POST">
-        {% csrf_token %}
-        <form method="POST">
-            <table>
-                {{form.as_table}}
-            </table>
+    <div class="container">
+        <h2 class="text-center mt-5">Block Out Date</h2>
+        <div class="row">
+            <div class="col p-5">
+                <h5>Block New Date</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col">
+                            <label for="blockDate">Date being blocked:</label>
+                            {{form.blockDate}}
+                            <div class="form-floating mb-3 mt-3">
+                                {{form.description}}
+                                <label for="description">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="d-flex">
+                                <button type="submit" class="btn btn-primary me-5">Block</button>
+                                <a href="{% url 'admin-dashboard' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </div>
+                    </div>  
+                </form>
+            </div>
+            <div class="col p-5">
+                <h5>Previous Blocked Dates</h5>
+                <div class="overflow-auto"style="height: 50vh;">
+                    <table class="table table-hover table-striped">
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                        </tr>
+                        {% for date in blockedDates%}
+                        <tr>
+                            <td>{{date.dateBlocked}}</td>
+                            <td>{{date.description}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
             
-            <button type="submit">Submit</button>
-        </form>
-    </form>
-    <a href="{% url 'admin-dashboard' %}">Cancel</a>
+        </div>    
+    </div>
 </body>
 </html>

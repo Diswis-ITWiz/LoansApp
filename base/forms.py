@@ -47,9 +47,6 @@ class ClientForm(ModelForm):
             "graduating": _("Graduating"),
             "dswsMemRegName": _("DSWS Member Name"),
         }
-
-
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Form Class
@@ -148,10 +145,10 @@ class BlockTimeForm(forms.Form):
     )
 class BlockDateForm(forms.Form):
     blockDate = forms.DateField(
-        widget=DatePickerInput()
+        widget=DatePickerInput(attrs={"class":"form-control"})
     )
     description = forms.CharField(
-        widget = forms.Textarea(attrs={'rows':'2'}),
+        widget = forms.Textarea(attrs={'rows':'2', "class":"form-control", "placeholder":"class suspension"}),
         required=False
     )
 

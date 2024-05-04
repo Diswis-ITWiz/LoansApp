@@ -3,37 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Block Out Time</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <div>
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Description</th>
-            </tr>
-            {% for time in blockedTimes %}
-            <tr>
-                <td>{{time.dateBlocked}}</td>
-                <td>{{time.timeStart|time:"H:i:s"}}</td>
-                <td>{{time.timeEnd|time:"H:i:s"}}</td>
-                <td>{{time.description}}</td>
-            </tr>
-            {% endfor %}
-        </table>
-       
+    <div class="container">
+        <h2 class="text-center mt-5">Block Out Time</h2>
+        <div class="row">
+            <div class="col p-5">
+                <h5>Block New Time</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col">
+                            <label for="dateInput">Date being blocked</label>
+                            <input type="date" class="form-control" id="dateInput" name="dateInput" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="startTime"> Time Start</label>
+                            <input type="time" class="form-control" id="startTime" name="startTime" min="09:30" max="17:00" required>
+                        </div>
+                        <div class="col">
+                            <label for="endTime"> Time End</label>
+                            <input type="time" class="form-control" id="endTime" name="endTime" min="09:30" max="17:00" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-floating mb-3 mt-3">
+                                <input type="text" class="form-control" id="descriptionInput" placeholder="Temporary Moriatorium" name="descriptionInput">
+                                <label for="descriptionInput">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary me-5">Block</button>
+                            <a href="{% url 'admin-dashboard' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col p-5">
+                <h5>Previous Blocked Time</h5>
+                <div class="overflow-auto"style="height: 50vh;">
+                    <table class="table table-hover table-striped">
+                        <tr>
+                            <th>Date</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Description</th>
+                        </tr>
+                        {% for time in blockedTimes %}
+                        <tr>
+                            <td>{{time.dateBlocked}}</td>
+                            <td>{{time.timeStart|time:"H:i:s"}}</td>
+                            <td>{{time.timeEnd|time:"H:i:s"}}</td>
+                            <td>{{time.description}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                   
+                </div>
+            </div>
+        </div>
     </div>
+    
     <hr>
-    <form method="POST">
-        {% csrf_token %}
-        <input type="date" name="dateInput" required>
-        <input type="time" name="startTime" min="09:30" max="17:00" required>
-        <input type="time" name="endTime" min="09:30" max="17:00" required>
-        <input type="text" name="descriptionInput">
-        <button type="submit">Block</button>
-    </form>
-    <a href="{% url 'admin-dashboard' %}">Cancel</a>
+    
 </body>
 </html>
