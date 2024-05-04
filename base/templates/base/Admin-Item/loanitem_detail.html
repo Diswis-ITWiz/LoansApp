@@ -4,40 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <h1>{{item.itemCat}}</h1>
-    <p>{{item.description}}</p>
-    <p>{{item.status}}</p>
-    <p>{{item.lastClient}}</p>
-    <br>
-    <table>
-        <tr>
-            <th>Client</th>
-            <th>Status</th>
-            <th>Date Loaned</th>
-            <th>Date Due</th>
-            <th>Loaned Out By</th>
-            <th>Date Returned</th>
-            <th>Recieved By</th>
-        </tr>
-        {% for transaction in transactions %}
-        <tr>
-            <td>
-                <a href="{% url 'client-details' transaction.clientId.clientId %}">
-                {{transaction.clientId.clientId}}
-                </a>
-            </td>
-            <td>{{transaction.status}}</td>
-            <td>{{transaction.dateLoaned}}</td>
-            <td>{{transaction.dueDate}}</td>
-            <td>{{transaction.dswsMemLoanName}}</td>
-            <td>{{transaction.dateReturned}}</td>
-            <td>{{transaction.dswsMemRetName}}</td>
-
-        </tr>
-        {% endfor%}
-    </table>
-    <button onclick="history.back()">Go Back</button>
+    <div class="container">
+        <h1>{{item.itemCat}}</h1>
+        <p>{{item.description}}</p>
+        <p>{{item.status}}</p>
+        <p>{{item.lastClient}}</p>
+        <br>
+        <table class="table table-hover table-striped">
+            <tr>
+                <th>Client</th>
+                <th>Status</th>
+                <th>Date Loaned</th>
+                <th>Date Due</th>
+                <th>Loaned Out By</th>
+                <th>Date Returned</th>
+                <th>Recieved By</th>
+            </tr>
+            {% for transaction in transactions %}
+            <tr>
+                <td>
+                    <a href="{% url 'client-details' transaction.clientId.clientId %}">
+                    {{transaction.clientId.clientId}}
+                    </a>
+                </td>
+                <td>{{transaction.status}}</td>
+                <td>{{transaction.dateLoaned}}</td>
+                <td>{{transaction.dueDate}}</td>
+                <td>{{transaction.dswsMemLoanName}}</td>
+                <td>{{transaction.dateReturned}}</td>
+                <td>{{transaction.dswsMemRetName}}</td>
+    
+            </tr>
+            {% endfor%}
+        </table>
+        <button onclick="history.back()">Go Back</button>
+    </div> 
 </body>
 </html>

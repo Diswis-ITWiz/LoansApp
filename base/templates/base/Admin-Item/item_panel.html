@@ -4,87 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <div>
-        <div>
-            <form method="GET" action="">
-                <input type="text" name="itemCatQuery" placeholder="Search...">
-                <button type="submit" name="getItemBtn" value="submit">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512">
-                        <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
-                    </svg>
-                </button>
-            </form>
+    <div class="container">
+        <h1 class="text-center mt-5">Item Panel</h1>
+        <div class="d-flex justify-content-between mt-3 mb-2">
+            <div>
+                <div>
+                    <form method="GET" action="">
+                        <input type="text" name="itemCatQuery" placeholder="Search...">
+                        <button type="submit" name="getItemBtn" value="submit">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512">
+                                <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+                <div>
+                    
+                </div>
+            </div>
+
+            <div>
+                <form method="GET" action="">
+                    <div class="d-flex">
+                        <div class="form-check form-switch me-2">
+                            <input type="checkbox" class="form-check-input" name="filter4LoanedItems" id=""
+                            {%if filtered%}
+                                checked
+                            {% endif %}
+                            >
+                        </div>
+                        <button type="submit" name="filterLoanedItemsBtn" class="btn btn-sm btn-info" value="Submit">Filter</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div>
-            <a href="{% url 'add-item'%}"> + Add Item</a>
-        </div>
-    </div>
-    <br>
-    <div>
-        <form method="GET" action="">
-            <input type="checkbox" name="filter4LoanedItems" id=""
-            {%if filtered%}
-                checked
+        <div class="overflow-auto" style="height: 50vh;">
+            {% if items %}
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>
+                        Cat.
+                    </th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Last Client</th>
+                    <th>Commands</th>
+                </tr>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        <a href="{% url 'item-details' item.itemCat%}" class="btn btn-outline-info">{{item.itemCat}}</a>
+                    </td>
+                    <td>{{item.status}}</td>
+                    <td>{{item.description}}</td>
+                    <td>{{item.lastClient}}</td>
+                    <td>
+                        <a href="{% url 'edit-item' item.itemCat %}" class="btn btn-outline-warning">Edit</a>
+                        <a href="{% url 'delete-item' item.itemCat %}" class="btn btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>Cat.</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Last Client</th>
+                    <th>Commands</th>
+                </tr>
+                {% for item in items %}
+                <tr>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                </tr>
+                {% endfor %}
+            </table>
             {% endif %}
-            >
-            <button type="submit" name="filterLoanedItemsBtn" value="Submit">Filter</button>
-        </form>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a href="{% url 'add-item'%}" class="btn btn-sm btn-outline-info ms-2"> + Add Item</a>
+            </div>
+        </div>
+        <a href="{% url 'admin-dashboard' %}" class="btn btn-secondary mt-3">home</a>
     </div>
-    <div>
-        {% if items %}
-        <table>
-            <tr>
-                <th>Cat.</th>
-                <th>Status</th>
-                <th>Description</th>
-                <th>Last Client</th>
-                <th></th>
-                <th></th>
-            </tr>
-            {% for item in items %}
-            <tr>
-                <td>
-                    <a href="{% url 'item-details' item.itemCat%}">{{item.itemCat}}</a>
-                </td>
-                <td>{{item.status}}</td>
-                <td>{{item.description}}</td>
-                <td>{{item.lastClient}}</td>
-                <td>
-                    <a href="{% url 'edit-item' item.itemCat %}">Edit Item</a>
-                </td>
-                <td>
-                    <a href="{% url 'delete-item' item.itemCat %}">Delete Item</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}
-        <table>
-            <tr>
-                <th>Cat.</th>
-                <th>Status</th>
-                <th>Description</th>
-                <th>Last Client</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-            {% for item in items %}
-            <tr>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>N/A</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% endif %}
-    </div>
-    <a href="javascript:history.back()">Go Back</a>
-    <a href="{% url 'admin-dashboard' %}">home</a>
 </body>
 </html>

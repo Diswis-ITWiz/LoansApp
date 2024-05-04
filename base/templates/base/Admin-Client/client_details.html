@@ -4,50 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <h1>{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix|default_if_none:""}}</h1>
-    <p>Id No: {{client.clientId}} | Yr & Course: {{client.yearLvl}}-{{client.course}} | Graduating: {{client.graduating|yesno:"Yes,No"}}</p>
-    <p>Email: {{client.email}} | Contact: {{client.contactNum}}</p>
-    <p>{{client.dswsMemRegName}} | {{client.regDate}}</p>
-    <p>Borrowing: {{client.borrowing|yesno:"Borrowing,Free"}} Last Item: {{client.lastItem.itemCat}} Date: {{client.lastBorrowed}}</p>
-    <p>Warning Count: {{client.warningCount}}</p>
-    <p>Penalty Status: {{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}</p>
-    {%if temporaryBlackList %}
-    <p>{{client.tblStart}} - {{client.tblEnd}}</p>
-    {% endif %}
-    <p>
-        {{client.fine}}
-    </p>
-    <a href="{% url 'edit-client' client.clientId %}">Edit Client</a>
-    <a href="{% url 'lift-client-penalty' client.clientId%}">Lift Penalties</a>
-    <div>
-        <table>
-            <tr>
-                <th>Item Cat.</th>
-                <th>Status</th>
-                <th>Date Loaned</th>
-                <th>Date Due</th>
-                <th>Loaned Out By</th>
-                <th>Date Returned</th>
-                <th>Recieved By</th>
-            </tr>
-            {% for transaction in transactions %}
-            <tr>
-                <td>
-                    <a href="{% url 'item-details' transaction.itemCat.itemCat%}">{{transaction.itemCat.itemCat}}</a>
-                </td>
-                <td>{{transaction.status}}</td>
-                <td>{{transaction.dateLoaned}}</td>
-                <td>{{transaction.dueDate}}</td>
-                <td>{{transaction.dswsMemLoanName}}</td>
-                <td>{{transaction.dateReturned}}</td>
-                <td>{{transaction.dswsMemRetName}}</td>
-
-            </tr>
-            {% endfor%}
-        </table>
-    </div>
-    <footer><a href="{% url 'client-panel' %}">Back</a></footer>
+    <div class="container">
+        <h1>{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix|default_if_none:""}}</h1>
+        <p>Id No: {{client.clientId}} | Yr & Course: {{client.yearLvl}}-{{client.course}} | Graduating: {{client.graduating|yesno:"Yes,No"}}</p>
+        <p>Email: {{client.email}} | Contact: {{client.contactNum}}</p>
+        <p>{{client.dswsMemRegName}} | {{client.regDate}}</p>
+        <p>Borrowing: {{client.borrowing|yesno:"Borrowing,Free"}} Last Item: {{client.lastItem.itemCat}} Date: {{client.lastBorrowed}}</p>
+        <p>Warning Count: {{client.warningCount}}</p>
+        <p>Penalty Status: {{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}</p>
+        {%if temporaryBlackList %}
+        <p>{{client.tblStart}} - {{client.tblEnd}}</p>
+        {% endif %}
+        <p>
+            {{client.fine}}
+        </p>
+        <a href="{% url 'edit-client' client.clientId %}">Edit Client</a>
+        <a href="{% url 'lift-client-penalty' client.clientId%}">Lift Penalties</a>
+        <div>
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>Item Cat.</th>
+                    <th>Status</th>
+                    <th>Date Loaned</th>
+                    <th>Date Due</th>
+                    <th>Loaned Out By</th>
+                    <th>Date Returned</th>
+                    <th>Recieved By</th>
+                </tr>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>
+                        <a href="{% url 'item-details' transaction.itemCat.itemCat%}">{{transaction.itemCat.itemCat}}</a>
+                    </td>
+                    <td>{{transaction.status}}</td>
+                    <td>{{transaction.dateLoaned}}</td>
+                    <td>{{transaction.dueDate}}</td>
+                    <td>{{transaction.dswsMemLoanName}}</td>
+                    <td>{{transaction.dateReturned}}</td>
+                    <td>{{transaction.dswsMemRetName}}</td>
+    
+                </tr>
+                {% endfor%}
+            </table>
+        </div>
+        <footer><a href="{% url 'client-panel' %}">Back</a></footer>
+    </div>    
 </body>
 </html>

@@ -19,6 +19,20 @@ class ClientForm(ModelForm):
                    'BLcount','excuseLetter', 'holdOrder', 'blackListed', 
                     'fineAmount', 'temporaryBlackList', 'blacklistStart','blacklistEnd',
                     ] 
+        # widgets={
+        #     "clientId": ,
+        #     "lastName": ,
+        #     "firstName": ,
+        #     "middleInitial": ,
+        #     "suffix": ,
+        #     "contactNum": ,
+        #     "email": ,
+        #     "yearLevel": ,
+        #     "course": ,
+        #     "hasWednesdayClasses": ,
+        #     "graduating": ,
+        #     "dswsMemRegName": ,
+        # }
         labels = {
             "clientId": _("Client ID No"),
             "lastName": _("Last Name"),
@@ -51,6 +65,18 @@ class ClientForm(ModelForm):
         self.fields['hasWednesdayClasses'].widget.attrs['class'] = 'form-check-input'
         self.fields['graduating'].widget.attrs['class'] = 'form-check-input'
         self.fields['dswsMemRegName'].widget.attrs['class'] = 'form-control form-control-sm'
+
+        #Form Placeholders
+        self.fields['clientId'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['lastName'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['firstName'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['middleInitial'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['suffix'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['contactNum'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['email'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['yearLevel'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['course'].widget.attrs['placeholder'] = 'form-control form-control-sm'
+        self.fields['dswsMemRegName'].widget.attrs['placeholder'] = 'form-control form-control-sm'
 
 
 
