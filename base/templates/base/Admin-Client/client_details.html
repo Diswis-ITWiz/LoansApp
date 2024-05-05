@@ -15,7 +15,6 @@
                 {{client.clientId}} - {{client.lastName}}, {{client.firstName}} {{client.middleInitial}} {{client.suffix|default_if_none:""}}
             </h1>
             <div class="col">
-                <div class="d-flex">
                     <button class="btn btn-info me-1" data-bs-toggle="collapse" data-bs-target="#clientDetails">
                         Client Details
                     </button>
@@ -137,16 +136,9 @@
                             </div>
                         </div>
                     </div>
-                    <a href="{% url 'edit-client' client.clientId %}" class="btn btn-warning me-1">Edit Client</a>
-                    <a href="{% url 'lift-client-penalty' client.clientId%}" class="btn btn-danger">Lift Penalties</a>
-                </div>
             </div>
         </div>
         
-        
-        <p>
-            {{client.fine}}
-        </p>
         
         <div class="overflow-auto mb-2"style="height: 50vh;">
             <table class="table table-hover table-striped">
@@ -170,12 +162,15 @@
                     <td>{{transaction.dswsMemLoanName}}</td>
                     <td>{{transaction.dateReturned}}</td>
                     <td>{{transaction.dswsMemRetName}}</td>
-    
                 </tr>
                 {% endfor%}
             </table>
         </div>
-        <footer><a href="{% url 'client-panel' %}" class="btn btn-secondary">Back</a></footer>
+        <footer class="mb-5">
+            <a href="{% url 'client-panel' %}" class="btn btn-secondary">Back</a>
+            <a href="{% url 'edit-client' client.clientId %}" class="btn btn-warning me-1">Edit Client</a>
+            <a href="{% url 'lift-client-penalty' client.clientId%}" class="btn btn-danger">Lift Penalties</a>
+        </footer>
     </div>    
 </body>
 </html>

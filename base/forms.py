@@ -19,20 +19,6 @@ class ClientForm(ModelForm):
                    'BLcount','excuseLetter', 'holdOrder', 'blackListed', 
                     'fineAmount', 'temporaryBlackList', 'blacklistStart','blacklistEnd',
                     ] 
-        # widgets={
-        #     "clientId": ,
-        #     "lastName": ,
-        #     "firstName": ,
-        #     "middleInitial": ,
-        #     "suffix": ,
-        #     "contactNum": ,
-        #     "email": ,
-        #     "yearLevel": ,
-        #     "course": ,
-        #     "hasWednesdayClasses": ,
-        #     "graduating": ,
-        #     "dswsMemRegName": ,
-        # }
         labels = {
             "clientId": _("Client ID No"),
             "lastName": _("Last Name"),
@@ -75,14 +61,15 @@ class ClientForm(ModelForm):
         self.fields['course'].widget.attrs['placeholder'] = 'form-control form-control-sm'
         self.fields['dswsMemRegName'].widget.attrs['placeholder'] = 'form-control form-control-sm'
 
-
-
-
 class LoanItemForm(ModelForm):
     class Meta:
         model = LoanItem
         fields = '__all__'
         exclude = ['dateReg', 'lastClient', 'status']
+        widgets = {
+            "itemCat": forms.TextInput(attrs={"class":"form-control", "placeholder":"XY-99"}),
+            "description": forms.Textarea(attrs={"class":"form-control", "rows":"2", "placeholder":"loanitem"})
+        }
         
 
 class LoanItemEditForm(ModelForm):
@@ -90,6 +77,11 @@ class LoanItemEditForm(ModelForm):
         model = LoanItem
         fields = '__all__'
         exclude = ['dateReg', 'lastClient']
+        widgets={
+            "itemCat": forms.TextInput(attrs={"class":"form-control"}),
+            "description": forms.Textarea(attrs={"class":"form-control", "rows":"2"}),
+            "status": forms.Select(attrs={"class":"form-select"})
+        }
 
 
 

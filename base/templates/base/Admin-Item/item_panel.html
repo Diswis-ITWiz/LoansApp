@@ -90,10 +90,49 @@
         </div>
         <div class="row">
             <div class="col">
-                <a href="{% url 'add-item'%}" class="btn btn-sm btn-outline-info ms-2"> + Add Item</a>
+                <a  href="" class="btn btn-sm btn-outline-info ms-2" 
+                    data-bs-toggle="modal" data-bs-target="#addItemModal"> 
+                    + Add Item
+                </a>
             </div>
         </div>
         <a href="{% url 'admin-dashboard' %}" class="btn btn-secondary mt-3">home</a>
+
+
+
+        <div class="modal" id="addItemModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+          
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Add Item</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div class="form-floating mt-2 mb-2">
+                            {{form.itemCat}}
+                            <label for="loanitem_itemCat">Item Category: </label>
+                        </div>
+                        <div class="form-floating mt-2 mb-2">
+                            {{form.description}}
+                            <label for="loanitem_description">Description: </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary me-1">Submit</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+                    
+              </div>
+            </div>
+          </div>
     </div>
 </body>
 </html>

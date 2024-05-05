@@ -3,19 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Delete Item</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <form method="POST" action="">
-        {% csrf_token %}
-        <div>
-            <p>Are you sure you want to delete "{{item}}"?</p>
-        </div>
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col"></div>
+            <div class="col">
+                <div class="d-flex flex-column justify-content-center">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="text-center">Delete Item</h2>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="">
+                                {% csrf_token %}
+                                <div class="row mb-3 mt-3">
+                                    <div class="col">
+                                        <p class="text-center">Are you sure you want to 
+                                            <strong>
+                                                PERMANENTLY  
+                                            </strong>
+                                            delete
+                                            <br>"{{item.itemCat}}"?</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mt-3">
+                                    <div class="col">
+                                        <input type="submit" value="Confirm" class="btn btn-primary ms-3">
+                                        <a href="{% url 'item-panel' %}" class="btn btn-secondary">Cancel</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                
 
-        <div>
-            <input type="submit" value="Confirm" />
+            </div>
+            <div class="col"></div>
         </div>
-    </form>
-    <button onclick="history.back()">Cancel</button>
+    </div>
 </body>
 </html>

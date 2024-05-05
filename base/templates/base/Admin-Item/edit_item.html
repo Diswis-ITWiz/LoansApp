@@ -4,16 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Item</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <form method="POST" action="">
-        {% csrf_token %}
-        <label for="loanitem_itemCat">Item Category: </label>
-        {{form.itemCat}}
-        {{form.description}}
-        {{form.status}}
-        <button type="submit">Submit</button>
-    </form>
-    <button onclick="history.back()">Cancel</button>
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col"></div>
+            <div class="col">
+                <h2 class="text-center">Edit Item</h2>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="row mb-3 mt-3">
+                        <div class="col">
+                            <div class="form-floating">
+                                {{form.itemCat}}
+                                <label for="loanitem_itemCat">Item Category</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3 mt-3">
+                        <div class="col">
+                            <div class="form-floating">
+                                {{form.description}}
+                                <label for="loanitem_description">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3 mt-3">
+                        <div class="col">
+                            <div class="form-floating">
+                                {{form.status}}
+                                <label for="loanitem_status">Status</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button class="btn btn-secondary" onclick="history.back()">Cancel</button>
+                </form>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
 </body>
 </html>

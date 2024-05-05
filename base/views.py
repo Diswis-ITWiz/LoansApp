@@ -323,12 +323,38 @@ def lateTranscactionDetails(request, pk):
 # ADMIN PANELS
 @login_required(login_url='login')
 def adminDashboard(request):
+    if "toggleFinalsWeek" in request.POST:
+        print("toggled")
+        print(request.POST.get('firstDay'))
+        date = datetime.strptime(request.POST.get('firstDay'), '%Y-%m-%d')
+        dateWeekDay =  date.weekday()
+        weekday = True
+        while weekday:
+            try:
+                blockedDate = BlockOutDate.objects.get(dateBlocked=date.date())
+            except BlockOutDate.DoesNotExist:    
+                print(date.date())
+                blockOutDate = BlockOutDate.objects.create(
+                    dateBlocked = date.date(),
+                    description = 'FINALS'
+                )
+            date += timedelta(days=1)
+            dateWeekDay +=1
+            print(date)
+            print(dateWeekDay)
+            if dateWeekDay == 5:
+                weekday=False
+        return redirect('admin-dashboard')
+    elif 'blockGradWaiting' in request.POST:
+        clients = Client.objects.filter(graduating=True).update(gradWaiting=True)
+        return redirect('admin-dashboard')
     return render(request, 'base/admin_page.html')
 
 
 # ITEMS
 @login_required(login_url='login')
 def itemPanel(request):
+    form = LoanItemForm()
     if request.method == 'GET':
         if request.GET.get('getItemBtn'):
             search_param = request.GET.get('itemCatQuery')
@@ -341,22 +367,14 @@ def itemPanel(request):
             if request.GET.get('filter4LoanedItems') == 'on':
                 loaned_items = LoanItem.objects.filter(status='LO')
                 return render(request, 'base/Admin-Item/item_panel.html', {"items": loaned_items, 'filtered': True})
-    items = LoanItem.objects.all()
-    context = {"items": items, 'filtered': False}        
-    return render(request, 'base/Admin-Item/item_panel.html', context)
-
-@login_required(login_url='login')
-def addItem(request):
     if request.method == 'POST':
         form = LoanItemForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('item-panel')
-        return render(request, 'base/Admin-Item/add_item.html', {'form': form})
-    else:
-        form = LoanItemForm()
-    context={'form': form}
-    return render(request, 'base/Admin-Item/add_item.html',context)
+    items = LoanItem.objects.all()
+    context = {"items": items, 'filtered': False, "form":form}        
+    return render(request, 'base/Admin-Item/item_panel.html', context)
 
 @login_required(login_url='login')
 def itemDetailView(request, pk):
@@ -420,7 +438,7 @@ def clientDetails(request, pk):
 def editClient(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
-        form = ClientForm(request.POST)
+        form = ClientForm(request.POST or None, instance=client)
         if form.is_valid():
             form.save()
             return redirect('client-details', pk=client.clientId)
@@ -494,33 +512,6 @@ def blockOutTime(request):
         blockedTimes = BlockOutTime.objects.all()
     return render(request, 'base/Admin-Blockout/block_time.html', {'blockedTimes':blockedTimes})
 
-@login_required(login_url='login')
-def finalsWeek(request):
-    if request.method == 'POST':
-        date = datetime.strptime(request.POST.get('firstDay'), '%Y-%m-%d')
-        dateWeekDay =  date.weekday()
-        weekday = True
-        while weekday:
-            try:
-                blockedDate = BlockOutDate.objects.get(dateBlocked=date.date())
-            except BlockOutDate.DoesNotExist:    
-                blockOutDate = BlockOutDate.objects.create(
-                    dateBlocked = date.date(),
-                    description = 'FINALS'
-                )
-            date += timedelta(days=1)
-            dateWeekDay +=1
-            if dateWeekDay == 5:
-                weekday=False
-        return redirect('admin-dashboard')
-    return render(request, 'base/Admin-Blockout/finals_week.html')
-
-@login_required(login_url='login')
-def blockGraduating(request):
-    if request.method == 'POST':
-        clients = Client.objects.filter(graduating=True).update(gradWaiting=True)
-        return redirect('admin-dashboard')
-    return render(request, 'base/Admin-Blockout/block_graduating.html')
     
 
 def emailTemplate(request):

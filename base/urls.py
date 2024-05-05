@@ -19,7 +19,6 @@ urlpatterns = [
 
     path('item-panel/', views.itemPanel, name='item-panel'),
     path('item-detail/<str:pk>', views.itemDetailView, name='item-details'),
-    path('add-item', views.addItem, name='add-item'),
     path('edit-item/<str:pk>', views.editItem, name='edit-item'),
     path('delete-item/<str:pk>', views.deleteItem, name='delete-item'),
 
@@ -30,8 +29,6 @@ urlpatterns = [
 
     path('block-date', views.blockOutDate, name='block-date'),
     path('block-time', views.blockOutTime, name='block-time'),
-    path('block-graduating', views.blockGraduating, name='block-gradwaiting'),
-    path('finals-week', views.finalsWeek, name='finals-week'),
 
     path('email-template', views.emailTemplate, name='email'),
     

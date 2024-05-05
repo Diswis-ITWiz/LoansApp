@@ -3,15 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Edit Client</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <form method="POST">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit">Submit</button>
-        <a href="{%url 'client-details' client%}">Cancel</a>
-        <a href="{% url 'admin-dashboard'%}">Home</a>
-    </form>
+    <div class="container">
+        <div class="row align-items-center" style="height: 80vh">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="card bg-light p-3 mt-3">
+                    <div class="card-body">
+                        <h2 class="text-center">Edit Client</h2>
+                        
+                        <br>
+
+                        <section>
+                            <form class="form" action="" method="POST">
+                                {% csrf_token %}
+                                <div class="row mb-1 mt-1">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.clientId}}
+                                            <label for="clientId">
+                                                {{form.clientId.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 mt-1">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.lastName}}
+                                            <label for="lastName">
+                                                {{form.lastName.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.firstName}}
+                                            <label for="firstName">
+                                                {{form.firstName.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 mt-1">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.middleInitial}}
+                                            <label for="middleInitial">
+                                                {{form.middleInitial.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.suffix}}
+                                            <label for="suffix">
+                                                {{form.suffix.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 mt-1">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.yearLevel}}
+                                            <label for="yearLevel">
+                                                {{form.yearLevel.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.course}}
+                                            <label for="course">
+                                                {{form.course.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row mb-1 mt-1">
+                                    <div class="col">
+                                        {{form.graduating}}
+                                        {{form.graduating.label}}
+                                    </div>
+                                    <div class="col">
+                                        {{form.hasWednesdayClasses}}
+                                        {{form.hasWednesdayClasses.label}}
+                                    </div>
+                                </div>
+                                <div class="row mb-1 mt-1">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.contactNum}}
+                                            <label for="contactNum">
+                                                {{form.contactNum.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.email}}
+                                            <label for="email">
+                                                {{form.email.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 mt-1">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            {{form.dswsMemRegName}}
+                                            <label for="dswsMemRegName">
+                                                {{form.dswsMemRegName.label}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pt-2 mt-3">
+                                    <div class="d-flex">
+                                        <input type="submit" class="btn btn-primary me-1" value="Submit">
+                                        <div class="col-sm-3"><a href="{% url 'client-details' client%}" class="btn btn-secondary">Cancel</a></div>
+                                    </div>
+                                </div>                           
+                            </form>
+                        </section>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
 </body>
 </html>

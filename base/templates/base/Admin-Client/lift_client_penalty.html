@@ -3,20 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Lifting Client Penalties</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body>
-    <form method="POST" action="">
-        {% csrf_token %}
-        <div>
-            <p>Are you sure you want to lift "{{item}}" penalties?</p>
-            <p>If Client has a BlackList, all penalties are removed except for the blacklist itself</p>
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center">Lift Client Penalty</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <div class="row mb-3 mt-3">
+                                <div class="col">
+                                    <p class="text-center">Are you sure you want to lift the penalties of <br>
+                                        {{client.clientId}} - {{client.lastName}}, {{client.firstName}}</p>
+                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#notice" class="btn btn-warning">NOTICE</a>
+                                    <div id="notice" class="collapse">
+                                        <ul class="list-group mt-2">
+                                            <li class="list-group-item">
+                                                Blacklisted clients remain blacklisted but have their fines and hold orders removed
+                                            </li>
+                                            <li class="list-group-item">
+                                                Temporary blacklisted clients have all of their penalties removed
+                                            </li>
+                                            <li class="list-group-item">
+                                                Clients with warnings have their warning removed
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3 mt-3">
+                                <div class="col">
+                                    <input type="submit" value="Confirm" class="btn btn-primary ms-3">
+                                    <button onclick="history.back()" class="btn btn-secondary">Cancel</button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
         </div>
-
-        <div>
-            <input type="submit" value="Confirm" />
-        </div>
-    </form>
-    <button onclick="history.back()">Cancel</button>
+    </div>
+    
 </body>
 </html>
