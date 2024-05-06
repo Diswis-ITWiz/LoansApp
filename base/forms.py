@@ -105,7 +105,7 @@ class ReturnItemATransactionForm(forms.Form):
     itemCat = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm"}))
     itemType = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm"}))
     dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm"}))
-    overDueDays = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm"}))
+    overDueDays = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "readonly":"readonly"}))
     reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}))
     remarks = forms.CharField(
         widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm"}),

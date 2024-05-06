@@ -107,6 +107,11 @@
                                     </div>
                                 {% endif %}
                             </section> 
+                            <div class="row mb-2 mt-2">
+                                <div class="col">
+                                    <button class="btn btn-primary btn-block" data-bs-toggle="modal" data-bs-target="#overrideModal">Override</button>
+                                </div>
+                            </div>
                             <div class="row mb-1 mt-1">
                                 <div class="col">
                                     <div class="form-floating">
@@ -152,6 +157,31 @@
             
         </div>
         <div class="col-md-3"></div></div>
+        <div class="modal" id="overrideModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+          
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Override</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        {{ loginform.as_p }}
+                    </div>
+                
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" name="override">Submit</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

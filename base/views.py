@@ -234,6 +234,7 @@ def returnItem2(request, pk):
     overdueMinutes = 0
     penalty = ''
     form = ''
+    loginform = LoginForm()
     if checkItemType(loanedItem.itemCat) == 'A':
         overdueDays = getItemTypeAOverdueDays(localtime(transaction.dueDate), client)
         penalty = calculateTypeAPenalty(overdueDays, client)
@@ -262,38 +263,51 @@ def returnItem2(request, pk):
             }
         )
     if request.method == 'POST':
-        form = None
-        if "A" in request.POST:
-            form = ReturnItemATransactionForm(request.POST)
-            if form.is_valid():
-                applyTypeAPenalty(form.cleaned_data["overDueDays"], client)
-                transaction.overdueDays = form.cleaned_data["overDueDays"]
+        if 'override' in request.POST:
+            loginform = LoginForm(request.POST)
+            if loginform.is_valid():
+                username = loginform.cleaned_data['username']
+                password = loginform.cleaned_data['password']
+                user = authenticate(request, username=username, password=password)
+                if user:
+                    if checkItemType(loanedItem.itemCat) == 'A':
+                        form.fields['overDueDays'].widget.attrs.pop('readonly')
+                    else:
+                        form.fields['overDueHours'].widget.attrs.pop('readonly', None)
+                        form.fields['overDueMinutes'].widget.attrs.pop('readonly', None)
         else:
-            form = ReturnItemBTransactionForm(request.POST)
-            if form.is_valid():
-                applyTypeBPenalty(form.cleaned_data["overDueHours"], form.cleaned_data["overDueMinutes"] , client)
-                transaction.overdueHours = form.cleaned_data["overDueHours"]
-                transaction.overdueMinutes = form.cleaned_data["overDueMinutes"]
+            form = None
+            if "A" in request.POST:
+                form = ReturnItemATransactionForm(request.POST)
+                if form.is_valid():
+                    applyTypeAPenalty(form.cleaned_data["overDueDays"], client)
+                    transaction.overdueDays = form.cleaned_data["overDueDays"]
+            else:
+                form = ReturnItemBTransactionForm(request.POST)
+                if form.is_valid():
+                    applyTypeBPenalty(form.cleaned_data["overDueHours"], form.cleaned_data["overDueMinutes"] , client)
+                    transaction.overdueHours = form.cleaned_data["overDueHours"]
+                    transaction.overdueMinutes = form.cleaned_data["overDueMinutes"]
 
-        # Modify Transaction Instance in DB
-        transaction.dateReturned = timezone.localtime(timezone.now())
-        transaction.dswsMemRetName = form.cleaned_data["reciever"]
-        transaction.returnRemarks = form.cleaned_data["remarks"]
-        transaction.status = 'C'
-        transaction.save()
-        # Modify the statuses of the respective client, transaction, and loanItem
-        client.borrowing = False
-        client.save()
-        loanedItem.status = 'IS'
-        loanedItem.save()
+            # Modify Transaction Instance in DB
+            transaction.dateReturned = timezone.localtime(timezone.now())
+            transaction.dswsMemRetName = form.cleaned_data["reciever"]
+            transaction.returnRemarks = form.cleaned_data["remarks"]
+            transaction.status = 'C'
+            transaction.save()
+            # Modify the statuses of the respective client, transaction, and loanItem
+            client.borrowing = False
+            client.save()
+            loanedItem.status = 'IS'
+            loanedItem.save()
 
-        return redirect('home')
+            return redirect('home')
     
-    context = {'form':form,
-               'penalty': penalty, 'itemType': checkItemType(loanedItem.itemCat)}
+    context = {'form':form, 'penalty': penalty, 'itemType': checkItemType(loanedItem.itemCat), "loginform": loginform}
 
 
     return render(request, 'base/Home-Item/return_item2.html', context)
+
 
 # Overdue Transactions
 def lateTransactions(request):
