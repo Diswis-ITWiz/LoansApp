@@ -87,7 +87,9 @@ class LoanItemEditForm(ModelForm):
 
 class LoanItemTransactionForm(forms.Form):
     dateLoaned = forms.DateTimeField(widget=forms.HiddenInput())
-    dateDue = forms.DateTimeField(widget=DateTimePickerInput(attrs={"class":"form-control form-control-sm", "label":"Date Due", "placeholder":"placeholder"}))
+    dateDue = forms.DateTimeField(
+        widget=DateTimePickerInput(attrs={"class":"form-control form-control-sm", "label":"Date Due", "placeholder":"placeholder"})
+        )
     itemCat = forms.CharField(widget=forms.HiddenInput())
     reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "label": "DSWS Member", "placeholder":"placeholder"}))
     remarks = forms.CharField(

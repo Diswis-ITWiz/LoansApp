@@ -1,26 +1,52 @@
-<h1>Current Time: {{currentTime}}</h1>
-<table>
-    <tr>
-        <th>Client</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Item</th>
-        <th>Date Loaned</th>
-        <th>Date Due</th>
-        <th>Loaned Out By</th>
-        <th></th>
-    </tr>
-    {% for transaction in transactions %}
-    <tr>
-        <td>{{transaction.clientId.clientId}}</td>
-        <td>{{transaction.clientId.lastName}}, {{transaction.clientId.firstName}} {{transaction.clientId.middleInitial}}. {{transaction.clientId.suffix|default_if_none:""}}</td>
-        <td>{{transaction.clientId.email}}</td>
-        <td>{{transaction.itemCat.itemCat}}</td>
-        <td>{{transaction.dateLoaned}}</td>
-        <td>{{transaction.dueDate}}</td>
-        <td>{{transaction.dswsMemLoanName}}</td>
-        <td><a href="{% url 'late-transaction-details' transaction.id%}">Calculate Overdue Time</a></td>
-    </tr>
-    {% endfor%}
-</table>
-<a href="{% url 'home'%}">Back</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+    <div class="container">
+        <div class="row mt-5">
+            <h1 class="text-center">Overdue Transactions</h1>
+            <div class="col">
+                <h1 class="text-center">Current Time: {{currentTime}}</h1>
+
+
+                <div class="overflow-auto mb-2"style="height: 50vh;">
+                    <table class="table table-hover table-striped">
+                        <tr>
+                            <th>Client</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Item</th>
+                            <th>Date Loaned</th>
+                            <th>Date Due</th>
+                            <th>Loaned Out By</th>
+                            <th></th>
+                        </tr>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{transaction.clientId.clientId}}</td>
+                            <td>{{transaction.clientId.lastName}}, {{transaction.clientId.firstName}} {{transaction.clientId.middleInitial}} {{transaction.clientId.suffix|default_if_none:""}}</td>
+                            <td>{{transaction.clientId.email}}</td>
+                            <td>{{transaction.itemCat.itemCat}}</td>
+                            <td>{{transaction.dateLoaned}}</td>
+                            <td>{{transaction.dueDate}}</td>
+                            <td>{{transaction.dswsMemLoanName}}</td>
+                            <td><a href="{% url 'late-transaction-details' transaction.id%}" class="btn btn-info">Calculate Overdue Time</a></td>
+                        </tr>
+                        {% endfor%}
+                    </table>
+                </div>
+                <footer>
+                    <a href="{% url 'home'%}" class="btn btn-secondary mt-5">Back</a>
+                </footer>
+            </div>
+    </div>
+</div>
+</body>
+</html>

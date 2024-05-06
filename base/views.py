@@ -106,7 +106,7 @@ def loanItemTransaction(request, pk):
         q = request.GET.get('selectedItem', '')
         if q == '':
             form = LoanItemTransactionForm()
-            context = {'client': client, 'items': items, 'form': form, 'selectedItem': None, "latestTransaction": latestTransaction}
+            context = {'client': client, 'items': items, 'form': form, 'selectedItem': None, "latestTransaction": latestTransaction, "calculated": False}
             return render(request, 'base/Home-Item/loan_item_transaction.html', context)
         
         selectedItem = LoanItem.objects.get(itemCat__exact=q)
@@ -156,7 +156,10 @@ def loanItemTransaction(request, pk):
                     "dateLoaned": time
             }
         )
-        context = {'client': client, 'items': items,  'itemType': itemType, 'form':form, 'selectedItem':itemCat, "latestTransaction": latestTransaction}
+        context = {'client': client, 'items': items,  
+                   'itemType': itemType, 'form':form, 
+                   'selectedItem':itemCat, "latestTransaction": latestTransaction,
+                   'calculated':True}
         return render(request, 'base/Home-Item/loan_item_transaction.html', context)
     
     

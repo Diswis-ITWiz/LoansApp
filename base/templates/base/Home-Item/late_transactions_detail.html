@@ -1,18 +1,85 @@
-<h1>Why Not!</h1>
-{{client.clientId}}
-{{loanedItem.itemCat}}
-{{transaction.dateLoaned}}
-{{transaction.dueDate}}
-{{transaction.dswsMemLoanName}}
-{% if itemType == 'A' %}
-    <p>Overdue: {{overDueDays}}</p>
-{% else %}
-    <p>
-        Overdue: {{overDueHours}} hrs {{overDueMinutes}} minutes
-    </p>
-{% endif %}
-<p>
-    Penalty: {{penalty}}
-</p>
-<a href="{% url 'late-transactions'%}">Back</a>
-<a href="{% url 'home'%}">Home</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Late Transaction Details</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col"></div>
+            <div class="col-md-6">
+                <div class="card">
+                     <h1 class="text-center mt-3">
+                         Late Transaction Details
+                     </h1>
+                    
+                    <div class="card-body">
+                        <div class="row mb-1 mt-1">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="clientId" placeholder="000000" value="{{client.clientId}}">
+                                    <label for="clientId">Client ID</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="itemCat" placeholder="XY-99" value="{{loanedItem.itemCat}}">
+                                    <label for="itemCat">Item Cat.</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-1 mt-1">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="dateLoaned" placeholder="12/12/24" value="{{transaction.dateLoaned}}">
+                                    <label for="dateLoaned">Date Loaned</label>
+                                </div> 
+                            </div>
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="dueDate" placeholder="12/12/24" value="{{transaction.dueDate}}">
+                                    <label for="dueDate">Due Date</label>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="row mb-3 mt-1">
+                            <div class="col">
+                                {% if itemType == 'A' %}
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="overDueDays" placeholder="999" value="{{overDueDays}}">
+                                        <label for="overDueDays">Overdue Days</label>
+                                    </div>
+                                {% else %}
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="overDueTime" placeholder="24 hr/s 59 min/s" value="{{overDueHours}} hr/s {{overDueMinutes}} min/s">
+                                        <label for="overDueTime">Overdue Time</label>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="penalty" placeholder="BlackListed" value="{{penalty}}">
+                                    <label for="penalty">Penalty</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-1 mt-1">
+                            <a href="{% url 'late-transactions'%}" class="btn btn-primary me-1">Back</a>
+                            <a href="{% url 'home'%}" class="btn btn-secondary">Home</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col"></div>
+
+        </div>
+    </div>
+</body>
+</html>
