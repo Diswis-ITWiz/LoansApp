@@ -94,7 +94,7 @@
                                 <div class="row pt-1">
                                     {{form.dateLoaned}}
                                     {{form.itemCat}}
-                                    <div class="col-sm-3">{{form.dateDue.label}}</div>
+                                    <div class="col-sm-3">* {{form.dateDue.label}}</div>
                                     <div class="col">{{form.dateDue}}
                                     </div>
                                 </div>
@@ -103,7 +103,7 @@
                                     <div class="col">
                                         <div class="form-floating mb-1 mt-1">
                                             {{form.reciever}}
-                                            <label for="reciever">DSWS Member</label>
+                                            <label for="reciever">* DSWS Member</label>
                                         </div>
                                     </div>
                                 </div>
@@ -119,7 +119,7 @@
                                 <div class="row pt-1">
                                     <div class="d-flex">
                                         {% if not calculated%}
-                                        <input type="submit" value="Calculate" class="btn btn-primary me-1" disabled>
+                                        <input type="submit" value="Calculate First" class="btn btn-primary me-1" disabled>
                                         {% else %}
                                         <input type="submit" value="Submit" class="btn btn-primary me-1">
                                         {% endif %}
