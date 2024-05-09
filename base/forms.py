@@ -118,9 +118,9 @@ class ReturnItemBTransactionForm(forms.Form):
     itemCat = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a"}))
     itemType = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a"}))
     dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm", "placeholder":"a"}))
-    overDueHours = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a"}))
-    overDueMinutes = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a"}))
-    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}))
+    overDueHours = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly"}))
+    overDueMinutes = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly"}))
+    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "placeholder":"DSWS Member"}))
     remarks = forms.CharField(
         widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm", "placeholder":"a"}),
         required=False
