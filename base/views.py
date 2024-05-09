@@ -49,19 +49,22 @@ def loanItemClientFinder(request):
         if Client.objects.filter(clientId__exact=q).exists():
             client = Client.objects.get(clientId__exact=q)
             transactions = Transaction.objects.filter(clientId__exact=q)
-            context = {'client':client, 'borrowCount': transactions.count()}
+            context = {'client':client, 'borrowCount': transactions.count(), 'latest_transaction':transactions.first()}
             if client.borrowing == True:
                 context.update({
                     'dueDate': transactions[0].dueDate,
-                    'gradWaiting': True,
-                    'blackListed': True,
-                    'borrowing': True
+                    'borrowing': True,
                 })
-            elif client.gradWaiting or client.blackListed or client.temporaryBlackList:
+            elif client.gradWaiting:
                 context.update({
-                    'gradWaiting': True,
-                    'blackListed': True
+                    'gradWaiting': True
                 })
+            elif client.blackListed or client.temporaryBlackList:
+                context.update(
+                    {
+                        'blackListed': True
+                    }
+                )
             else:
                 return render(request, 'base/Home-Item/find_client.html', context)
             return render(request, 'base/Home-Item/find_client.html', context)
@@ -277,6 +280,7 @@ def returnItem2(request, pk):
                         form.fields['overDueMinutes'].widget.attrs.pop('readonly', None)
         else:
             form = None
+            dateofReturn = timezone.localtime(timezone.now())
             if "A" in request.POST:
                 form = ReturnItemATransactionForm(request.POST)
                 if form.is_valid():
@@ -297,6 +301,7 @@ def returnItem2(request, pk):
             transaction.save()
             # Modify the statuses of the respective client, transaction, and loanItem
             client.borrowing = False
+            client.lastBorrowedDate = dateofReturn
             client.save()
             loanedItem.status = 'IS'
             loanedItem.save()

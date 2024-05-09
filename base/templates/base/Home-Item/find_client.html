@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="form-floating mb-1 mt-1">
-                                        <input type="datetime" id="dateDue" class="form-control form-control-sm" placeholder="Enter Date" value="{{client.lastBorrowedDate}}" readonly>
+                                        <input type="datetime" id="dateDue" class="form-control form-control-sm" placeholder="Enter Date" value="{{latest_transaction.dueDate}}" readonly>
                                         <label for="dateDue" class="form-label">Due Date</label>
                                     </div>
                                 </div>
@@ -102,7 +102,7 @@
                                 <div class="row pt-1">
                                     <div class="d-flex">
                                         <a
-                                            {% if gradWaiting or blackListed %}
+                                            {% if gradWaiting or blackListed or borrowing%}
                                                 class="btn btn-warning disabled me-1"
                                                 href="#"
                                                 style="pointer-events: none;"
@@ -113,6 +113,8 @@
                                         >
                                             {% if gradWaiting %}
                                                 Graduating
+                                            {% elif borrowing %}
+                                                Borrowing
                                             {% elif blackListed %}
                                                 Penalized
                                             {% else %}
