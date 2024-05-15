@@ -15,9 +15,9 @@ class ClientForm(ModelForm):
         model = Client
         fields = '__all__'
         exclude = ['borrowing', 'warningCount', 'status', 'dateReg',
-                   'gradWaiting', 'lastBorrowedDate', 'lastBorrowedItem', 'HOcount', 
-                   'BLcount','excuseLetter', 'holdOrder', 'blackListed', 
-                    'fineAmount', 'temporaryBlackList', 'blacklistStart','blacklistEnd',
+                   'gradWaiting', 'lastBorrowedDate', 'lastBorrowedItem',
+                   'excuseLetter', 'holdOrder', 'blackListed', 
+                    'fineAmount', 'temporaryBlackList'
                     ] 
         labels = {
             "clientId": _("Client ID No"),

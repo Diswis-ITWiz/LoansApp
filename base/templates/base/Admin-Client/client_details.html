@@ -120,19 +120,6 @@
                                         <label for="penalty">Penalty</label>
                                     </div>
                                 </div>
-                                <div class="col">
-                                    <div class="form-floating mb-3 mt-3">
-                                        <input  type="text" class="form-control"
-                                                id="tblrange" placeholder="a"
-                                                {%if temporaryBlackList %}
-                                                value = "{{client.tblStart}} - {{client.tblEnd}}"
-                                                {% else %}
-                                                value="N/A"
-                                                {% endif %}
-                                        >
-                                        <label for="tblrange">Temporary Black List Range</label>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

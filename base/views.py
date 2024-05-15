@@ -480,20 +480,14 @@ def liftClientPenalty(request, pk):
             client.holdOrder = False
             client.excuseLetter = False
             client.fineAmount = 0
-            client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
             client.temporaryBlackList = False
-            client.blacklistStart = timeStart
-            client.blacklistEnd = timeEnd
         elif client.temporaryBlackList == True:
             client.temporaryBlackList = False
             client.excuseLetter = False
             client.holdOrder = False
             client.fineAmount = 0
-            client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
         else:
             client.warningCount = 0 if client.warningCount == 0 else client.warningCount - 1
-            client.HOcount = 0 if client.HOcount == 0 else client.HOcount - 1
-            client.BLcount = 0 if client.BLcount == 0 else client.BLcount - 1
         client.save()
         return redirect('client-details', pk=client.clientId)
 

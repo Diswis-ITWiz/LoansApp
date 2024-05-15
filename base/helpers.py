@@ -75,9 +75,7 @@ def calculateTypeAPenalty(overDueDays, client):
 def applyTypeAPenalty(overDueDays, client):
     if client.warningCount > 3:
         client.blackListed = True
-        client.BLcount += 1
         client.holdOrder = True
-        client.HOcount += 1
         client.fineAmount = 1000
         client.excuseLetter = True
     elif 1 <= overDueDays <= 3:
@@ -88,7 +86,6 @@ def applyTypeAPenalty(overDueDays, client):
     elif overDueDays > 10:
         client.temporaryBlackList = True
         client.holdOrder = True
-        client.HOcount += 1
         client.fineAmount = 500
         client.excuseLetter = True
     client.save()
@@ -167,9 +164,7 @@ def calculateTypeBPenalty(overdueHours, overdueMinutes, client):
 def applyTypeBPenalty(overdueHours, overDueMinutes, client):
     if client.warningCount == 3:
         client.blackListed = True
-        client.BLcount += 1
         client.holdOrder = True
-        client.HOcount += 1
         client.fineAmount = 1000
         client.excuseLetter = True
     elif 3 <= overdueHours <= 5:
@@ -180,7 +175,6 @@ def applyTypeBPenalty(overdueHours, overDueMinutes, client):
     elif overdueHours > 10:
         client.temporaryBlackList = True
         client.holdOrder = True
-        client.HOcount += 1
         client.fineAmount = 500
         client.excuseLetter = True
     client.save()

@@ -5,6 +5,5 @@ from .models import *
 admin.site.register(LoanItem)
 admin.site.register(Client)
 admin.site.register(Transaction)
-admin.site.register(Student)
 admin.site.register(BlockOutDate)
 admin.site.register(BlockOutTime)

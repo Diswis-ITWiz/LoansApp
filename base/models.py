@@ -39,24 +39,15 @@ class Client(models.Model):
     gradWaiting = models.BooleanField(default=False) #Boolean Value for graduating seniors
     dswsMemRegName = models.CharField(max_length=50, null=False)
     regDate = models.DateTimeField(auto_now_add=True) # registrationDate
-
     borrowing = models.BooleanField(default=False)
     excuseLetter = models.BooleanField(default=False)
     holdOrder = models.BooleanField(default=False)
     blackListed = models.BooleanField(default=False)
     fineAmount = models.PositiveSmallIntegerField(default=0)
-    blacklistStart = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True, null=True)
-    blacklistEnd = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True, null=True)
-
-
     temporaryBlackList = models.BooleanField(default=False)
-
-    
     warningCount = models.SmallIntegerField(default=0, null = True, blank=True,)
     lastBorrowedDate = models.DateTimeField(default=None, null = True, blank=True)
     lastBorrowedItem = models.ForeignKey(LoanItem, null=True, blank=True, on_delete=models.SET_NULL)
-    HOcount = models.SmallIntegerField(default=0, null = True, blank=True,)
-    BLcount = models.SmallIntegerField(default=0, null = True, blank=True,)
 
 
 
@@ -95,12 +86,6 @@ class Transaction(models.Model):
     dswsMemRetName = models.CharField(max_length=50, null=True, blank=True)
     returnRemarks = models.CharField(null=True, blank=True, max_length=96)
 
-
-class Student(models.Model):
-    studentId = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=255)
-    course = models.CharField(max_length=50, null=False)
-    yearLevel = models.SmallIntegerField(default=1)
 
 class BlockOutDate(models.Model):
     dateBlocked = models.DateField(primary_key=True)
