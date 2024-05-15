@@ -25,9 +25,16 @@ class Command(BaseCommand):
         # Loop
         for x in overdueItems:
             # Check if their overdue by comparing the current date with their due date
-            if x.dueDate < today:
+            if x.dueDate.date() < today:
                 # If late calculate overdue
                 overdueDays = getItemTypeAOverdueDays(x.dueDate, x.clientId)
+                sendOverdueItemAEmail(x.itemCat.itemCat, 
+                                      getItemTypeName(x.itemCat.itemCat),
+                                      x.dateLoaned,
+                                      x.dueDate,
+                                      x.clientId,
+                                      overdueDays
+                                      )
                 # call emailer method
         stuff = 'This command send emails at the beginning of the day to inform clients of their due items'
         self.stdout.write(stuff)

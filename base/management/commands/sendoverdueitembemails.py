@@ -22,11 +22,18 @@ class Command(BaseCommand):
         today = timezone.localtime(timezone.now())
         # Loop
         for x in overdueItems:
-            print('Checking for overdue')
             # Check if their overdue by comparing the current date with their due date
-             # If late calculate overdue
+            # If late calculate overdue
             if x.dueDate < today:
                 overdueHours, overdueMinutes = getItemTypeBOverdueTime(x.dueDate, x.clientId.clientId)
+                sendOverdueItemBEmail(x.itemCat.itemCat, 
+                                      getItemTypeName(x.itemCat.itemCat),
+                                      x.dateLoaned,
+                                      x.dueDate,
+                                      x.clientId,
+                                      overdueHours,
+                                      overdueMinutes
+                )
            
             # call emailer method
         stuff = 'This command send emails at the beginning of the day to inform clients of their due items'

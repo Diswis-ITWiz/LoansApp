@@ -45,13 +45,9 @@ def getItemTypeAOverdueDays(dueDate, client):
     formattedDueDate = dueDate.date()
     returnDate = timezone.localtime(timezone.now()).date()
     blockedDays = BlockOutDate.objects.filter(dateBlocked__range=[formattedDueDate, returnDate]).count()
-    print(formattedDueDate)
-    print(returnDate)
     if returnDate <= formattedDueDate:
-        print('Test1')
         return 0
     elif client.hasWednesdayClasses:
-        print('Test2')
         currentDate = formattedDueDate + timedelta(days=1)
         totaldays = 1
         while currentDate != returnDate:
@@ -60,13 +56,12 @@ def getItemTypeAOverdueDays(dueDate, client):
             currentDate += timedelta(days=1)
         return totaldays
     else:
-        print('Test3')
         busdays = np.busday_count(formattedDueDate, returnDate)
         totaldays = busdays + 1 - blockedDays
         return totaldays
    
 def calculateTypeAPenalty(overDueDays, client):
-    penalty = ""
+    penalty = "No Penalty"
     if client.warningCount > 3:
         penalty = "Black Listed\n Hold Order\n PHP 1000 Fine, EL"
     elif 1 <= overDueDays <= 3:
@@ -158,7 +153,7 @@ def getItemTypeBOverdueTime(dueDate, client):
         return overdueHours, overdueMinutes
 
 def calculateTypeBPenalty(overdueHours, overdueMinutes, client):
-    penalty = ""
+    penalty = "No Penalty"
     if client.warningCount == 3:
         penalty = "Black Listed\n Hold Order\n PHP 1000 Fine, EL"
     elif 3 <= overdueHours <= 5:
@@ -213,86 +208,150 @@ def getItemTypeName(itemCat):
 
 
 class TransactionEmailThread(threading.Thread):
-    def __init__(self, subject, message, email):
+    def __init__(self, subject, message, email, template):
         self.subject = subject
         self.message = message
         self.email_to = email
+        self.template = template
         threading.Thread.__init__(self)
     def run(self):
         email_from = settings.EMAIL_HOST_USER
-        send_mail(self.subject, self.message, email_from, recipient_list = [self.email_to, ], fail_silently=True)
+        send_mail(
+                    self.subject, 
+                    self.message, 
+                    email_from, 
+                    recipient_list = [self.email_to, ], 
+                    html_message= self.template,
+                    fail_silently=True
+                )
 
 
-def sendTransactionEmail(itemCat, itemCatName, loanDate, dueDate, email):
+def sendTransactionEmail(itemCat, itemCatName, loanDate, dueDate, client):
     subject_matter = f'{itemCatName} [{itemCat}] is due on {dueDate}'
     message = f"""
                 LOANS RECEIPT
 
-                We hope you're enjoying your loaned item. 
+                The Department of Student Welfare and Services’ Loans Committee would like to thank you for availing our services. 
+                Please be aware of the details of our transaction. 
                 --------------------
-                Item Number: {itemCatName}
+                Item Number: {itemCat}
                 Time Borrowed: {loanDate}
                 Due Date: {dueDate}
                 --------------------
                 If you have any concerns or inquiries, contact us at:
                 Email: dsws.loans@gmail.com
+
+                Thank you and have a great day!
                 """
-    msg = TransactionEmailThread(subject_matter, message, email)
+    template_name = "base/Email-Templates/transaction_email.html"
+    convert_to_html_content = render_to_string(
+        template_name= template_name,
+        context = {
+                    "itemCat": itemCat,
+                    "loanDate": loanDate,
+                    "dueDate": dueDate}
+    )
+
+    msg = TransactionEmailThread(subject_matter, message, client.email, convert_to_html_content)
     msg.start()
 
-def sendDeadlineEmail(itemCat, itemCatName, loanDate, dueDate, email):
+def sendDeadlineEmail(itemCat, itemCatName, loanDate, dueDate, client):
     subject_matter = f'Reminder: Your borrowed item {itemCatName} [{itemCat}] is due today!! {dueDate}'
     message = f"""
-                REMINDER
+                Good Day {client.firstName} {client.lastName},
 
-                We hope you're enjoying your loaned item.
-                Please remember to return your loaned item soon. 
+                The Department of Student Welfare and Services’ Loans Committee would like to remind 
+                you that you have an item loaned out under your name. The item is due to be returned 
+                during the day. 
+                
+                Kindly refer to the list below for more information
                 --------------------
                 Item Number: {itemCatName}
                 Time Borrowed: {loanDate}
                 Due Date: {dueDate}
                 --------------------
+                As stated in the contract you submitted prior to borrowing an item, overdue returns are subject to certain penalties. 
+
+                If you have any concerns or inquiries, 
+                please feel free to reply to this email or contact us at:
+                Email: dsws.loans@gmail.com
+
+                Thank you and have a great day!
+                """
+    template_name = "base/Email-Templates/deadline_email.html"
+    convert_to_html_content = render_to_string(
+        template_name= template_name,
+        context = {
+                    "itemCat": itemCat,
+                    "loanDate": loanDate,
+                    "dueDate": dueDate}
+    )
+    msg = TransactionEmailThread(subject_matter, message, client.email, convert_to_html_content)
+    msg.start()
+
+def sendOverdueItemAEmail(itemCat, itemCatName, loanDate, dueDate, client, overdueDays):
+    subject_matter = f'Notice: Loaned item {itemCatName} [{itemCat}] is {overdueDays} day/s overdue!'
+    penalty = calculateTypeAPenalty(overdueDays, client)
+    message = f"""
+                Good day {client.firstName} {client.lastName} ,
+
+                The Department of Student Welfare and Services’ Loans Committee would like to remind you 
+                that you have/had an overdue item loaned out under your name. 
+                As stated in the contract you submitted prior to borrowing an item, 
+                overdue returns are subject to certain penalties. 
+                
+                Kindly refer to the list below for more information.
+                --------------------
+                Item Number: {itemCatName}
+                Estimated Number of Days Overdue: {overdueDays}
+                Penalty: {penalty}
+                --------------------
                 If you have any concerns or inquiries, contact us at:
                 Email: dsws.loans@gmail.com
                 """
-    msg = TransactionEmailThread(subject_matter, message, email)
+    template_name = "base/Email-Templates/overdue_item_a_email.html"
+    convert_to_html_content = render_to_string(
+        template_name= template_name,
+        context = {
+                    "client": client,
+                    "itemCat": itemCat,
+                    "overdueDays": overdueDays,
+                    "penalty": penalty}
+    )
+    msg = TransactionEmailThread(subject_matter, message, client.email, convert_to_html_content)
     msg.start()
 
-def sendOverdueItemAEmail(itemCat, itemCatName, loanDate, dueDate, email, overdueDays):
-    subject_matter = f'Notice: Loaned item {itemCatName} [{itemCat}] is {overdueDays} day/s overdue!'
-    message = f"""
-NOTICE
-
-The item that you borrowed from us is overdue
---------------------
-Item Number: {itemCatName}
-Time Borrowed: {loanDate}
-Due Date: {dueDate}
-Days overdue: {overdueDays}
---------------------
-If you have any concerns or inquiries, contact us at:
-Email: dsws.loans@gmail.com
-                """
-    msg = TransactionEmailThread(subject_matter, message, email)
-    msg.start()
-
-def sendOverdueItemBEmail(itemCat, itemCatName, loanDate, dueDate, email, overdueHours, overdueMinutes):
+def sendOverdueItemBEmail(itemCat, itemCatName, loanDate, dueDate, client, overdueHours, overdueMinutes):
     subject_matter = f'Notice: Loaned item {itemCatName} [{itemCat}] is {overdueHours} hr/s {overdueMinutes} min/s overdue!'
+    penalty = calculateTypeBPenalty(overdueHours, overdueMinutes, client)
     message = f"""
-NOTICE
+                Good day {client.firstName} {client.lastName},
 
-The item that you borrowed from us is overdue
---------------------
-Item Number: {itemCatName}
-Time Borrowed: {loanDate}
-Due Date: {dueDate}
-Hours overdue: {overdueHours}
-Minutes overdue: {overdueMinutes}
---------------------
-If you have any concerns or inquiries, contact us at:
-Email: dsws.loans@gmail.com
+                The Department of Student Welfare and Services’ Loans Committee would like to remind you 
+                that you have/had an overdue item loaned out under your name. 
+                As stated in the contract you submitted prior to borrowing an item, 
+                overdue returns are subject to certain penalties. 
+                
+                Kindly refer to the list below for more information.
+                --------------------
+                Item Number: {itemCatName}
+                Estimated Time Overdue: {overdueHours} hr/s {overdueMinutes} min/s
+                Penalty: {penalty}
+                --------------------
+                If you have any concerns or inquiries, contact us at:
+                Email: dsws.loans@gmail.com
                 """
-    msg = TransactionEmailThread(subject_matter, message, email)
+    template_name = "base/Email-Templates/overdue_item_b_email.html"
+    convert_to_html_content = render_to_string(
+        template_name= template_name,
+        context = {
+                    "client": client,
+                    "itemCat": itemCat,
+                    "overdueHours": overdueHours,
+                    "overdueMinutes": overdueMinutes,
+                    "penalty": penalty}
+    )
+    msg = TransactionEmailThread(subject_matter, message, client.email, convert_to_html_content)
     msg.start()
 
 

@@ -191,7 +191,7 @@ def loanItemTransaction(request, pk):
             email_borrow_date = form.cleaned_data["dateLoaned"].strftime("%m/%d/%Y %I:%M %p")
             email_due_date = form.cleaned_data["dateDue"].strftime("%m/%d/%Y %I:%M %p")
             itemCatName = getItemTypeName(selectedItem.itemCat)
-            sendTransactionEmail(selectedItem.itemCat, itemCatName, email_borrow_date, email_due_date, client.email)
+            sendTransactionEmail(selectedItem.itemCat, itemCatName, email_borrow_date, email_due_date, client)
             
             return redirect('home')
         

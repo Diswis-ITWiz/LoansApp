@@ -21,6 +21,6 @@ class Command(BaseCommand):
                                 getItemTypeName(x.itemCat.itemCat), 
                                 x.dateLoaned.strftime("%m/%d/%Y %I:%M %p"), 
                                 x.dueDate.strftime("%m/%d/%Y %I:%M %p"), 
-                                x.clientId.email)
+                                x.clientId)
         stuff = 'This command send emails at the beginning of the day to inform clients of their due items'
         self.stdout.write(stuff)
