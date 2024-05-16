@@ -13,14 +13,14 @@
         <div class="row align-items-center" style="height: 80vh;">
             <div class="col-md-3"></div>
             <div class="col-md-6">
-                <div class="card bg-light p-3 mt-5">
+                <div class="card bg-light shadow p-3 mt-5">
                     <div class="card-body">
                         <h2 class="text-center mb-3">Loan Item - Search Client</h2>
 
                         <form method="GET" action="{% url 'loan-item'%}">
                             <div class="row">
                             <div class="col-sm-3">   <label for="clientId" class="form-label">Client ID</label>  </div>    
-                            <div class="col">   <input id="clientSearch" id="clientId" type="number" name='q' class="form-control form-control-sm" placeholder="Input Id No." value="{{client.clientId}}">    </div>    
+                            <div class="col">   <input id="clientSearch" id="clientId" type="number" name='q' class="form-control form-control-sm border border-dark shadow-sm" placeholder="Input Id No." value="{{client.clientId}}">    </div>    
                             </div>
                         </form>
                         <br>

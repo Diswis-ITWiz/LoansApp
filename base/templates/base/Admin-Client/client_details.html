@@ -23,19 +23,19 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-floating mb-3 mt-3">
-                                        <input type="text" class="form-control" id="email" placeholder="Enter email" value="{{client.email}}">
+                                        <input type="text" class="form-control" id="email" placeholder="Enter email" value="{{client.email}}" readonly>
                                         <label for="email">Email</label>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-floating mb-3 mt-3">
-                                        <input type="text" class="form-control" id="contact" placeholder="Enter email" value="{{client.contactNum}}">
+                                        <input type="text" class="form-control" id="contact" placeholder="Enter email" value="{{client.contactNum}}" readonly>
                                         <label for="contact">Contact No</label>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-floating mb-3 mt-3">
-                                        <input type="text" class="form-control" id="year+course" placeholder="Enter email" value="{{client.yearLevel}} - {{client.course}}">
+                                        <input type="text" class="form-control" id="year+course" placeholder="Enter email" value="{{client.yearLevel}} - {{client.course}}" readonly>
                                         <label for="year+course">Yr - Course</label>
                                     </div>
                                 </div>
@@ -46,6 +46,7 @@
                                             {% if client.graduating == True %}
                                             checked="checked"
                                             {% endif %}
+                                            readonly
                                             >
                                             <label for="" class="form-check-label">Graduating</label>
                                         </div>
@@ -56,13 +57,13 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-floating mb-3 mt-3">
-                                        <input type="text" class="form-control" id="register" placeholder="Enter email" value="{{client.dswsMemRegName}}">
+                                        <input type="text" class="form-control" id="register" placeholder="Enter email" value="{{client.dswsMemRegName}}" readonly>
                                         <label for="register">Registered By</label>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-floating mb-3 mt-3">
-                                        <input type="text" class="form-control" id="regDate" placeholder="Enter email" value="{{client.regDate}}">
+                                        <input type="text" class="form-control" id="regDate" placeholder="Enter email" value="{{client.regDate}}" readonly>
                                         <label for="regDate">Date of Registration</label>
                                     </div>
                                 </div>
@@ -75,6 +76,7 @@
                                                 id="borrowingStatus" 
                                                 placeholder="status" 
                                                 value="{{client.borrowing|yesno:'Borrowing,Free'}}"
+                                                readonly
                                         >
                                         <label for="borrowingStatus">Transaction Status</label>
     
@@ -87,6 +89,7 @@
                                                 id="lastItem"
                                                 placeholder="last item"
                                                 value="{{client.lastBorrowedItem}}"
+                                                readonly
                                         >
                                         <label for="lastItem">Last Borrowed Item</label>
                                     </div>
@@ -96,6 +99,7 @@
                                         <input  type="text" class="form-control"
                                                 id="borrowDate" placeholder="date"
                                                 value="{{client.lastBorrowedDate}}"
+                                                readonly
                                         >
                                         <label for="borrowDate">Date</label>
                                     </div>
@@ -107,6 +111,7 @@
                                         <input type="number" class="form-control"
                                                 id="warningCount" placeholder="0"
                                                 value="{{client.warningCount}}"
+                                                readonly
                                         >
                                         <label for="warningCount">Warning Count</label>
                                     </div>
@@ -116,6 +121,7 @@
                                         <input  type="text" class="form-control"
                                                 id="penalty" placeholder="1"
                                                 value='{{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}'
+                                                readonly
                                         >
                                         <label for="penalty">Penalty</label>
                                     </div>
