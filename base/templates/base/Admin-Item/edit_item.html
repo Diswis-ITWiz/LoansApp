@@ -13,36 +13,40 @@
         <div class="row mt-5">
             <div class="col"></div>
             <div class="col">
-                <h2 class="text-center">Edit Item</h2>
-                <form method="POST" action="">
-                    {% csrf_token %}
-                    <div class="row mb-3 mt-3">
-                        <div class="col">
-                            <div class="form-floating">
-                                {{form.itemCat}}
-                                <label for="loanitem_itemCat">Item Category</label>
+                <div class="card bg-light shadow p-3 mt-3">
+                    <div class="card-body">
+                        <h2 class="text-center">Edit Item</h2>
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <div class="row mb-3 mt-3">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        {{form.itemCat}}
+                                        <label for="loanitem_itemCat">Item Category</label>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row mb-3 mt-3">
-                        <div class="col">
-                            <div class="form-floating">
-                                {{form.description}}
-                                <label for="loanitem_description">Description</label>
+                            <div class="row mb-3 mt-3">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        {{form.description}}
+                                        <label for="loanitem_description">Description</label>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row mb-3 mt-3">
-                        <div class="col">
-                            <div class="form-floating">
-                                {{form.status}}
-                                <label for="loanitem_status">Status</label>
+                            <div class="row mb-3 mt-3">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        {{form.status}}
+                                        <label for="loanitem_status">Status</label>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button class="btn btn-secondary" onclick="history.back()">Cancel</button>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button class="btn btn-secondary" onclick="history.back()">Cancel</button>
-                </form>
+                </div>
             </div>
             <div class="col"></div>
         </div>
