@@ -100,12 +100,12 @@ class LoanItemTransactionForm(forms.Form):
 
 
 class ReturnItemATransactionForm(forms.Form):
-    clientIDNo = forms.IntegerField(widget=forms.NumberInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm"}))
-    clientName = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm"}))
-    itemCat = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm"}))
-    itemType = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm"}))
-    dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm"}))
-    overDueDays = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "readonly":"readonly"}))
+    clientIDNo = forms.IntegerField(widget=forms.NumberInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "label":"Client ID No."}))
+    clientName = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "label": "Name"}))
+    itemCat = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "label": "ItemCat"}))
+    itemType = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "label":"Item Type"}))
+    dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm", "label":"Due Date"}))
+    overDueDays = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "readonly":"readonly", "label":"Overdue Days"}))
     reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}))
     remarks = forms.CharField(
         widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm"}),
@@ -113,13 +113,13 @@ class ReturnItemATransactionForm(forms.Form):
     )
 
 class ReturnItemBTransactionForm(forms.Form):
-    clientIDNo = forms.IntegerField(widget=forms.NumberInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a"}))
-    clientName = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a"}))
-    itemCat = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a"}))
-    itemType = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a"}))
-    dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm", "placeholder":"a"}))
-    overDueHours = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly"}))
-    overDueMinutes = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly"}))
+    clientIDNo = forms.IntegerField(widget=forms.NumberInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a", "label":"Client ID No."}))
+    clientName = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a", "label": "Name"}))
+    itemCat = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a", "label": "ItemCat"}))
+    itemType = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm", "placeholder":"a", "label":"Item Type"}))
+    dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm", "placeholder":"a", "label":"Due Date"}))
+    overDueHours = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly", "label":"Overdue Hours"}))
+    overDueMinutes = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly", "label":"Overdue Mins"}))
     reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "placeholder":"DSWS Member"}))
     remarks = forms.CharField(
         widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm", "placeholder":"a"}),
