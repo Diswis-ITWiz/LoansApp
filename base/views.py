@@ -461,12 +461,14 @@ def editClient(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
         form = ClientForm(request.POST or None, instance=client)
+        form.fields["clientId"].disabled = "disabled"
         if form.is_valid():
             form.save()
             return redirect('client-details', pk=client.clientId)
         return render(request, 'base/Admin-Client/edit_client.html', {'form': form, 'client':client.clientId})
     else:
         form = ClientForm(instance=client)
+        form.fields["clientId"].disabled = "disabled"
         return render(request, 'base/Admin-Client/edit_client.html', {'form': form, 'client':client.clientId})
 
 @login_required(login_url='login')
