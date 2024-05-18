@@ -259,7 +259,7 @@ def returnItem2(request, pk):
                 "clientIDNo": client.clientId,
                 "clientName": name,
                 "itemCat": loanedItem.itemCat,
-                "itemType": "A",
+                "itemType": "B",
                 "dueDate": localtime(transaction.dueDate),
                 "overDueHours": overdueHours,
                 "overDueMinutes": overdueMinutes
