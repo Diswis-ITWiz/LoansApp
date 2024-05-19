@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blaklisted Clients</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-5">Blacklisted Clients</h1>
+        <div class="overflow-auto" style="height: 60vh;">
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>ID No.</th>
+                    <th>Name</th>
+                    <th>Contact No.</th>
+                    <th>Email</th>
+                    <th>Yr - Course </th>
+                    <th>Grad?</th>
+                    <th>Last Item</th>
+                    <th>Transaction Date</th>
+                    <th>Blacklist</th>
+                </tr>
+                {% for client in clients %}
+                <tr>           
+                    <td>
+                        <a href="{% url 'client-details' client.clientId%}" class="btn btn-outline-info">{{client.clientId}}</a>
+                    </td>
+                    <td>{{client.lastName}}, {{client.firstName}} {{client.middleInitial}}. {{client.suffix|default_if_none:""}}</td>
+                    <td>{{client.contactNum}}</td>
+                    <td>{{client.email}}</td>
+                    <td>{{client.yearLevel}}-{{client.course}}</td>
+                    <td>{{client.graduating|yesno:"Yes,No"}}</td>
+                    <td>{{client.lastBorrowedItem.itemCat}}</td>
+                    <td>{{client.lastBorrowedDate}}</td>
+                    <td>
+                        {% if client.blackListed %}
+                            BlackListed
+                        {% elif client.temporaryBlackList %}
+                            Temporary
+                        {% endif%}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <a href="{% url 'admin-dashboard' %}" class="btn btn-secondary">Home</a>
+    </div>
+    
+    
+</body>
+</html>

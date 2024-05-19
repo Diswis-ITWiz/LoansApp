@@ -27,6 +27,8 @@ urlpatterns = [
     path('edit-client/<str:pk>', views.editClient, name='edit-client'),
     path('lift-client-penalty/<str:pk>', views.liftClientPenalty, name='lift-client-penalty'),
 
+    path('blacklisted-clients', views.blacklistedClients, name='blacklist'),
+
     path('block-date', views.blockOutDate, name='block-date'),
     path('block-time', views.blockOutTime, name='block-time'),
 

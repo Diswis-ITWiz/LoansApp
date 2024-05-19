@@ -471,7 +471,7 @@ def editClient(request, pk):
         form.fields["clientId"].disabled = "disabled"
         return render(request, 'base/Admin-Client/edit_client.html', {'form': form, 'client':client.clientId})
 
-@login_required(login_url='login')
+@login_required(login_url='login')  
 def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
@@ -496,6 +496,13 @@ def liftClientPenalty(request, pk):
                 
     return render(request, 'base/Admin-Client/lift_client_penalty.html', {'client': client})
 
+@login_required(login_url='login')  
+def blacklistedClients(request):
+    print("Stuff")
+    clients = Client.objects.filter(Q(blackListed=True) | Q(temporaryBlackList=True))
+    print(clients.count())
+    context={"clients":clients}
+    return render(request, 'base/Admin-Client/blacklist.html', context)
 
 # Block Dates
 @login_required(login_url='login')
