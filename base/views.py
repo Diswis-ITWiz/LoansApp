@@ -346,8 +346,6 @@ def lateTranscactionDetails(request, pk):
 @login_required(login_url='login')
 def adminDashboard(request):
     if "toggleFinalsWeek" in request.POST:
-        print("toggled")
-        print(request.POST.get('firstDay'))
         date = datetime.strptime(request.POST.get('firstDay'), '%Y-%m-%d')
         dateWeekDay =  date.weekday()
         weekday = True
@@ -488,6 +486,8 @@ def liftClientPenalty(request, pk):
             client.excuseLetter = False
             client.holdOrder = False
             client.fineAmount = 0
+        elif client.fineAmount > 0:
+            client.fineAmount = 0
         else:
             client.warningCount = 0 if client.warningCount == 0 else client.warningCount - 1
         client.save()
@@ -499,8 +499,9 @@ def liftClientPenalty(request, pk):
 @login_required(login_url='login')  
 def blacklistedClients(request):
     print("Stuff")
-    clients = Client.objects.filter(Q(blackListed=True) | Q(temporaryBlackList=True))
-    print(clients.count())
+    clients = Client.objects.filter(Q(blackListed=True) | 
+                                    Q(temporaryBlackList=True) | 
+                                    Q(fineAmount__gt=0, blackListed=False, temporaryBlackList=False))
     context={"clients":clients}
     return render(request, 'base/Admin-Client/blacklist.html', context)
 
