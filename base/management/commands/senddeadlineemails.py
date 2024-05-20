@@ -14,7 +14,6 @@ class Command(BaseCommand):
         today = timezone.localtime(timezone.now()).date()
         # Query database for all ongoing transactions
         ongoing = Transaction.objects.filter(status='OG')
-        print(ongoing[0].dueDate)
         for x in ongoing:
             if x.dueDate.date() == today:
                 sendDeadlineEmail(x.itemCat.itemCat, 

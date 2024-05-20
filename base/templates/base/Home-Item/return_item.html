@@ -20,7 +20,9 @@
                             <div class="row">
                                 <div class="col-sm-3"><label for="q"></label>Client ID</div>
                                 <div class="col">
-                                    <input id="clientSearch" type="number" class="form-control form-control-sm border border-dark shadow-sm" name='q' placeholder="Client ID No." value="{{client.clientId}}">
+                                    <input  id="clientSearch" type="number" 
+                                            class="form-control form-control-sm border border-dark shadow-sm" 
+                                            name='q' placeholder="Client ID No." value="{{client.clientId}}">
                                 </div>
                             </div>
                         </form>
@@ -42,13 +44,15 @@
                         <div class="row mb-4 mt-4" id="Year and Course">
                             <div class="col-md-3">
                                 <div class="form-floating">
-                                    <input type="text" id="yrlvl" class="form-control form-control-sm" placeholder="a" value="{{client.yearLevel}}" readonly>
+                                    <input  type="text" id="yrlvl" class="form-control form-control-sm" 
+                                            placeholder="a" value="{{client.yearLevel}}" readonly>
                                     <label for="yrlvl">Yr Lvl</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-floating">
-                                    <input type="text" id="course" class="form-control form-control-sm" placeholder="a" value="{{client.course}}" readonly>
+                                    <input  type="text" id="course" class="form-control form-control-sm" 
+                                            placeholder="a" value="{{client.course}}" readonly>
                                     <label for="course">Course</label>
                                 </div>
                             </div>
@@ -68,13 +72,15 @@
                         <div class="row mb-4 mt-4" id="Contact and Email">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" id="email" class="form-control form-control-sm" placeholder="a" value="{{client.email}}" readonly>
+                                    <input  type="text" id="email" class="form-control form-control-sm" 
+                                            placeholder="a" value="{{client.email}}" readonly>
                                     <label for="email">Email</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" id="contactNum" class="form-control form-control-sm" placeholder="a" value="{{client.contactNum}}" readonly>
+                                    <input  type="text" id="contactNum" class="form-control form-control-sm" 
+                                            placeholder="a" value="{{client.contactNum}}" readonly>
                                     <label for="contactNum">Contact No.</label>
                                 </div>
                             </div>
@@ -82,7 +88,8 @@
                         <div class="row mb-4 mt-4" id="Borrowed Item">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" id="itemCat" class="form-control form-control-sm" placeholder="a" value="{{transaction.itemCat.itemCat}}" readonly>
+                                    <input  type="text" id="itemCat" class="form-control form-control-sm" 
+                                            placeholder="a" value="{{transaction.itemCat.itemCat}}" readonly>
                                     <label for="itemCat">Last Borrowed Item</label>
                                 </div>
                             </div>
@@ -91,9 +98,12 @@
                             <div class="d-flex">
                                 {%if transaction %}
                                     <a href="{%  url 'return-item2' transaction.id %}" class="btn btn-primary">Confirm</a>
+                                    <a href="{% url 'report' client.clientId %}" class="btn btn-danger ms-1">Report</a>
                                 {% else %}
                                     <a href="" style="pointer-events: none;" class="btn btn-primary">Confirm</a>
+                                    <a href="" style="pointer-events: none;" class="btn btn-danger ms-1">Report</a>
                                 {% endif %}
+
                                 <a href="{% url 'home' %}" class="btn btn-secondary ms-1">Cancel</a>   
                             </div>
                         </div>

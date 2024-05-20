@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Lost/Damaged Items</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-5">Report Lost or Damaged Items</h1>
+        <div class="row">
+            <div class="col p-5">
+                <div class="row">
+                    <p>Penalize {{offendingClient.firstName}} {{offendingClient.lastName}} with a fee for the loss or damage of Item {{reportedItem.itemCat}}</p>
+                </div>
+                <div class="row">
+                    <form method="POST" action="">
+                        {%csrf_token%}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-floating mb-3 mt-3">
+                                    <input type="number" class="form-control" id="fineAmount" placeholder="0" name="fineAmount" >
+                                    <label for="fineAmount">Input Fine Amount</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-floating mb-3 mt-3">
+                                    <select name="reportType" id="reportType" class="form-select">
+                                        <option value="L">Lost</option>
+                                        <option value="DM">Damaged</option>
+                                    </select>
+                                    <label for="reportType">Type of Report:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a href="{% url 'return-item1' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+            <div class="col">
+                <table class="table table-hover table-striped border border-light border-2 rounded">
+                    <tr>
+                        <th>Item</th>
+                        <th>Penalty Fee</th>
+                    </tr>
+                    <tr>
+                        <td>Bible</td>
+                        <td>Php 500</td>
+                    </tr>
+                    <tr>
+                        <td>Calculator</td>
+                        <td>Php 900</td>
+                    </tr>
+                    <tr>
+                        <td>Dictionary/Translator</td>
+                        <td>Php 500</td>
+                    </tr>
+                    <tr>
+                        <td>Umbrella</td>
+                        <td>Php 300</td>
+                    </tr>
+                    <tr>
+                        <td>Cellphone Charger</td>
+                        <td>Php 1250</td>
+                    </tr>
+                    <tr>
+                        <td>iPhone Charger</td>
+                        <td>Php 2500</td>
+                    </tr>
+                    <tr>
+                        <td>Laptop Charger</td>
+                        <td>Php 2500</td>
+                    </tr>
+                    <tr>
+                        <td>Mac Charger</td>
+                        <td>Php 4500</td>
+                    </tr>
+                    <tr>
+                        <td>VGA Adapter</td>
+                        <td>Php 2000</td>
+                    </tr>
+                    <tr>
+                        <td>Speakers</td>
+                        <td>3000</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

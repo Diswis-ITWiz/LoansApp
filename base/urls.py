@@ -8,7 +8,8 @@ urlpatterns = [
     path('loan-item/', views.loanItemClientFinder, name='loan-item'),
     path('loan-item2/<str:pk>', views.loanItemTransaction, name='loan-item-transaction'),
     path('return-item', views.returnItem1, name='return-item1'),
-    path('retuern-transaction/<str:pk>', views.returnItem2, name='return-item2'),
+    path('report-item/<str:pk>', views.report, name="report"),
+    path('retern-transaction/<str:pk>', views.returnItem2, name='return-item2'),
     path('late-transactions', views.lateTransactions, name='late-transactions'),
     path('late-transactions/<str:pk>', views.lateTranscactionDetails, name='late-transaction-details'),
 
@@ -27,7 +28,7 @@ urlpatterns = [
     path('edit-client/<str:pk>', views.editClient, name='edit-client'),
     path('lift-client-penalty/<str:pk>', views.liftClientPenalty, name='lift-client-penalty'),
 
-    path('blacklisted-clients', views.blacklistedClients, name='blacklist'),
+    path('penalized-clients', views.penalizedClients, name='penalized-clients'),
 
     path('block-date', views.blockOutDate, name='block-date'),
     path('block-time', views.blockOutTime, name='block-time'),

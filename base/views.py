@@ -313,6 +313,21 @@ def returnItem2(request, pk):
 
     return render(request, 'base/Home-Item/return_item2.html', context)
 
+def report(request, pk):
+    offendingClient = Client.objects.get(clientId=pk)
+    reportedItem = offendingClient.lastBorrowedItem
+    if request.method == "POST":
+        transaction = Transaction.objects.filter(clientId=offendingClient, itemCat=reportedItem).first()
+        offendingClient.fineAmount = request.POST.get('fineAmount')
+        offendingClient.borrowing = False
+        offendingClient.save()
+        reportedItem.status=request.POST.get("reportType")
+        reportedItem.save()
+        transaction.status=request.POST.get("reportType")
+        transaction.save()
+        return redirect('home')
+    context={"offendingClient":offendingClient, "reportedItem":reportedItem}
+    return render(request, 'base/Home-Item/report_item.html', context)
 
 # Overdue Transactions
 def lateTransactions(request):
@@ -497,13 +512,13 @@ def liftClientPenalty(request, pk):
     return render(request, 'base/Admin-Client/lift_client_penalty.html', {'client': client})
 
 @login_required(login_url='login')  
-def blacklistedClients(request):
+def penalizedClients(request):
     print("Stuff")
     clients = Client.objects.filter(Q(blackListed=True) | 
                                     Q(temporaryBlackList=True) | 
                                     Q(fineAmount__gt=0, blackListed=False, temporaryBlackList=False))
     context={"clients":clients}
-    return render(request, 'base/Admin-Client/blacklist.html', context)
+    return render(request, 'base/Admin-Client/penalized_clients.html', context)
 
 # Block Dates
 @login_required(login_url='login')
