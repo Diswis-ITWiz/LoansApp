@@ -58,8 +58,8 @@
                                 </div>
                             </div>
                             <div class="row mb-1 mt-1">
-                                <div class="col-sm-3">  <label for="borrowing" class="form-check-label">Borrowing</label></div>
-                                <div class="col">
+                                <div class="col-sm-3">  <label for="borrowing" class="form-check-label">Currently Borrowing: </label></div>
+                                <div class="col-sm-3">
                                     <input type="checkbox" id="borrowing" class="form-check-input" disabled
                                     {% if client.borrowing == True %}
                                     checked="checked"
@@ -71,13 +71,13 @@
                                 <div class="col">
                                     <div class="form-floating mb-1 mt-1">
                                         <input type="text" id="last item" class="form-control form-control-sm" placeholder="Enter Prev Item" value="{{client.lastBorrowedItem.itemCat}}" readonly>
-                                        <label for="last item">Last Item</label>
+                                        <label for="last item">Last Item Borrowed</label>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-floating mb-1 mt-1">
                                         <input type="datetime" id="dateDue" class="form-control form-control-sm" placeholder="Enter Date" value="{{latest_transaction.dueDate}}" readonly>
-                                        <label for="dateDue" class="form-label">Due Date</label>
+                                        <label for="dateDue" class="form-label">Due Date of Borrowed Item</label>
                                     </div>
                                 </div>
                             </div>
