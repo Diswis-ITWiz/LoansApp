@@ -10,6 +10,12 @@
 </head>
 <body>
     <div class="container">
+        {% if duplicate %}
+        <div class="alert alert-warning alert-dismissible">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <strong>Warning!</strong> Item Already Exists
+        </div>
+        {% endif %}
         <h1 class="text-center mt-5">Item Panel</h1>
         <div class="d-flex justify-content-between mt-3 mb-2">
             <div>

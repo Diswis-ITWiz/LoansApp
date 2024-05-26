@@ -390,6 +390,7 @@ def adminDashboard(request):
 @login_required(login_url='login')
 def itemPanel(request):
     form = LoanItemForm()
+    duplicateItem = False
     if request.method == 'GET':
         if request.GET.get('getItemBtn'):
             search_param = request.GET.get('itemCatQuery')
@@ -407,8 +408,11 @@ def itemPanel(request):
         if form.is_valid():
             form.save()
             return redirect('item-panel')
+        else:
+            duplicateItem = True
+            form = LoanItemForm()
     items = LoanItem.objects.all()
-    context = {"items": items, 'filtered': False, "form":form}        
+    context = {"items": items, 'filtered': False, "form":form, "duplicate": duplicateItem}        
     return render(request, 'base/Admin-Item/item_panel.html', context)
 
 @login_required(login_url='login')
