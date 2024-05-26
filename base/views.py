@@ -524,34 +524,46 @@ def penalizedClients(request):
 @login_required(login_url='login')
 def blockOutDate(request):
     form = BlockDateForm(request.POST or None)
+    context = {}
+    isBlockedAlready = False
     if request.method == 'POST':
         if form.is_valid():
-            blockOutDate = BlockOutDate.objects.create(
-                dateBlocked = form.cleaned_data["blockDate"],
-                description = form.cleaned_data["description"]
-            )
-            return redirect('admin-dashboard')
+            # Check for Duplicates
+            if BlockOutDate.objects.filter(dateBlocked=form.cleaned_data["blockDate"]).exists():
+                isBlockedAlready = True
+            else:
+                blockOutDate = BlockOutDate.objects.create(
+                    dateBlocked = form.cleaned_data["blockDate"],
+                    description = form.cleaned_data["description"]
+                )
+            form = BlockDateForm()
     blockedDates = BlockOutDate.objects.all()
-    return render(request, 'base/Admin-Blockout/block_date.html', {'blockedDates': blockedDates, "form": form})
+    context = {'blockedDates': blockedDates, "form": form, "alreadyBlocked": isBlockedAlready}
+    return render(request, 'base/Admin-Blockout/block_date.html', context)
 
 @login_required(login_url='login')
 def blockOutTime(request):
+    context = {}
+    isBlockedAlready = False
     if request.method == 'POST':
+        # Check for duplicates
         dateInput = datetime.strptime(request.POST.get('dateInput'), '%Y-%m-%d')
         startDateTime = datetime.strptime(request.POST.get('startTime'), '%H:%M')
         finalStartDateTime = startDateTime.replace(year=dateInput.year, month=dateInput.month, day=dateInput.day)
         endDateTime = datetime.strptime(request.POST.get('endTime'), '%H:%M')
         finalEndDateTime = endDateTime.replace(year=dateInput.year, month=dateInput.month, day=dateInput.day)
-        blockOutTime = BlockOutTime.objects.create(
-            dateBlocked = dateInput.date(),
-            description = request.POST.get('descriptionInput'),
-            timeStart = finalStartDateTime,
-            timeEnd = finalEndDateTime
-        )
-        return redirect('admin-dashboard')
-    else:
-        blockedTimes = BlockOutTime.objects.all()
-    return render(request, 'base/Admin-Blockout/block_time.html', {'blockedTimes':blockedTimes})
+        if BlockOutTime.objects.filter(dateBlocked=dateInput.date()).exists():
+            isBlockedAlready = True
+        else:
+            blockOutTime = BlockOutTime.objects.create(
+                dateBlocked = dateInput.date(),
+                description = request.POST.get('descriptionInput'),
+                timeStart = finalStartDateTime,
+                timeEnd = finalEndDateTime
+            )
+    blockedTimes = BlockOutTime.objects.all()
+    context = {"blockedTimes": blockedTimes, "alreadyBlocked": isBlockedAlready}
+    return render(request, 'base/Admin-Blockout/block_time.html', context)
 
     
 
