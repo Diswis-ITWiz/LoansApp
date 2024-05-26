@@ -25,16 +25,18 @@ def home(request):
 
 # Register Client
 def newClient(request):
+    error = False
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Client added.') # <- Needs Bootstrap
-            return redirect('home')
-        return render(request, 'base/Home-Client/new_client.html', {'form': form})
+        else:
+            error=True
+        return render(request, 'base/Home-Client/new_client.html', {'form': form, "duplicate": error})
     else:
         form = ClientForm()
-        context = {'form': form}
+        context = {'form': form, "duplicate": error}
         return render(request, 'base/Home-Client/new_client.html', context)
 
 
@@ -69,7 +71,8 @@ def loanItemClientFinder(request):
                 return render(request, 'base/Home-Item/find_client.html', context)
             return render(request, 'base/Home-Item/find_client.html', context)
         else:
-            return redirect('new-client')
+            context = {"input_validity": True}
+            return render(request, 'base/Home-Item/find_client.html', context)
 
 
 def loanItemTransaction(request, pk):
@@ -218,12 +221,10 @@ def returnItem1(request):
                     Q(clientId__exact=client.clientId) & Q(status__exact='OG')
                 )
             except Transaction.DoesNotExist:
-                transaction = False
-            context = {'client': client, 'transaction': transaction}
+                context = {'client': client, 'noTransaction': True}
             return render(request, 'base/Home-Item/return_item.html', context)
         except Client.DoesNotExist:
-            invalidInput = True
-            context = {'input_validity': invalidInput}
+            context = {'noClient': True}
             return render(request, 'base/Home-Item/return_item.html', context)
     return render(request, 'base/Home-Item/return_item.html')
 

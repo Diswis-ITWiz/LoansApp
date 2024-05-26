@@ -24,8 +24,21 @@
                             </div>
                         </form>
                         <br>
-                            {% if input_validity == True %}
-                                <a href="{% url 'new-client'%}">Register New Client</a>
+                            {% if input_validity%}
+                            <div class="alert alert-warning alert-dismissible">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Warning!</strong> <a href="{% url 'new-client' %}" class="alert-link">Client Doest Not Exist. Please Register Client</a>.
+                            </div>
+                            {% elif blackListed%}
+                            <div class="alert alert-warning alert-dismissible">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Warning!</strong> Client is currently penalized
+                            </div>
+                            {% elif gradWaiting %}
+                            <div class="alert alert-warning alert-dismissible">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Warning!</strong> Client is GradWaiting
+                            </div>
                             {% endif%}
 
                         <section name="Form Fields">
