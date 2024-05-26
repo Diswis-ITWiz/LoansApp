@@ -16,7 +16,12 @@
                 <div class="card bg-light shadow p-3">
 
                         <h2 class="text-center mt-3">Admin Login</h2>
-                    
+                        {% if invalidCredentials %}
+                            <div class="alert alert-warning alert-dismissible mt-1">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Warning!</strong> Invalid Credentials
+                            </div>
+                        {% endif %}
                     <div class="card-body p-5">
                         
                         <form method="POST">

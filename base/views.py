@@ -577,6 +577,7 @@ def emailTemplate(request):
 
 
 def adminLogin(request):
+    form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -586,8 +587,10 @@ def adminLogin(request):
             if user:
                 login(request, user)    
                 return redirect('admin-dashboard')
-    else:
-        form = LoginForm()
+            else:
+                print("invalid")
+                return render(request, 'login.html', {'form': form, "invalidCredentials": True})
+        
     return render(request, 'login.html', {'form': form})
 
 def adminLogout(request):
