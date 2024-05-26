@@ -19,9 +19,6 @@ class ClientForm(ModelForm):
                    'excuseLetter', 'holdOrder', 'blackListed', 
                     'fineAmount', 'temporaryBlackList'
                     ] 
-        widgets = {
-            "middleInitial": forms.TextInput(required=False)
-        }
         labels = {
             "clientId": _("Client ID No"),
             "lastName": _("Last Name"),
@@ -38,6 +35,9 @@ class ClientForm(ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Form Required
+        self.fields["middleInitial"].required = False
         # Form Class
         self.fields['clientId'].widget.attrs['class'] = 'form-control form-control-sm'
         self.fields['lastName'].widget.attrs['class'] = 'form-control form-control-sm'
