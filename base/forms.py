@@ -19,6 +19,9 @@ class ClientForm(ModelForm):
                    'excuseLetter', 'holdOrder', 'blackListed', 
                     'fineAmount', 'temporaryBlackList'
                     ] 
+        widgets = {
+            "middleInitial": forms.TextInput(required=False)
+        }
         labels = {
             "clientId": _("Client ID No"),
             "lastName": _("Last Name"),
