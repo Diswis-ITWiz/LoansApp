@@ -490,20 +490,27 @@ def editClient(request, pk):
 def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
-        if client.blackListed == True:
+        choice = request.POST.get("liftType", "")
+        if choice == "All":
+            client.blackListed = False
+            client.holdOrder = False
+            client.excuseLetter = False
+            client.fineAmount = 0
+            client.temporaryBlackList = False
+        elif choice == "BL":
             client.blackListed = True
             client.holdOrder = False
             client.excuseLetter = False
             client.fineAmount = 0
             client.temporaryBlackList = False
-        elif client.temporaryBlackList == True:
+        elif choice == "TBL":
             client.temporaryBlackList = False
             client.excuseLetter = False
             client.holdOrder = False
             client.fineAmount = 0
-        elif client.fineAmount > 0:
+        elif choice == "RF":
             client.fineAmount = 0
-        else:
+        elif choice == "W":
             client.warningCount = 0 if client.warningCount == 0 else client.warningCount - 1
         client.save()
         return redirect('client-details', pk=client.clientId)
