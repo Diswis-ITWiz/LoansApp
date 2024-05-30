@@ -369,15 +369,12 @@ def adminDashboard(request):
             try:
                 blockedDate = BlockOutDate.objects.get(dateBlocked=date.date())
             except BlockOutDate.DoesNotExist:    
-                print(date.date())
                 blockOutDate = BlockOutDate.objects.create(
                     dateBlocked = date.date(),
                     description = 'FINALS'
                 )
             date += timedelta(days=1)
             dateWeekDay +=1
-            print(date)
-            print(dateWeekDay)
             if dateWeekDay == 5:
                 weekday=False
         return redirect('admin-dashboard')
@@ -516,7 +513,6 @@ def liftClientPenalty(request, pk):
 
 @login_required(login_url='login')  
 def penalizedClients(request):
-    print("Stuff")
     clients = Client.objects.filter(Q(blackListed=True) | 
                                     Q(temporaryBlackList=True) | 
                                     Q(fineAmount__gt=0, blackListed=False, temporaryBlackList=False))
@@ -586,7 +582,6 @@ def adminLogin(request):
                 login(request, user)    
                 return redirect('admin-dashboard')
             else:
-                print("invalid")
                 return render(request, 'login.html', {'form': form, "invalidCredentials": True})
         
     return render(request, 'login.html', {'form': form})
