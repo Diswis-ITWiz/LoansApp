@@ -494,8 +494,6 @@ def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
         if client.blackListed == True:
-            timeStart = timezone.localtime(timezone.now())
-            timeEnd = timeStart + timedelta(days=105)
             client.blackListed = True
             client.holdOrder = False
             client.excuseLetter = False
