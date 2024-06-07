@@ -31,6 +31,7 @@ def newClient(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Client added.') # <- Needs Bootstrap
+            return redirect('home')
         else:
             error=True
         return render(request, 'base/Home-Client/new_client.html', {'form': form, "duplicate": error})
@@ -216,10 +217,12 @@ def returnItem1(request):
         #Client May Not Exist        
         try:
             client = Client.objects.get(clientId__exact=q)
+            context.update({"client":client})
             try:
                 transaction = Transaction.objects.get(
                     Q(clientId__exact=client.clientId) & Q(status__exact='OG')
                 )
+                context.update({"transaction":transaction})
             except Transaction.DoesNotExist:
                 context = {'client': client, 'noTransaction': True}
             return render(request, 'base/Home-Item/return_item.html', context)
