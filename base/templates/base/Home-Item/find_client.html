@@ -113,7 +113,8 @@
                         <section name="Button">
                             {% if client%}
                                 <div class="row pt-1">
-                                    <div class="d-flex">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
                                         <a
                                             {% if gradWaiting or blackListed or borrowing%}
                                                 class="btn btn-warning disabled me-1"
@@ -134,17 +135,18 @@
                                                 Confirm
                                             {% endif %}
                                         </a>
-                                        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+                                        
 
                                     </div>
                                 </div>
                             {% else%}
                             <div class="row pt-1">
-                                <div class="d-flex">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a> 
                                     <a href="#" style="pointer-events: none;" class="btn btn-warning disabled me-1">
                                         No Client !
                                     </a>
-                                    <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>   
+                                      
                                 </div>
                             </div>
                                 

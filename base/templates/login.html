@@ -28,8 +28,8 @@
                             {% csrf_token %}
                             {{ form.as_p }}
                             <div class="d-flex justify-content-between">
-                                <button type="submit" class="btn btn-primary">Login</button>
                                 <a href="{%url 'home'%}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Login</button>
                             </div>
                         </form>
                     </div>

@@ -117,7 +117,8 @@
                                 </div>
                                 <br>
                                 <div class="row pt-1">
-                                    <div class="d-flex">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'loan-item' %}" class="btn btn-secondary">Cancel</a>  
                                         {% if not calculated%}
                                         <input type="submit" value="Calculate First" class="btn btn-primary me-1" disabled>
                                         {% else %}
@@ -125,7 +126,7 @@
                                         {% endif %}
                                         
                                             
-                                        <a href="{% url 'loan-item' %}" class="btn btn-secondary">Cancel</a>  
+                                        
                                     </div>
                                 </div>
                         </form>

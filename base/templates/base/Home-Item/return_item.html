@@ -106,16 +106,21 @@
                             </div>
                         </div>
                         <div class="row  mb-4 mt-4">
-                            <div class="d-flex">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'home' %}" class="btn btn-secondary ms-1">Cancel</a>   
                                 {%if transaction %}
+                                <div>
+                                    <a href="{% url 'report' client.clientId %}" class="btn btn-danger">Report</a>
                                     <a href="{%  url 'return-item2' transaction.id %}" class="btn btn-primary">Confirm</a>
-                                    <a href="{% url 'report' client.clientId %}" class="btn btn-danger ms-1">Report</a>
+                                </div>
                                 {% else %}
+                                <div>
+                                    <a href="" style="pointer-events: none;" class="btn btn-danger">Report</a>
                                     <a href="" style="pointer-events: none;" class="btn btn-primary">Confirm</a>
-                                    <a href="" style="pointer-events: none;" class="btn btn-danger ms-1">Report</a>
+                                </div>
                                 {% endif %}
 
-                                <a href="{% url 'home' %}" class="btn btn-secondary ms-1">Cancel</a>   
+                                
                             </div>
                         </div>
                     </div>

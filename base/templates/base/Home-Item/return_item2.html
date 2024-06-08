@@ -148,9 +148,10 @@
                         </div>
                         <br>
                         
-                        
-                        <button type="submit" name ="{{itemType}}" class="btn btn-primary" value="{{itemType}}">Confirm</button>
-                        <a href="{% url 'home'%}" class="btn btn-secondary">Cancel</a>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'home'%}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" name ="{{itemType}}" class="btn btn-primary" value="{{itemType}}">Confirm</button>
+                        </div>
                     </form>
             
                 </div>
@@ -177,7 +178,7 @@
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary" name="override">Submit</button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        
                     </div>
                 </form>
               </div>
