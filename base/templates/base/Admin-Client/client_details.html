@@ -120,7 +120,11 @@
                                     <div class="form-floating mb-3 mt-3">
                                         <input  type="text" class="form-control"
                                                 id="penalty" placeholder="1"
+                                                {% if client.fineAmount > 0 %}
+                                                value='{{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}} Php {{client.fineAmount}}'
+                                                {% else %}
                                                 value='{{client.temporaryBlackList|yesno:"TBL,"}} {{client.blackListed|yesno:"BL,"}} {{client.holdOrder|yesno:"HO,"}} {{client.excuseLetter|yesno:"EL,"}}'
+                                                {% endif %}
                                                 readonly
                                         >
                                         <label for="penalty">Penalty</label>

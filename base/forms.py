@@ -36,6 +36,9 @@ class ClientForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+
+        self.fields["clientId"].widget.attrs['min'] = 189999
+        self.fields["clientId"].widget.attrs['max'] = 999999
         # Form Required
         self.fields["middleInitial"].required = False
         # Form Class
