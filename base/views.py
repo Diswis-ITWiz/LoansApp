@@ -148,12 +148,12 @@ def loanItemTransaction(request, pk):
                 dateDue = tempDateDue
                 while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
                     dateDue += timedelta(days=1)
-                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, millisecond=0, microsecond=0)
+                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, microsecond=0)
                     dateDue = tempDateDue                
             else:
                 while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
                     dateDue += timedelta(days=1)
-                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, millisecond=0, microsecond=0)
+                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, microsecond=0)
                     dateDue = tempDateDue
 
 
