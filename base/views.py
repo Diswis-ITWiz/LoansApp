@@ -339,7 +339,7 @@ def lateTransactions(request):
     transactions = Transaction.objects.filter(
         Q(status__exact='OG') & Q(dueDate__lt=currentTime))
     context = {'currentTime':currentTime, 'transactions':transactions}
-    return render(request, 'base/Home-item/late_transactions.html', context)
+    return render(request, 'base/Home-Item/late_transactions.html', context)
 
 def lateTranscactionDetails(request, pk):
     transaction = Transaction.objects.get(id=pk)
@@ -359,7 +359,7 @@ def lateTranscactionDetails(request, pk):
                'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
                'penalty': penalty, 'overDueDays': overdueDays, 'overDueHours': overdueHours, 
                'overDueMinutes': overdueMinutes}
-    return render(request, 'base/Home-item/late_transactions_detail.html', context)
+    return render(request, 'base/Home-Item/late_transactions_detail.html', context)
 
 # ADMIN PANELS
 @login_required(login_url='login')
