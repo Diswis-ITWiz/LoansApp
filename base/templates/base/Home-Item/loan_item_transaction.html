@@ -18,7 +18,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-floating mb-1 mt-1">
-                                    <input type="text" id="lastitem" class="form-control form-control-sm" placeholder="Enter First Name"  value="{{latestTransaction.itemCat}}" readonly>
+                                    <input type="text" id="lastitem" class="form-control form-control-sm" placeholder="Enter First Name"  value="{{latestTransaction.itemCat.itemCat}}" readonly>
                                     <label for="lastitem">Last Item Borrowed</label>
                                 </div>
                             </div>
@@ -94,7 +94,8 @@
                                 <div class="row pt-1">
                                     {{form.dateLoaned}}
                                     {{form.itemCat}}
-                                    <div class="col-sm-3">* {{form.dateDue.label}}</div>
+                                    <!-- <div class="col-sm-3">* {{form.dateDue.label}}</div> -->
+                                    <div class="col-sm-3">{{form.dateDue.label}}</div>
                                     <div class="col">{{form.dateDue}}
                                     </div>
                                 </div>
@@ -103,7 +104,7 @@
                                     <div class="col">
                                         <div class="form-floating mb-1 mt-1">
                                             {{form.reciever}}
-                                            <label for="reciever">* DSWS Member</label>
+                                            <label for="reciever">{{form.reciever.label}}</label>
                                         </div>
                                     </div>
                                 </div>
