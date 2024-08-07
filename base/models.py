@@ -55,7 +55,7 @@ class Transaction(models.Model):
     clientId = models.ForeignKey(Client, null=True, on_delete=models.SET_NULL)
     itemCat = models.ForeignKey(LoanItem, on_delete=models.CASCADE)
 
-    dswsMemLoanName = models.CharField(max_length=15)
+    dswsMemLoanName = models.CharField(max_length=255)
     loanRemarks = models.CharField(null=True, blank=True, max_length=46)
     dateLoaned = models.DateTimeField(auto_now=False, auto_now_add=False)
     dueDate = models.DateTimeField(auto_now=False, auto_now_add=False)

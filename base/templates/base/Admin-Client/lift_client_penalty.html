@@ -11,42 +11,38 @@
 <body>
     <div class="container">
         <div class="row mt-5">
-            <div class="col"></div>
-            <div class="col">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
                 <div class="card shadow">
-                    <div class="card-header">
-                        <h2 class="text-center">Lift Client Penalty</h2>
-                    </div>
                     <div class="card-body">
+                        <h1 class="text-center mb-3">Lift Client Penalty</h1>
+                        <p class="text-center">Are you sure you want to lift the penalties of <br>
+                            {{client.clientId}} - {{client.lastName}}, {{client.firstName}}</p>
                         <form method="POST" action="">
                             {% csrf_token %}
                             <div class="row mb-3 mt-3">
                                 <div class="col">
-                                    <p class="text-center">Are you sure you want to lift the penalties of <br>
-                                        {{client.clientId}} - {{client.lastName}}, {{client.firstName}}</p>
-                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#notice" class="btn btn-warning">NOTICE  &#9660;</a>
-                                    <div id="notice" class="collapse">
-                                        <ul class="list-group mt-2">
-                                            <li class="list-group-item">
-                                                Blacklisted clients remain blacklisted but have their fines and hold orders removed
-                                            </li>
-                                            <li class="list-group-item">
-                                                Temporary blacklisted clients have all of their penalties removed
-                                            </li>
-                                            <li class="list-group-item">
-                                                Clients with warnings have their warning removed
-                                            </li>
-                                            <li class="list-group-item">
-                                                Pending Fines for lost or damages items are waived
-                                            </li>
-                                        </ul>
-                                    </div>
+                                    
+
+                                        <div class="form-floating mb-3 mt-3">
+                                            <select name="liftType" id="reportType" class="form-select">
+                                                <option value="All">Blacklist -- Lift ALL penalties</option>
+                                                <option value="BL">Blacklist -- Lift penalties except Blacklist</option>
+                                                <option value="TBL">Temporary Blacklist -- Lift penalties</option>
+                                                <option value="RF">Fine -- Reduce Fine to 0</option>
+                                                <option value="W">Warning -- Reduce Warning Count</option>
+                                            </select>
+                                            <label for="reportType">Select Lifting Penalty Option:</label>
+                                        </div>
                                 </div>
+                                
                             </div>
-                            <div class="row mb-3 mt-3">
+                            <div class="row mb-3 mt-5">
                                 <div class="col">
-                                    <input type="submit" value="Confirm" class="btn btn-primary ms-3">
-                                    <button onclick="history.back()" class="btn btn-secondary">Cancel</button>
+                                    <div class="d-flex justify-content-between">
+                                        <button onclick="history.back()" class="btn btn-secondary">Cancel</button>
+                                        <input type="submit" value="Confirm" class="btn btn-primary ms-3">
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -54,7 +50,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col"></div>
+            <div class="col-md-3"></div>
         </div>
     </div>
     

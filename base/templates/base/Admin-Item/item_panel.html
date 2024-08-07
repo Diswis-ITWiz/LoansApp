@@ -10,6 +10,12 @@
 </head>
 <body>
     <div class="container">
+        {% if duplicate %}
+        <div class="alert alert-warning alert-dismissible">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <strong>Warning!</strong> Item Already Exists
+        </div>
+        {% endif %}
         <h1 class="text-center mt-5">Item Panel</h1>
         <div class="d-flex justify-content-between mt-3 mb-2">
             <div>
@@ -123,9 +129,9 @@
                     </div>
                     
                     <!-- Modal footer -->
-                    <div class="modal-footer">
+                    <div class="modal-footer mt-3">
                         <button type="submit" class="btn btn-primary me-1">Submit</button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <!-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> -->
                     </div>
                 </form>
                     

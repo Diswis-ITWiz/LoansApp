@@ -22,13 +22,13 @@
                         <div class="row mb-1 mt-1">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="clientId" placeholder="000000" value="{{client.clientId}}">
+                                    <input type="text" class="form-control" id="clientId" placeholder="000000" value="{{client.clientId}}" readonly>
                                     <label for="clientId">Client ID</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="itemCat" placeholder="XY-99" value="{{loanedItem.itemCat}}">
+                                    <input type="text" class="form-control" id="itemCat" placeholder="XY-99" value="{{loanedItem.itemCat}}" readonly>
                                     <label for="itemCat">Item Cat.</label>
                                 </div>
                             </div>
@@ -36,13 +36,13 @@
                         <div class="row mb-1 mt-1">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="dateLoaned" placeholder="12/12/24" value="{{transaction.dateLoaned}}">
+                                    <input type="text" class="form-control" id="dateLoaned" placeholder="12/12/24" value="{{transaction.dateLoaned}}" readonly>
                                     <label for="dateLoaned">Date Loaned</label>
                                 </div> 
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="dueDate" placeholder="12/12/24" value="{{transaction.dueDate}}">
+                                    <input type="text" class="form-control" id="dueDate" placeholder="12/12/24" value="{{transaction.dueDate}}" readonly>
                                     <label for="dueDate">Due Date</label>
                                 </div>
                                 
@@ -52,19 +52,19 @@
                             <div class="col">
                                 {% if itemType == 'A' %}
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="overDueDays" placeholder="999" value="{{overDueDays}}">
+                                        <input type="text" class="form-control" id="overDueDays" placeholder="999" value="{{overDueDays}}"  readonly>
                                         <label for="overDueDays">Overdue Days</label>
                                     </div>
                                 {% else %}
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="overDueTime" placeholder="24 hr/s 59 min/s" value="{{overDueHours}} hr/s {{overDueMinutes}} min/s">
+                                        <input type="text" class="form-control" id="overDueTime" placeholder="24 hr/s 59 min/s" value="{{overDueHours}} hr/s {{overDueMinutes}} min/s"  readonly>
                                         <label for="overDueTime">Overdue Time</label>
                                     </div>
                                 {% endif %}
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="penalty" placeholder="BlackListed" value="{{penalty}}">
+                                    <input type="text" class="form-control" id="penalty" placeholder="BlackListed" value="{{penalty}}" readonly>
                                     <label for="penalty">Penalty</label>
                                 </div>
                             </div>

@@ -10,6 +10,13 @@
 </head>
 <body>
     <div class="container">
+        {% if duplicate %}
+        <div class="alert alert-warning alert-dismissible fade show">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <strong>Warning!</strong> Client Already Exists
+        </div>
+        {% endif %}
+        
         <div class="row align-items-center" style="height: 80vh">
             <div class="col-md-3"></div>
             <div class="col-md-6">
@@ -126,9 +133,10 @@
                                     </div>
                                 </div>
                                 <div class="row pt-2 mt-3">
-                                    <div class="d-flex">
-                                        <input type="submit" class="btn btn-primary me-1" value="Submit">
+                                    <div class="d-flex justify-content-between">
                                         <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+                                        <input type="submit" class="btn btn-primary me-1" value="Submit">
+                                        
                                     </div>
                                 </div>                           
                             </form>

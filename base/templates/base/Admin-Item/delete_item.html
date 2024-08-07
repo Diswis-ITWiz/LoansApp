@@ -31,10 +31,12 @@
                                             <br>"{{item.itemCat}}"?</p>
                                     </div>
                                 </div>
-                                <div class="row mb-3 mt-3">
+                                <div class="row mb-3 mt-4">
                                     <div class="col">
-                                        <input type="submit" value="Confirm" class="btn btn-primary ms-3">
-                                        <a href="{% url 'item-panel' %}" class="btn btn-secondary">Cancel</a>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="{% url 'item-panel' %}" class="btn btn-secondary">Cancel</a>
+                                            <input type="submit" value="Confirm" class="btn btn-primary ms-3">
+                                        </div>
                                     </div>
                                 </div>
                             </form>

@@ -25,16 +25,19 @@ def home(request):
 
 # Register Client
 def newClient(request):
+    error = False
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Client added.') # <- Needs Bootstrap
             return redirect('home')
-        return render(request, 'base/Home-Client/new_client.html', {'form': form})
+        else:
+            error=True
+        return render(request, 'base/Home-Client/new_client.html', {'form': form, "duplicate": error})
     else:
         form = ClientForm()
-        context = {'form': form}
+        context = {'form': form, "duplicate": error}
         return render(request, 'base/Home-Client/new_client.html', context)
 
 
@@ -69,7 +72,8 @@ def loanItemClientFinder(request):
                 return render(request, 'base/Home-Item/find_client.html', context)
             return render(request, 'base/Home-Item/find_client.html', context)
         else:
-            return redirect('new-client')
+            context = {"input_validity": True}
+            return render(request, 'base/Home-Item/find_client.html', context)
 
 
 def loanItemTransaction(request, pk):
@@ -144,12 +148,12 @@ def loanItemTransaction(request, pk):
                 dateDue = tempDateDue
                 while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
                     dateDue += timedelta(days=1)
-                    tempDateDue = dateDue.replace(hour=11, minute=00, second=00, microsecond=00)
+                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, microsecond=0)
                     dateDue = tempDateDue                
             else:
                 while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
                     dateDue += timedelta(days=1)
-                    tempDateDue = dateDue.replace(hour=11, minute=00, second=00, microsecond=00)
+                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, microsecond=0)
                     dateDue = tempDateDue
 
 
@@ -213,17 +217,17 @@ def returnItem1(request):
         #Client May Not Exist        
         try:
             client = Client.objects.get(clientId__exact=q)
+            context.update({"client":client})
             try:
                 transaction = Transaction.objects.get(
                     Q(clientId__exact=client.clientId) & Q(status__exact='OG')
                 )
+                context.update({"transaction":transaction})
             except Transaction.DoesNotExist:
-                transaction = False
-            context = {'client': client, 'transaction': transaction}
+                context = {'client': client, 'noTransaction': True}
             return render(request, 'base/Home-Item/return_item.html', context)
         except Client.DoesNotExist:
-            invalidInput = True
-            context = {'input_validity': invalidInput}
+            context = {'noClient': True}
             return render(request, 'base/Home-Item/return_item.html', context)
     return render(request, 'base/Home-Item/return_item.html')
 
@@ -335,7 +339,7 @@ def lateTransactions(request):
     transactions = Transaction.objects.filter(
         Q(status__exact='OG') & Q(dueDate__lt=currentTime))
     context = {'currentTime':currentTime, 'transactions':transactions}
-    return render(request, 'base/Home-item/late_transactions.html', context)
+    return render(request, 'base/Home-Item/late_transactions.html', context)
 
 def lateTranscactionDetails(request, pk):
     transaction = Transaction.objects.get(id=pk)
@@ -355,7 +359,7 @@ def lateTranscactionDetails(request, pk):
                'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
                'penalty': penalty, 'overDueDays': overdueDays, 'overDueHours': overdueHours, 
                'overDueMinutes': overdueMinutes}
-    return render(request, 'base/Home-item/late_transactions_detail.html', context)
+    return render(request, 'base/Home-Item/late_transactions_detail.html', context)
 
 # ADMIN PANELS
 @login_required(login_url='login')
@@ -368,15 +372,12 @@ def adminDashboard(request):
             try:
                 blockedDate = BlockOutDate.objects.get(dateBlocked=date.date())
             except BlockOutDate.DoesNotExist:    
-                print(date.date())
                 blockOutDate = BlockOutDate.objects.create(
                     dateBlocked = date.date(),
                     description = 'FINALS'
                 )
             date += timedelta(days=1)
             dateWeekDay +=1
-            print(date)
-            print(dateWeekDay)
             if dateWeekDay == 5:
                 weekday=False
         return redirect('admin-dashboard')
@@ -390,6 +391,7 @@ def adminDashboard(request):
 @login_required(login_url='login')
 def itemPanel(request):
     form = LoanItemForm()
+    duplicateItem = False
     if request.method == 'GET':
         if request.GET.get('getItemBtn'):
             search_param = request.GET.get('itemCatQuery')
@@ -407,8 +409,11 @@ def itemPanel(request):
         if form.is_valid():
             form.save()
             return redirect('item-panel')
+        else:
+            duplicateItem = True
+            form = LoanItemForm()
     items = LoanItem.objects.all()
-    context = {"items": items, 'filtered': False, "form":form}        
+    context = {"items": items, 'filtered': False, "form":form, "duplicate": duplicateItem}        
     return render(request, 'base/Admin-Item/item_panel.html', context)
 
 @login_required(login_url='login')
@@ -488,22 +493,27 @@ def editClient(request, pk):
 def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
-        if client.blackListed == True:
-            timeStart = timezone.localtime(timezone.now())
-            timeEnd = timeStart + timedelta(days=105)
+        choice = request.POST.get("liftType", "")
+        if choice == "All":
+            client.blackListed = False
+            client.holdOrder = False
+            client.excuseLetter = False
+            client.fineAmount = 0
+            client.temporaryBlackList = False
+        elif choice == "BL":
             client.blackListed = True
             client.holdOrder = False
             client.excuseLetter = False
             client.fineAmount = 0
             client.temporaryBlackList = False
-        elif client.temporaryBlackList == True:
+        elif choice == "TBL":
             client.temporaryBlackList = False
             client.excuseLetter = False
             client.holdOrder = False
             client.fineAmount = 0
-        elif client.fineAmount > 0:
+        elif choice == "RF":
             client.fineAmount = 0
-        else:
+        elif choice == "W":
             client.warningCount = 0 if client.warningCount == 0 else client.warningCount - 1
         client.save()
         return redirect('client-details', pk=client.clientId)
@@ -513,7 +523,6 @@ def liftClientPenalty(request, pk):
 
 @login_required(login_url='login')  
 def penalizedClients(request):
-    print("Stuff")
     clients = Client.objects.filter(Q(blackListed=True) | 
                                     Q(temporaryBlackList=True) | 
                                     Q(fineAmount__gt=0, blackListed=False, temporaryBlackList=False))
@@ -524,34 +533,46 @@ def penalizedClients(request):
 @login_required(login_url='login')
 def blockOutDate(request):
     form = BlockDateForm(request.POST or None)
+    context = {}
+    isBlockedAlready = False
     if request.method == 'POST':
         if form.is_valid():
-            blockOutDate = BlockOutDate.objects.create(
-                dateBlocked = form.cleaned_data["blockDate"],
-                description = form.cleaned_data["description"]
-            )
-            return redirect('admin-dashboard')
+            # Check for Duplicates
+            if BlockOutDate.objects.filter(dateBlocked=form.cleaned_data["blockDate"]).exists():
+                isBlockedAlready = True
+            else:
+                blockOutDate = BlockOutDate.objects.create(
+                    dateBlocked = form.cleaned_data["blockDate"],
+                    description = form.cleaned_data["description"]
+                )
+            form = BlockDateForm()
     blockedDates = BlockOutDate.objects.all()
-    return render(request, 'base/Admin-Blockout/block_date.html', {'blockedDates': blockedDates, "form": form})
+    context = {'blockedDates': blockedDates, "form": form, "alreadyBlocked": isBlockedAlready}
+    return render(request, 'base/Admin-Blockout/block_date.html', context)
 
 @login_required(login_url='login')
 def blockOutTime(request):
+    context = {}
+    isBlockedAlready = False
     if request.method == 'POST':
+        # Check for duplicates
         dateInput = datetime.strptime(request.POST.get('dateInput'), '%Y-%m-%d')
         startDateTime = datetime.strptime(request.POST.get('startTime'), '%H:%M')
         finalStartDateTime = startDateTime.replace(year=dateInput.year, month=dateInput.month, day=dateInput.day)
         endDateTime = datetime.strptime(request.POST.get('endTime'), '%H:%M')
         finalEndDateTime = endDateTime.replace(year=dateInput.year, month=dateInput.month, day=dateInput.day)
-        blockOutTime = BlockOutTime.objects.create(
-            dateBlocked = dateInput.date(),
-            description = request.POST.get('descriptionInput'),
-            timeStart = finalStartDateTime,
-            timeEnd = finalEndDateTime
-        )
-        return redirect('admin-dashboard')
-    else:
-        blockedTimes = BlockOutTime.objects.all()
-    return render(request, 'base/Admin-Blockout/block_time.html', {'blockedTimes':blockedTimes})
+        if BlockOutTime.objects.filter(dateBlocked=dateInput.date()).exists():
+            isBlockedAlready = True
+        else:
+            blockOutTime = BlockOutTime.objects.create(
+                dateBlocked = dateInput.date(),
+                description = request.POST.get('descriptionInput'),
+                timeStart = finalStartDateTime,
+                timeEnd = finalEndDateTime
+            )
+    blockedTimes = BlockOutTime.objects.all()
+    context = {"blockedTimes": blockedTimes, "alreadyBlocked": isBlockedAlready}
+    return render(request, 'base/Admin-Blockout/block_time.html', context)
 
     
 
@@ -560,6 +581,7 @@ def emailTemplate(request):
 
 
 def adminLogin(request):
+    form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -569,8 +591,9 @@ def adminLogin(request):
             if user:
                 login(request, user)    
                 return redirect('admin-dashboard')
-    else:
-        form = LoginForm()
+            else:
+                return render(request, 'login.html', {'form': form, "invalidCredentials": True})
+        
     return render(request, 'login.html', {'form': form})
 
 def adminLogout(request):

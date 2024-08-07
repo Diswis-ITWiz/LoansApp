@@ -24,8 +24,21 @@
                             </div>
                         </form>
                         <br>
-                            {% if input_validity == True %}
-                                <a href="{% url 'new-client'%}">Register New Client</a>
+                            {% if input_validity%}
+                            <div class="alert alert-warning alert-dismissible">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Warning!</strong> <a href="{% url 'new-client' %}" class="alert-link">Client Doest Not Exist. Please Register Client</a>.
+                            </div>
+                            {% elif blackListed%}
+                            <div class="alert alert-warning alert-dismissible">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Warning!</strong> Client is currently penalized
+                            </div>
+                            {% elif gradWaiting %}
+                            <div class="alert alert-warning alert-dismissible">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Warning!</strong> Client is GradWaiting
+                            </div>
                             {% endif%}
 
                         <section name="Form Fields">
@@ -100,7 +113,8 @@
                         <section name="Button">
                             {% if client%}
                                 <div class="row pt-1">
-                                    <div class="d-flex">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
                                         <a
                                             {% if gradWaiting or blackListed or borrowing%}
                                                 class="btn btn-warning disabled me-1"
@@ -121,17 +135,18 @@
                                                 Confirm
                                             {% endif %}
                                         </a>
-                                        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+                                        
 
                                     </div>
                                 </div>
                             {% else%}
                             <div class="row pt-1">
-                                <div class="d-flex">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a> 
                                     <a href="#" style="pointer-events: none;" class="btn btn-warning disabled me-1">
                                         No Client !
                                     </a>
-                                    <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>   
+                                      
                                 </div>
                             </div>
                                 

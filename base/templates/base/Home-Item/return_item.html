@@ -21,11 +21,22 @@
                                 <div class="col-sm-3"><label for="q"></label>Client ID</div>
                                 <div class="col">
                                     <input  id="clientSearch" type="number" 
-                                            class="form-control form-control-sm border border-dark shadow-sm" 
-                                            name='q' placeholder="Client ID No." value="{{client.clientId}}">
+                                    class="form-control form-control-sm border border-dark shadow-sm" 
+                                    name='q' placeholder="Client ID No." value="{{client.clientId}}">
                                 </div>
                             </div>
                         </form>
+                        {% if noClient %}
+                        <div class="alert alert-info alert-dismissible mt-1">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <strong>Notice</strong> Client does not currently exist. Try Again
+                        </div>
+                        {% elif noTransaction %}
+                        <div class="alert alert-warning alert-dismissible mt-1">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <strong>Notice!</strong> Client has no pending transaction.
+                        </div>
+                        {% endif %}
                         <div class="row mb-4 mt-4" id="Client Name">
                             <div class="col">
                                 <div class="form-floating">
@@ -95,16 +106,21 @@
                             </div>
                         </div>
                         <div class="row  mb-4 mt-4">
-                            <div class="d-flex">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'home' %}" class="btn btn-secondary ms-1">Cancel</a>   
                                 {%if transaction %}
+                                <div>
+                                    <a href="{% url 'report' client.clientId %}" class="btn btn-danger">Report</a>
                                     <a href="{%  url 'return-item2' transaction.id %}" class="btn btn-primary">Confirm</a>
-                                    <a href="{% url 'report' client.clientId %}" class="btn btn-danger ms-1">Report</a>
+                                </div>
                                 {% else %}
+                                <div>
+                                    <a href="" style="pointer-events: none;" class="btn btn-danger">Report</a>
                                     <a href="" style="pointer-events: none;" class="btn btn-primary">Confirm</a>
-                                    <a href="" style="pointer-events: none;" class="btn btn-danger ms-1">Report</a>
+                                </div>
                                 {% endif %}
 
-                                <a href="{% url 'home' %}" class="btn btn-secondary ms-1">Cancel</a>   
+                                
                             </div>
                         </div>
                     </div>

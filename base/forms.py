@@ -31,10 +31,16 @@ class ClientForm(ModelForm):
             "course": _("Course"),
             "hasWednesdayClasses": _("Wednesday Class"),
             "graduating": _("Graduating"),
-            "dswsMemRegName": _("DSWS Member Name"),
+            "dswsMemRegName": _("DSWS Member Name <Given Name, Last Name>"),
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+        self.fields["clientId"].widget.attrs['min'] = 189999
+        self.fields["clientId"].widget.attrs['max'] = 999999
+        # Form Required
+        self.fields["middleInitial"].required = False
         # Form Class
         self.fields['clientId'].widget.attrs['class'] = 'form-control form-control-sm'
         self.fields['lastName'].widget.attrs['class'] = 'form-control form-control-sm'
@@ -88,12 +94,15 @@ class LoanItemEditForm(ModelForm):
 class LoanItemTransactionForm(forms.Form):
     dateLoaned = forms.DateTimeField(widget=forms.HiddenInput())
     dateDue = forms.DateTimeField(
-        widget=DateTimePickerInput(attrs={"class":"form-control form-control-sm", "label":"Date Due", "placeholder":"placeholder"})
+        widget=DateTimePickerInput(attrs={"class":"form-control form-control-sm", "label":"Date Due", "placeholder":"placeholder"}),
+        label="*Date Due"
         )
     itemCat = forms.CharField(widget=forms.HiddenInput())
-    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "label": "DSWS Member", "placeholder":"placeholder"}))
+    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "placeholder":"placeholder"}),
+                               label="*DSWS Member Name <Given Name, Last Name>")
     remarks = forms.CharField(
-        widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm", "label":"Remarks", "placeholder":"placeholder"}),
+        widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm", "placeholder":"placeholder"}),
+        label="Remarks",
         required=False
     )
     
@@ -106,7 +115,8 @@ class ReturnItemATransactionForm(forms.Form):
     itemType = forms.CharField(widget=forms.TextInput(attrs={'readonly' : 'readonly', "class":"form-control form-control-sm"}), label="Item Type")
     dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm"}), label="Due Date")
     overDueDays = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "readonly":"readonly"}), label="Overdue Days")
-    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}), label="*Reciever")
+    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}), 
+                               label="*DSWS Member Name <Given Name, Last Name>")
     remarks = forms.CharField(
         widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm"}),
         label="Remarks",
@@ -121,7 +131,8 @@ class ReturnItemBTransactionForm(forms.Form):
     dueDate = forms.DateTimeField(widget=DateTimePickerInput(attrs={"readonly":"readonly", "class":"form-control form-control-sm", "placeholder":"a"}), label="Due Date")
     overDueHours = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly"}), label="Overdue Hours")
     overDueMinutes = forms.IntegerField(widget=forms.NumberInput(attrs={"class":"form-control form-control-sm", "placeholder":"a", "readonly":"readonly"}), label="Overdue Minutes")
-    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "placeholder":"DSWS Member"}), label="*Reciever")
+    reciever = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm", "placeholder":"DSWS Member"}), 
+                               label="*DSWS Member Name <Given Name, Last Name>")
     remarks = forms.CharField(
         widget = forms.Textarea(attrs={'rows':'2', "class":"form-control form-control-sm", "placeholder":"a"}),
         label="Remarks",
