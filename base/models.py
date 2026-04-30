@@ -10,12 +10,12 @@ class LoanItem(models.Model):
     LOANEDOUT = "LO"
     DAMAGED = "DM"
     LOST = "L"
-    ITEM_STATUS = {
-        INSTORAGE: 'In-Storage',
-        LOANEDOUT: 'Loaned-Out', 
-        DAMAGED: 'Damaged',
-        LOST: 'Lost',
-    }
+    ITEM_STATUS = [
+        (INSTORAGE, 'In-Storage'),
+        (LOANEDOUT, 'Loaned-Out'), 
+        (DAMAGED, 'Damaged'),
+        (LOST, 'Lost'),
+    ]
     status = models.CharField(max_length=2, choices=ITEM_STATUS, default=INSTORAGE)
     
     description = models.CharField(null=True, blank=True, max_length=255)
@@ -65,13 +65,13 @@ class Transaction(models.Model):
     DAMAGED = 'DM'
     LOST = 'L'
     UNRETURNED = "UR"
-    TRANSACTION_STATUS = {
-        ONGOING: 'On-going',
-        COMPLETE: 'Complete',
-        DAMAGED:'Damaged',
-        LOST: 'Lost',
-        UNRETURNED: 'Unreturned',
-    }
+    TRANSACTION_STATUS = [
+        (ONGOING, 'On-going'),
+        (COMPLETE, 'Complete'),
+        (DAMAGED, 'Damaged'),
+        (LOST, 'Lost'),
+        (UNRETURNED, 'Unreturned'),
+    ]
     status = models.CharField(max_length=2, choices=TRANSACTION_STATUS, default=ONGOING)
 
     class Meta:
