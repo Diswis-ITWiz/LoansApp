@@ -11,9 +11,7 @@ from base.services.blockouts import (
     create_blockout_time,
 )
 from base.services.clients import get_loan_client_lookup_context, get_return_client_lookup_context
-from base.services.emailing import send_transaction_email
-from base.services.item_types import get_item_type_name
-from base.services.loaning import calculate_loan_due_date, create_loan_transaction
+from base.services.loan_transaction_views import handle_loan_transaction_get, handle_loan_transaction_post
 from base.services.pagination import paginate_queryset
 from base.services.penalties import lift_client_penalty
 from base.services.reporting import report_item as report_item_service
@@ -27,7 +25,6 @@ from .forms import (
     ClientForm,
     LoanItemEditForm,
     LoanItemForm,
-    LoanItemTransactionForm,
     LoginForm,
     ReturnItemATransactionForm,
     ReturnItemBTransactionForm,
@@ -74,54 +71,10 @@ def loanItemTransaction(request: HttpRequest, pk: str) -> HttpResponse | None:
     items = LoanItem.objects.filter(status=LoanItem.INSTORAGE).order_by("itemCat")
     latestTransaction = Transaction.objects.select_related("clientId", "itemCat").filter(clientId__exact=pk).first()
 
-    if request.method == 'GET':
-        q = request.GET.get('selectedItem', '')
-        if q == '':
-            form = LoanItemTransactionForm()
-            context = {'client': client, 'items': items, 'form': form, 'selectedItem': None, "latestTransaction": latestTransaction, "calculated": False}
-            return render(request, 'base/Home-Item/loan_item_transaction.html', context)
-        
-        selectedItem = LoanItem.objects.get(itemCat__exact=q)
-        due_date = calculate_loan_due_date(client, selectedItem)
-
-        form = LoanItemTransactionForm(
-            initial={"itemCat": selectedItem.itemCat,
-                    "dateDue": due_date.due_date,
-                    "dateLoaned": due_date.loaned_at
-            }
-        )
-        context = {'client': client, 'items': items,  
-                   'itemType': due_date.item_type, 'form':form, 
-                   'selectedItem':selectedItem.itemCat, "latestTransaction": latestTransaction,
-                   'calculated':True}
-        return render(request, 'base/Home-Item/loan_item_transaction.html', context)
-    
-    
     if request.method == 'POST':
-        form = LoanItemTransactionForm(request.POST)
-        if form.is_valid():
-            selectedItem = LoanItem.objects.get(itemCat=form.cleaned_data["itemCat"])
-            create_loan_transaction(
-                client=client,
-                item=selectedItem,
-                dsws_member_name=form.cleaned_data["reciever"],
-                remarks=form.cleaned_data["remarks"],
-                date_loaned=form.cleaned_data["dateLoaned"],
-                due_date=form.cleaned_data["dateDue"],
-            )
-            messages.success(request, 'Transaction added.')
+        return handle_loan_transaction_post(request, client, items, latestTransaction)
 
-            # Email Functionality
-            email_borrow_date = form.cleaned_data["dateLoaned"].strftime("%m/%d/%Y %I:%M %p")
-            email_due_date = form.cleaned_data["dateDue"].strftime("%m/%d/%Y %I:%M %p")
-            itemCatName = get_item_type_name(selectedItem.itemCat)
-            send_transaction_email(selectedItem.itemCat, itemCatName, email_borrow_date, email_due_date, client)
-            
-            return redirect('home')
-        
-        context = {'client': client, 'items': items, 'form':form, 'selectedItem': None}
-        return render(request, 'base/Home-Item/loan_item_transaction.html', context)
-
+    return handle_loan_transaction_get(request, client, items, latestTransaction)
 
 
 #Return Item
@@ -159,7 +112,7 @@ def returnItem2(request: HttpRequest, pk: str) -> HttpResponse:
             if form.is_valid():
                 complete_return(transaction, item_type, form.cleaned_data)
                 return redirect('home')
-    
+
     context = {'form':form, 'penalty': assessment.penalty, 'itemType': assessment.item_type, "loginform": loginform}
 
 
@@ -199,9 +152,9 @@ def lateTransactions(request: HttpRequest) -> HttpResponse:
 def lateTranscactionDetails(request: HttpRequest, pk: str) -> HttpResponse:
     transaction = Transaction.objects.select_related("clientId", "itemCat").get(id=pk)
     assessment = assess_return(transaction)
-    context = {'transaction':transaction, 'client':transaction.clientId, 
-               'loanedItem': transaction.itemCat, 'itemType': assessment.item_type, 
-               'penalty': assessment.penalty, 'overDueDays': assessment.overdue_days, 'overDueHours': assessment.overdue_hours, 
+    context = {'transaction':transaction, 'client':transaction.clientId,
+               'loanedItem': transaction.itemCat, 'itemType': assessment.item_type,
+               'penalty': assessment.penalty, 'overDueDays': assessment.overdue_days, 'overDueHours': assessment.overdue_hours,
                'overDueMinutes': assessment.overdue_minutes}
     return render(request, 'base/Home-Item/late_transactions_detail.html', context)
 
@@ -254,7 +207,7 @@ def itemPanel(request: HttpRequest) -> HttpResponse:
         'filtered': filtered,
         "form": form,
         "duplicate": duplicateItem,
-    }        
+    }
     return render(request, 'base/Admin-Item/item_panel.html', context)
 
 @login_required(login_url='login')
@@ -273,7 +226,7 @@ def itemDetailView(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required(login_url='login')
 def editItem(request: HttpRequest, pk: str) -> HttpResponse:
     item = LoanItem.objects.get(itemCat=pk)
-    if request.method == 'POST': 
+    if request.method == 'POST':
         item.itemCat = request.POST.get('itemCat')
         item.description = request.POST.get('description')
         item.status = request.POST.get('status')
@@ -350,7 +303,7 @@ def editClient(request: HttpRequest, pk: str) -> HttpResponse:
         form.fields["clientId"].disabled = "disabled"
         return render(request, 'base/Admin-Client/edit_client.html', {'form': form, 'client':client.clientId})
 
-@login_required(login_url='login')  
+@login_required(login_url='login')
 def liftClientPenalty(request: HttpRequest, pk: str) -> HttpResponse:
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
@@ -358,14 +311,14 @@ def liftClientPenalty(request: HttpRequest, pk: str) -> HttpResponse:
         lift_client_penalty(client, choice)
         return redirect('client-details', pk=client.clientId)
 
-                
+
     return render(
         request,
         'base/Admin-Client/lift_client_penalty.html',
         {'client': client, 'penaltyLiftChoices': PenaltyLiftChoice.CHOICES},
     )
 
-@login_required(login_url='login')  
+@login_required(login_url='login')
 def penalizedClients(request: HttpRequest) -> HttpResponse:
     clients = (
         Client.objects
@@ -421,7 +374,7 @@ def blockOutTime(request: HttpRequest) -> HttpResponse:
     }
     return render(request, 'base/Admin-Blockout/block_time.html', context)
 
-    
+
 
 def emailTemplate(request: HttpRequest) -> HttpResponse:
     return render(request, 'base/email.html')
@@ -436,19 +389,16 @@ def adminLogin(request: HttpRequest) -> HttpResponse:
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
             if user:
-                login(request, user)    
+                login(request, user)
                 return redirect('admin-dashboard')
             else:
                 return render(request, 'login.html', {'form': form, "invalidCredentials": True})
-        
+
     return render(request, 'login.html', {'form': form})
 
 def adminLogout(request: HttpRequest) -> HttpResponse:
     logout(request)
     return redirect('home')
-
-
-
 
 
 
