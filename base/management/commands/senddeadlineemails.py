@@ -7,7 +7,7 @@ from base.services.item_types import get_item_type_name
 class Command(BaseCommand):
     help = "This command send emails at the beginning of the day to inform clients of their due items"
 
-    def handle(self, *args, **kwargs):
+    def handle(self, *args: object, **kwargs: object) -> None:
         # Get date today
         today = timezone.localtime(timezone.now()).date()
         # Query database for all ongoing transactions

@@ -21,6 +21,7 @@ from base.services.returns import assess_return, complete_return, enable_overdue
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from .forms import (
     BlockDateForm,
     ClientForm,
@@ -39,11 +40,11 @@ from django.contrib import messages
 
 
 # Create your views here
-def home(request):
+def home(request: HttpRequest) -> HttpResponse:
     return render(request, 'base/home.html')
 
 # Register Client
-def newClient(request):
+def newClient(request: HttpRequest) -> HttpResponse:
     error = False
     if request.method == 'POST':
         form = ClientForm(request.POST)
@@ -61,14 +62,14 @@ def newClient(request):
 
 
 # Loan Item
-def loanItemClientFinder(request):
+def loanItemClientFinder(request: HttpRequest) -> HttpResponse | None:
     if request.method == 'GET':
         q = request.GET.get('q', '')
         context = get_loan_client_lookup_context(q)
         return render(request, 'base/Home-Item/find_client.html', context)
 
 
-def loanItemTransaction(request, pk):
+def loanItemTransaction(request: HttpRequest, pk: str) -> HttpResponse | None:
     client = Client.objects.select_related("lastBorrowedItem").get(clientId__exact=pk)
     items = LoanItem.objects.filter(status=LoanItem.INSTORAGE).order_by("itemCat")
     latestTransaction = Transaction.objects.select_related("clientId", "itemCat").filter(clientId__exact=pk).first()
@@ -124,14 +125,14 @@ def loanItemTransaction(request, pk):
 
 
 #Return Item
-def returnItem1(request):
+def returnItem1(request: HttpRequest) -> HttpResponse:
     if request.method == 'GET':
         q = request.GET.get('q', '')
         context = get_return_client_lookup_context(q)
         return render(request, 'base/Home-Item/return_item.html', context)
     return render(request, 'base/Home-Item/return_item.html')
 
-def returnItem2(request, pk):
+def returnItem2(request: HttpRequest, pk: str) -> HttpResponse:
     transaction = Transaction.objects.select_related("clientId", "itemCat").get(id=pk)
     assessment = assess_return(transaction)
     form_class = ReturnItemATransactionForm if assessment.item_type == ItemType.A else ReturnItemBTransactionForm
@@ -164,7 +165,7 @@ def returnItem2(request, pk):
 
     return render(request, 'base/Home-Item/return_item2.html', context)
 
-def report(request, pk):
+def report(request: HttpRequest, pk: str) -> HttpResponse:
     offendingClient = Client.objects.get(clientId=pk)
     reportedItem = offendingClient.lastBorrowedItem
     if request.method == "POST":
@@ -182,7 +183,7 @@ def report(request, pk):
     return render(request, 'base/Home-Item/report_item.html', context)
 
 # Overdue Transactions
-def lateTransactions(request):
+def lateTransactions(request: HttpRequest) -> HttpResponse:
     currentTime = timezone.localtime(timezone.now())
     transactions = Transaction.objects.select_related("clientId", "itemCat").filter(
         Q(status__exact=Transaction.ONGOING) & Q(dueDate__lt=currentTime))
@@ -195,7 +196,7 @@ def lateTransactions(request):
     }
     return render(request, 'base/Home-Item/late_transactions.html', context)
 
-def lateTranscactionDetails(request, pk):
+def lateTranscactionDetails(request: HttpRequest, pk: str) -> HttpResponse:
     transaction = Transaction.objects.select_related("clientId", "itemCat").get(id=pk)
     assessment = assess_return(transaction)
     context = {'transaction':transaction, 'client':transaction.clientId, 
@@ -206,7 +207,7 @@ def lateTranscactionDetails(request, pk):
 
 # ADMIN PANELS
 @login_required(login_url='login')
-def adminDashboard(request):
+def adminDashboard(request: HttpRequest) -> HttpResponse:
     if "toggleFinalsWeek" in request.POST:
         block_finals_weekdays(request.POST.get('firstDay'))
         return redirect('admin-dashboard')
@@ -218,7 +219,7 @@ def adminDashboard(request):
 
 # ITEMS
 @login_required(login_url='login')
-def itemPanel(request):
+def itemPanel(request: HttpRequest) -> HttpResponse:
     form = LoanItemForm()
     duplicateItem = False
     items = LoanItem.objects.all().order_by("itemCat")
@@ -257,7 +258,7 @@ def itemPanel(request):
     return render(request, 'base/Admin-Item/item_panel.html', context)
 
 @login_required(login_url='login')
-def itemDetailView(request, pk):
+def itemDetailView(request: HttpRequest, pk: str) -> HttpResponse:
     loanItem = LoanItem.objects.get(itemCat=pk)
     transactionHistory = Transaction.objects.select_related("clientId", "itemCat").filter(itemCat=loanItem)
     page_obj, page_querystring = paginate_queryset(request, transactionHistory)
@@ -270,7 +271,7 @@ def itemDetailView(request, pk):
     return render(request, 'base/Admin-Item/loanitem_detail.html', context)
 
 @login_required(login_url='login')
-def editItem(request, pk):
+def editItem(request: HttpRequest, pk: str) -> HttpResponse:
     item = LoanItem.objects.get(itemCat=pk)
     if request.method == 'POST': 
         item.itemCat = request.POST.get('itemCat')
@@ -284,7 +285,7 @@ def editItem(request, pk):
     return render(request, 'base/Admin-Item/edit_item.html', context)
 
 @login_required(login_url='login')
-def deleteItem(request, pk):
+def deleteItem(request: HttpRequest, pk: str) -> HttpResponse:
     item = LoanItem.objects.get(itemCat=pk)
 
     if request.method == 'POST':
@@ -296,7 +297,7 @@ def deleteItem(request, pk):
 
 # CLIENTS
 @login_required(login_url='login')
-def clientPanel(request):
+def clientPanel(request: HttpRequest) -> HttpResponse:
     clients = Client.objects.select_related("lastBorrowedItem").all().order_by("lastName", "firstName")
     filtered = False
 
@@ -322,7 +323,7 @@ def clientPanel(request):
     return render(request, 'base/Admin-Client/client_panel.html', context)
 
 @login_required(login_url='login')
-def clientDetails(request, pk):
+def clientDetails(request: HttpRequest, pk: str) -> HttpResponse:
     client = Client.objects.select_related("lastBorrowedItem").get(clientId=pk)
     transactions = Transaction.objects.select_related("clientId", "itemCat").filter(clientId=client)
     page_obj, page_querystring = paginate_queryset(request, transactions)
@@ -335,7 +336,7 @@ def clientDetails(request, pk):
     return render(request, 'base/Admin-Client/client_details.html', context)
 
 @login_required(login_url='login')
-def editClient(request, pk):
+def editClient(request: HttpRequest, pk: str) -> HttpResponse:
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
         form = ClientForm(request.POST or None, instance=client)
@@ -350,7 +351,7 @@ def editClient(request, pk):
         return render(request, 'base/Admin-Client/edit_client.html', {'form': form, 'client':client.clientId})
 
 @login_required(login_url='login')  
-def liftClientPenalty(request, pk):
+def liftClientPenalty(request: HttpRequest, pk: str) -> HttpResponse:
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
         choice = request.POST.get("liftType", "")
@@ -365,7 +366,7 @@ def liftClientPenalty(request, pk):
     )
 
 @login_required(login_url='login')  
-def penalizedClients(request):
+def penalizedClients(request: HttpRequest) -> HttpResponse:
     clients = (
         Client.objects
         .select_related("lastBorrowedItem")
@@ -386,7 +387,7 @@ def penalizedClients(request):
 
 # Block Dates
 @login_required(login_url='login')
-def blockOutDate(request):
+def blockOutDate(request: HttpRequest) -> HttpResponse:
     form = BlockDateForm(request.POST or None)
     context = {}
     isBlockedAlready = False
@@ -402,7 +403,7 @@ def blockOutDate(request):
     return render(request, 'base/Admin-Blockout/block_date.html', context)
 
 @login_required(login_url='login')
-def blockOutTime(request):
+def blockOutTime(request: HttpRequest) -> HttpResponse:
     context = {}
     isBlockedAlready = False
     if request.method == 'POST':
@@ -422,11 +423,11 @@ def blockOutTime(request):
 
     
 
-def emailTemplate(request):
+def emailTemplate(request: HttpRequest) -> HttpResponse:
     return render(request, 'base/email.html')
 
 
-def adminLogin(request):
+def adminLogin(request: HttpRequest) -> HttpResponse:
     form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -442,7 +443,7 @@ def adminLogin(request):
         
     return render(request, 'login.html', {'form': form})
 
-def adminLogout(request):
+def adminLogout(request: HttpRequest) -> HttpResponse:
     logout(request)
     return redirect('home')
 

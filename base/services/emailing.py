@@ -1,21 +1,23 @@
 import threading
+from datetime import datetime
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
+from base.models import Client
 from base.services.penalties import calculate_type_a_penalty, calculate_type_b_penalty
 
 
 class TransactionEmailThread(threading.Thread):
-    def __init__(self, subject, message, email, template):
+    def __init__(self, subject: str, message: str, email: str, template: str) -> None:
         self.subject = subject
         self.message = message
         self.email_to = email
         self.template = template
         threading.Thread.__init__(self)
 
-    def run(self):
+    def run(self) -> None:
         email_from = settings.EMAIL_HOST_USER
         send_mail(
             self.subject,
@@ -27,7 +29,13 @@ class TransactionEmailThread(threading.Thread):
         )
 
 
-def send_transaction_email(item_cat, item_cat_name, loan_date, due_date, client):
+def send_transaction_email(
+    item_cat: str,
+    item_cat_name: str | None,
+    loan_date: str | datetime,
+    due_date: str | datetime,
+    client: Client,
+) -> None:
     subject_matter = f"{item_cat_name} [{item_cat}] is due on {due_date}"
     message = f"""
                 LOANS RECEIPT
@@ -57,7 +65,13 @@ def send_transaction_email(item_cat, item_cat_name, loan_date, due_date, client)
     msg.start()
 
 
-def send_deadline_email(item_cat, item_cat_name, loan_date, due_date, client):
+def send_deadline_email(
+    item_cat: str,
+    item_cat_name: str | None,
+    loan_date: str | datetime,
+    due_date: str | datetime,
+    client: Client,
+) -> None:
     subject_matter = f"Reminder: Your borrowed item {item_cat_name} [{item_cat}] is due today!! {due_date}"
     message = f"""
                 Good Day {client.firstName} {client.lastName},
@@ -92,7 +106,14 @@ def send_deadline_email(item_cat, item_cat_name, loan_date, due_date, client):
     msg.start()
 
 
-def send_overdue_item_a_email(item_cat, item_cat_name, loan_date, due_date, client, overdue_days):
+def send_overdue_item_a_email(
+    item_cat: str,
+    item_cat_name: str | None,
+    loan_date: str | datetime,
+    due_date: str | datetime,
+    client: Client,
+    overdue_days: int,
+) -> None:
     subject_matter = f"Notice: Loaned item {item_cat_name} [{item_cat}] is {overdue_days} day/s overdue!"
     penalty = calculate_type_a_penalty(overdue_days, client)
     message = f"""
@@ -125,7 +146,15 @@ def send_overdue_item_a_email(item_cat, item_cat_name, loan_date, due_date, clie
     msg.start()
 
 
-def send_overdue_item_b_email(item_cat, item_cat_name, loan_date, due_date, client, overdue_hours, overdue_minutes):
+def send_overdue_item_b_email(
+    item_cat: str,
+    item_cat_name: str | None,
+    loan_date: str | datetime,
+    due_date: str | datetime,
+    client: Client,
+    overdue_hours: int,
+    overdue_minutes: int,
+) -> None:
     subject_matter = (
         f"Notice: Loaned item {item_cat_name} [{item_cat}] is "
         f"{overdue_hours} hr/s {overdue_minutes} min/s overdue!"

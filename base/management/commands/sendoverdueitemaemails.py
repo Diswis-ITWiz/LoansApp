@@ -10,7 +10,7 @@ from base.services.overdue import get_item_type_a_overdue_days
 class Command(BaseCommand):
     help = "This command send emails at the beginning of the day to inform clients of their due items"
 
-    def handle(self, *args, **kwargs):
+    def handle(self, *args: object, **kwargs: object) -> None:
         # Get all overdue items
         item_prefix_filter = Q()
         for prefix in TYPE_A_ITEM_PREFIXES:

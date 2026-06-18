@@ -24,7 +24,7 @@ class LoanDueDate:
     due_date: datetime
 
 
-def _apply_blockout_time_overlap(challenger_time):
+def _apply_blockout_time_overlap(challenger_time: datetime) -> tuple[datetime, bool]:
     try:
         blocked_time = BlockOutTime.objects.get(dateBlocked=challenger_time.date())
     except BlockOutTime.DoesNotExist:
@@ -40,7 +40,7 @@ def _apply_blockout_time_overlap(challenger_time):
     return adjusted_due_date, adjusted_due_date >= closing_time
 
 
-def _advance_to_next_11am(candidate_due_date):
+def _advance_to_next_11am(candidate_due_date: datetime) -> datetime:
     return (candidate_due_date + timedelta(days=1)).replace(
         hour=TYPE_B_NEXT_DAY_DUE_HOUR,
         minute=TYPE_B_NEXT_DAY_DUE_MINUTE,
@@ -49,7 +49,7 @@ def _advance_to_next_11am(candidate_due_date):
     )
 
 
-def _normalize_type_b_due_date(candidate_due_date, has_wednesday_classes):
+def _normalize_type_b_due_date(candidate_due_date: datetime, has_wednesday_classes: bool) -> datetime:
     while True:
         if if_no_classes(candidate_due_date, has_wednesday_classes):
             candidate_due_date = _advance_to_next_11am(candidate_due_date)
@@ -63,7 +63,7 @@ def _normalize_type_b_due_date(candidate_due_date, has_wednesday_classes):
         return candidate_due_date
 
 
-def calculate_loan_due_date(client: Client, item: LoanItem, loaned_at=None) -> LoanDueDate:
+def calculate_loan_due_date(client: Client, item: LoanItem, loaned_at: datetime | None = None) -> LoanDueDate:
     loaned_at = loaned_at or timezone.localtime(timezone.now())
     closing_time = get_closing_time(loaned_at)
     due_date = loaned_at
@@ -90,8 +90,8 @@ def create_loan_transaction(
     item: LoanItem,
     dsws_member_name: str,
     remarks: str,
-    date_loaned,
-    due_date,
+    date_loaned: datetime,
+    due_date: datetime,
 ) -> Transaction:
     item = LoanItem.objects.select_for_update().get(itemCat=item.itemCat)
     client = Client.objects.select_for_update().get(clientId=client.clientId)

@@ -16,9 +16,10 @@ from base.constants import (
     TYPE_B_WARNING_MAX_HOURS,
     TYPE_B_WARNING_MIN_HOURS,
 )
+from base.models import Client
 
 
-def calculate_type_a_penalty(overdue_days, client):
+def calculate_type_a_penalty(overdue_days: int, client: Client) -> str:
     penalty = PenaltyDescription.NO_PENALTY
     if client.warningCount >= TYPE_A_BLACKLIST_WARNING_COUNT:
         penalty = PenaltyDescription.BLACKLIST
@@ -31,7 +32,7 @@ def calculate_type_a_penalty(overdue_days, client):
     return penalty
 
 
-def apply_type_a_penalty(overdue_days, client):
+def apply_type_a_penalty(overdue_days: int, client: Client) -> None:
     if client.warningCount >= TYPE_A_BLACKLIST_WARNING_COUNT:
         client.blackListed = True
         client.holdOrder = True
@@ -50,7 +51,7 @@ def apply_type_a_penalty(overdue_days, client):
     client.save()
 
 
-def calculate_type_b_penalty(overdue_hours, overdue_minutes, client):
+def calculate_type_b_penalty(overdue_hours: int, overdue_minutes: int, client: Client) -> str:
     penalty = PenaltyDescription.NO_PENALTY
     if client.warningCount == TYPE_B_BLACKLIST_WARNING_COUNT:
         penalty = PenaltyDescription.BLACKLIST
@@ -63,7 +64,7 @@ def calculate_type_b_penalty(overdue_hours, overdue_minutes, client):
     return penalty
 
 
-def apply_type_b_penalty(overdue_hours, overdue_minutes, client):
+def apply_type_b_penalty(overdue_hours: int, overdue_minutes: int, client: Client) -> None:
     if client.warningCount == TYPE_B_BLACKLIST_WARNING_COUNT:
         client.blackListed = True
         client.holdOrder = True
@@ -82,7 +83,7 @@ def apply_type_b_penalty(overdue_hours, overdue_minutes, client):
     client.save()
 
 
-def lift_client_penalty(client, choice):
+def lift_client_penalty(client: Client, choice: str) -> Client:
     if choice == PenaltyLiftChoice.ALL:
         client.blackListed = False
         client.holdOrder = False

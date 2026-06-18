@@ -1,11 +1,14 @@
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
+from django import forms
 from django.db import transaction as db_transaction
 from django.utils import timezone
 from django.utils.timezone import localtime
 
 from base.constants import ItemType
-from base.models import LoanItem, Transaction
+from base.models import Client, LoanItem, Transaction
 from base.services.item_types import check_item_type
 from base.services.overdue import get_item_type_a_overdue_days, get_item_type_b_overdue_time
 from base.services.penalties import (
@@ -20,13 +23,13 @@ from base.services.penalties import (
 class ReturnAssessment:
     item_type: str
     penalty: str
-    initial_data: dict
+    initial_data: dict[str, object]
     overdue_days: int = 0
     overdue_hours: int = 0
     overdue_minutes: int = 0
 
 
-def _client_display_name(client):
+def _client_display_name(client: Client) -> str:
     middle_initial = client.middleInitial or ""
     return f"{client.lastName}, {client.firstName}, {middle_initial}"
 
@@ -72,7 +75,7 @@ def assess_return(loan_transaction: Transaction) -> ReturnAssessment:
     )
 
 
-def enable_overdue_override(form, item_type):
+def enable_overdue_override(form: forms.Form, item_type: str) -> None:
     if item_type == ItemType.A:
         form.fields["overDueDays"].widget.attrs.pop("readonly", None)
     else:
@@ -81,7 +84,12 @@ def enable_overdue_override(form, item_type):
 
 
 @db_transaction.atomic
-def complete_return(loan_transaction: Transaction, item_type: str, cleaned_data: dict, returned_at=None) -> Transaction:
+def complete_return(
+    loan_transaction: Transaction,
+    item_type: str,
+    cleaned_data: dict[str, Any],
+    returned_at: datetime | None = None,
+) -> Transaction:
     loan_transaction = (
         Transaction.objects.select_for_update()
         .select_related("clientId", "itemCat")

@@ -1,5 +1,5 @@
 import math
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import numpy as np
 from django.utils import timezone
@@ -12,11 +12,11 @@ from base.constants import (
     WEEKDAY_WEDNESDAY,
     WEDNESDAY_OFFICE_DAY_DURATION,
 )
-from base.models import BlockOutDate, BlockOutTime
+from base.models import BlockOutDate, BlockOutTime, Client
 from base.services.calendar_rules import get_closing_time, if_no_classes
 
 
-def get_item_type_a_overdue_days(due_date, client):
+def get_item_type_a_overdue_days(due_date: datetime, client: Client) -> int:
     formatted_due_date = due_date.date()
     return_date = timezone.localtime(timezone.now()).date()
     blocked_days = BlockOutDate.objects.filter(dateBlocked__range=[formatted_due_date, return_date]).count()
@@ -36,7 +36,7 @@ def get_item_type_a_overdue_days(due_date, client):
         return business_days + 1 - blocked_days
 
 
-def get_item_type_b_overdue_time(due_date, client):
+def get_item_type_b_overdue_time(due_date: datetime, client: Client) -> tuple[int, int]:
     return_date = timezone.localtime(timezone.now())
 
     if return_date <= localtime(due_date):

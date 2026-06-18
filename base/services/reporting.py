@@ -4,7 +4,7 @@ from base.models import Client, LoanItem, Transaction
 
 
 @db_transaction.atomic
-def report_item(client: Client, fine_amount, report_type):
+def report_item(client: Client, fine_amount: int | str | None, report_type: str) -> Transaction | None:
     client = Client.objects.select_for_update().get(clientId=client.clientId)
     reported_item = client.lastBorrowedItem
 

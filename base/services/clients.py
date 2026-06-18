@@ -3,7 +3,7 @@ from django.db.models import Q
 from base.models import Client, Transaction
 
 
-def get_loan_client_lookup_context(client_id):
+def get_loan_client_lookup_context(client_id: str) -> dict[str, object]:
     if client_id == "":
         return {}
 
@@ -33,7 +33,7 @@ def get_loan_client_lookup_context(client_id):
     return context
 
 
-def get_return_client_lookup_context(client_id):
+def get_return_client_lookup_context(client_id: str) -> dict[str, object]:
     if client_id == "":
         return {}
 
