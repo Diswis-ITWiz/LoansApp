@@ -11,6 +11,7 @@ from base.services.blockouts import (
     create_blockout_time,
 )
 from base.services.clients import get_loan_client_lookup_context, get_return_client_lookup_context
+from base.services.item_panel import get_empty_item_form, get_item_panel_queryset, handle_item_create
 from base.services.loan_transaction_views import handle_loan_transaction_get, handle_loan_transaction_post
 from base.services.pagination import paginate_queryset
 from base.services.penalties import lift_client_penalty
@@ -24,7 +25,6 @@ from .forms import (
     BlockDateForm,
     ClientForm,
     LoanItemEditForm,
-    LoanItemForm,
     LoginForm,
     ReturnItemATransactionForm,
     ReturnItemBTransactionForm,
@@ -173,32 +173,15 @@ def adminDashboard(request: HttpRequest) -> HttpResponse:
 # ITEMS
 @login_required(login_url='login')
 def itemPanel(request: HttpRequest) -> HttpResponse:
-    form = LoanItemForm()
-    duplicateItem = False
-    items = LoanItem.objects.all().order_by("itemCat")
-    filtered = False
-
-    if request.method == 'GET':
-        if request.GET.get('getItemBtn'):
-            search_param = request.GET.get('itemCatQuery')
-            if search_param == '':
-                pass
-            else:
-                items = LoanItem.objects.filter(itemCat=search_param).order_by("itemCat")
-        elif request.GET.get('filterLoanedItemsBtn'):
-            if request.GET.get('filter4LoanedItems') == 'on':
-                items = LoanItem.objects.filter(status=LoanItem.LOANEDOUT).order_by("itemCat")
-                filtered = True
-
     if request.method == 'POST':
-        form = LoanItemForm(request.POST)
-        if form.is_valid():
-            form.save()
+        form, duplicateItem = handle_item_create(request)
+        if form is None:
             return redirect('item-panel')
-        else:
-            duplicateItem = True
-            form = LoanItemForm()
+    else:
+        form = get_empty_item_form()
+        duplicateItem = False
 
+    items, filtered = get_item_panel_queryset(request)
     page_obj, page_querystring = paginate_queryset(request, items)
     context = {
         "items": page_obj,
@@ -399,7 +382,6 @@ def adminLogin(request: HttpRequest) -> HttpResponse:
 def adminLogout(request: HttpRequest) -> HttpResponse:
     logout(request)
     return redirect('home')
-
 
 
 
