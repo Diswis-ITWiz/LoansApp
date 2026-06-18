@@ -1,22 +1,19 @@
-from base.constants import (
-    BLOCK_TIME_INPUT_CONSTRAINTS,
-    ItemType,
-    LoanItemStatus,
-    PenaltyLiftChoice,
-)
+from base.constants import BLOCK_TIME_INPUT_CONSTRAINTS, LoanItemStatus, PenaltyLiftChoice
 from base.services.blockouts import (
     block_finals_weekdays,
     block_graduating_clients,
     create_blockout_date,
     create_blockout_time,
 )
+from base.services.client_panel import get_client_panel_queryset
 from base.services.clients import get_loan_client_lookup_context, get_return_client_lookup_context
 from base.services.item_panel import get_empty_item_form, get_item_panel_queryset, handle_item_create
 from base.services.loan_transaction_views import handle_loan_transaction_get, handle_loan_transaction_post
 from base.services.pagination import paginate_queryset
 from base.services.penalties import lift_client_penalty
 from base.services.reporting import report_item as report_item_service
-from base.services.returns import assess_return, complete_return, enable_overdue_override
+from base.services.return_views import build_return_item_context, get_return_form, handle_return_item_post
+from base.services.returns import assess_return
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -26,8 +23,6 @@ from .forms import (
     ClientForm,
     LoanItemEditForm,
     LoginForm,
-    ReturnItemATransactionForm,
-    ReturnItemBTransactionForm,
 )
 from .models import Client, LoanItem, Transaction, BlockOutDate, BlockOutTime
 from django.db.models import Q
@@ -88,34 +83,15 @@ def returnItem1(request: HttpRequest) -> HttpResponse:
 def returnItem2(request: HttpRequest, pk: str) -> HttpResponse:
     transaction = Transaction.objects.select_related("clientId", "itemCat").get(id=pk)
     assessment = assess_return(transaction)
-    form_class = ReturnItemATransactionForm if assessment.item_type == ItemType.A else ReturnItemBTransactionForm
-    form = form_class(initial=assessment.initial_data)
+    form = get_return_form(assessment)
     loginform = LoginForm()
 
     if request.method == 'POST':
-        if 'override' in request.POST:
-            loginform = LoginForm(request.POST)
-            if loginform.is_valid():
-                username = loginform.cleaned_data['username']
-                password = loginform.cleaned_data['password']
-                user = authenticate(request, username=username, password=password)
-                if user:
-                    enable_overdue_override(form, assessment.item_type)
-        else:
-            if ItemType.A in request.POST:
-                form = ReturnItemATransactionForm(request.POST)
-                item_type = ItemType.A
-            else:
-                form = ReturnItemBTransactionForm(request.POST)
-                item_type = ItemType.B
+        form, loginform, response = handle_return_item_post(request, transaction, assessment, form)
+        if response:
+            return response
 
-            if form.is_valid():
-                complete_return(transaction, item_type, form.cleaned_data)
-                return redirect('home')
-
-    context = {'form':form, 'penalty': assessment.penalty, 'itemType': assessment.item_type, "loginform": loginform}
-
-
+    context = build_return_item_context(form, assessment, loginform)
     return render(request, 'base/Home-Item/return_item2.html', context)
 
 def report(request: HttpRequest, pk: str) -> HttpResponse:
@@ -234,21 +210,7 @@ def deleteItem(request: HttpRequest, pk: str) -> HttpResponse:
 # CLIENTS
 @login_required(login_url='login')
 def clientPanel(request: HttpRequest) -> HttpResponse:
-    clients = Client.objects.select_related("lastBorrowedItem").all().order_by("lastName", "firstName")
-    filtered = False
-
-    if request.method == 'GET':
-        if request.GET.get('getClientBtn'):
-            search_param = request.GET.get('clientIdQuery')
-            if search_param == '':
-                pass
-            else:
-                clients = Client.objects.select_related("lastBorrowedItem").filter(clientId=search_param).order_by("lastName", "firstName")
-        elif request.GET.get('filterBorrowingClientsBtn'):
-            if request.GET.get('filter4BorrowingClients') == 'on':
-                clients = Client.objects.select_related("lastBorrowedItem").filter(borrowing=True).order_by("lastName", "firstName")
-                filtered = True
-
+    clients, filtered = get_client_panel_queryset(request)
     page_obj, page_querystring = paginate_queryset(request, clients)
     context = {
         'clients': page_obj,
@@ -382,8 +344,6 @@ def adminLogin(request: HttpRequest) -> HttpResponse:
 def adminLogout(request: HttpRequest) -> HttpResponse:
     logout(request)
     return redirect('home')
-
-
 
 
 
