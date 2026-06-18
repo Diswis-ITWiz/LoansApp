@@ -31,8 +31,9 @@
                             <div class="col">
                                 <div class="form-floating mb-3 mt-3">
                                     <select name="reportType" id="reportType" class="form-select">
-                                        <option value="L">Lost</option>
-                                        <option value="DM">Damaged</option>
+                                        {% for value, label in reportStatusChoices %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
                                     </select>
                                     <label for="reportType">Type of Report:</label>
                                 </div>

@@ -26,11 +26,9 @@
 
                                         <div class="form-floating mb-3 mt-3">
                                             <select name="liftType" id="reportType" class="form-select">
-                                                <option value="All">Blacklist -- Lift ALL penalties</option>
-                                                <option value="BL">Blacklist -- Lift penalties except Blacklist</option>
-                                                <option value="TBL">Temporary Blacklist -- Lift penalties</option>
-                                                <option value="RF">Fine -- Reduce Fine to 0</option>
-                                                <option value="W">Warning -- Reduce Warning Count</option>
+                                                {% for value, label in penaltyLiftChoices %}
+                                                <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
                                             </select>
                                             <label for="reportType">Select Lifting Penalty Option:</label>
                                         </div>

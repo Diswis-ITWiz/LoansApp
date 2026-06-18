@@ -163,6 +163,7 @@
                 {% endfor%}
             </table>
         </div>
+        {% include "base/_pagination.html" %}
         <footer class="mb-5">
             <a href="{% url 'client-panel' %}" class="btn btn-secondary">Back</a>
             <a href="{% url 'edit-client' client.clientId %}" class="btn btn-warning me-1">Edit Client</a>

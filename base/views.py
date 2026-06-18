@@ -1,20 +1,39 @@
-import base.helpers as helpers
-from base.helpers import *
-from typing import Any
+from base.constants import (
+    BLOCK_TIME_INPUT_CONSTRAINTS,
+    ItemType,
+    LoanItemStatus,
+    PenaltyLiftChoice,
+)
+from base.services.blockouts import (
+    block_finals_weekdays,
+    block_graduating_clients,
+    create_blockout_date,
+    create_blockout_time,
+)
+from base.services.clients import get_loan_client_lookup_context, get_return_client_lookup_context
+from base.services.emailing import send_transaction_email
+from base.services.item_types import get_item_type_name
+from base.services.loaning import calculate_loan_due_date, create_loan_transaction
+from base.services.pagination import paginate_queryset
+from base.services.penalties import lift_client_penalty
+from base.services.reporting import report_item as report_item_service
+from base.services.returns import assess_return, complete_return, enable_overdue_override
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import *
+from .forms import (
+    BlockDateForm,
+    ClientForm,
+    LoanItemEditForm,
+    LoanItemForm,
+    LoanItemTransactionForm,
+    LoginForm,
+    ReturnItemATransactionForm,
+    ReturnItemBTransactionForm,
+)
 from .models import Client, LoanItem, Transaction, BlockOutDate, BlockOutTime
-from datetime import datetime, timedelta
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.timezone import localtime
-import math
-from django.conf import settings
-from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.contrib import messages
 
 
@@ -45,69 +64,14 @@ def newClient(request):
 def loanItemClientFinder(request):
     if request.method == 'GET':
         q = request.GET.get('q', '')
-        # Prevents Getting all clients
-        if q == '':
-            return render(request, 'base/Home-Item/find_client.html', {})
-        #Client May Not Exist
-        if Client.objects.filter(clientId__exact=q).exists():
-            client = Client.objects.get(clientId__exact=q)
-            transactions = Transaction.objects.filter(clientId__exact=q)
-            context = {'client':client, 'borrowCount': transactions.count(), 'latest_transaction':transactions.first()}
-            if client.borrowing == True:
-                context.update({
-                    'dueDate': transactions[0].dueDate,
-                    'borrowing': True,
-                })
-            elif client.gradWaiting:
-                context.update({
-                    'gradWaiting': True
-                })
-            elif client.blackListed or client.temporaryBlackList:
-                context.update(
-                    {
-                        'blackListed': True
-                    }
-                )
-            else:
-                return render(request, 'base/Home-Item/find_client.html', context)
-            return render(request, 'base/Home-Item/find_client.html', context)
-        else:
-            context = {"input_validity": True}
-            return render(request, 'base/Home-Item/find_client.html', context)
+        context = get_loan_client_lookup_context(q)
+        return render(request, 'base/Home-Item/find_client.html', context)
 
 
 def loanItemTransaction(request, pk):
-    client = Client.objects.get(clientId__exact=pk)
-    items = LoanItem.objects.filter(status='IS')
-    latestTransaction = Transaction.objects.filter(clientId__exact=pk).first()
-    time = None
-    closingtime = None
-    dateDue = None
-
-    def timeOverlap(challengertime):
-        try:
-            blockedtimedate = BlockOutTime.objects.get(dateBlocked=challengertime.date())
-            startTime = localtime(blockedtimedate.timeStart)
-            endTime = localtime(blockedtimedate.timeEnd)
-            if startTime <= challengertime <= endTime:
-                endTime += timedelta(hours=2)
-                nonlocal dateDue 
-                dateDue = endTime
-
-                closingtime = challengertime
-                tempclosingtime = closingtime.replace(hour=17)
-                closingtime = tempclosingtime
-
-                if dateDue >= closingtime:
-                    return True
-                else:
-                    
-                    return False
-            else:
-                return False
-        except BlockOutTime.DoesNotExist:
-            return False
-
+    client = Client.objects.select_related("lastBorrowedItem").get(clientId__exact=pk)
+    items = LoanItem.objects.filter(status=LoanItem.INSTORAGE).order_by("itemCat")
+    latestTransaction = Transaction.objects.select_related("clientId", "itemCat").filter(clientId__exact=pk).first()
 
     if request.method == 'GET':
         q = request.GET.get('selectedItem', '')
@@ -117,55 +81,17 @@ def loanItemTransaction(request, pk):
             return render(request, 'base/Home-Item/loan_item_transaction.html', context)
         
         selectedItem = LoanItem.objects.get(itemCat__exact=q)
-
-        time = timezone.localtime(timezone.now())
-        closingtime = getClosingTime(time)
-        dateDue = time
-        itemCat = selectedItem.itemCat
-        hasWednesdayClasses = client.hasWednesdayClasses
-        itemType = ''
-        # Item type A - borrow for a whole day
-        if checkItemType(itemCat) == 'A':
-            itemType = 'A'
-            dateDue += timedelta(days=1)
-
-            # Keep adding 1 day to dateDue until we find a valid date
-            while ifNoClasses(dateDue, hasWednesdayClasses):
-                dateDue += timedelta(days=1)
-            
-            # Set Closing Time of due date
-            tempDateDue = getClosingTime(dateDue)
-            dateDue = tempDateDue
-
-        # Item type B - borrow for only 2 hours
-        else:
-            itemType = 'B'
-            # Check if the client cannot return the item before closing time
-            dateDue += timedelta(hours=2)
-            if dateDue >= closingtime:
-                dateDue += timedelta(days=1)
-                tempDateDue = dateDue.replace(hour=11, minute=00)
-                dateDue = tempDateDue
-                while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
-                    dateDue += timedelta(days=1)
-                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, microsecond=0)
-                    dateDue = tempDateDue                
-            else:
-                while ifNoClasses(dateDue, hasWednesdayClasses) or timeOverlap(dateDue):
-                    dateDue += timedelta(days=1)
-                    tempDateDue = dateDue.replace(hour=11, minute=00, second=0, microsecond=0)
-                    dateDue = tempDateDue
-
+        due_date = calculate_loan_due_date(client, selectedItem)
 
         form = LoanItemTransactionForm(
-            initial={"itemCat": itemCat,
-                    "dateDue": dateDue,
-                    "dateLoaned": time
+            initial={"itemCat": selectedItem.itemCat,
+                    "dateDue": due_date.due_date,
+                    "dateLoaned": due_date.loaned_at
             }
         )
         context = {'client': client, 'items': items,  
-                   'itemType': itemType, 'form':form, 
-                   'selectedItem':itemCat, "latestTransaction": latestTransaction,
+                   'itemType': due_date.item_type, 'form':form, 
+                   'selectedItem':selectedItem.itemCat, "latestTransaction": latestTransaction,
                    'calculated':True}
         return render(request, 'base/Home-Item/loan_item_transaction.html', context)
     
@@ -174,28 +100,21 @@ def loanItemTransaction(request, pk):
         form = LoanItemTransactionForm(request.POST)
         if form.is_valid():
             selectedItem = LoanItem.objects.get(itemCat=form.cleaned_data["itemCat"])
-            transaction = Transaction.objects.create(
-                clientId = client,
-                itemCat = selectedItem,
-                dswsMemLoanName = form.cleaned_data["reciever"],
-                loanRemarks = form.cleaned_data["remarks"],
-                dateLoaned = form.cleaned_data["dateLoaned"],
-                dueDate = form.cleaned_data["dateDue"]
+            create_loan_transaction(
+                client=client,
+                item=selectedItem,
+                dsws_member_name=form.cleaned_data["reciever"],
+                remarks=form.cleaned_data["remarks"],
+                date_loaned=form.cleaned_data["dateLoaned"],
+                due_date=form.cleaned_data["dateDue"],
             )
-            client.lastBorrowedDate = time
-            client.lastBorrowedItem = selectedItem
-            client.borrowing = True
-            client.save()
-            selectedItem.lastClient = client.clientId
-            selectedItem.status = 'LO'
-            selectedItem.save()
             messages.success(request, 'Transaction added.')
 
             # Email Functionality
             email_borrow_date = form.cleaned_data["dateLoaned"].strftime("%m/%d/%Y %I:%M %p")
             email_due_date = form.cleaned_data["dateDue"].strftime("%m/%d/%Y %I:%M %p")
-            itemCatName = getItemTypeName(selectedItem.itemCat)
-            sendTransactionEmail(selectedItem.itemCat, itemCatName, email_borrow_date, email_due_date, client)
+            itemCatName = get_item_type_name(selectedItem.itemCat)
+            send_transaction_email(selectedItem.itemCat, itemCatName, email_borrow_date, email_due_date, client)
             
             return redirect('home')
         
@@ -206,69 +125,19 @@ def loanItemTransaction(request, pk):
 
 #Return Item
 def returnItem1(request):
-    client = None
-    # Client Finder similar to loan item 1
-    context = {}
     if request.method == 'GET':
         q = request.GET.get('q', '')
-        if q == '':
-            return render(request, 'base/Home-Item/return_item.html', context)
-        
-        #Client May Not Exist        
-        try:
-            client = Client.objects.get(clientId__exact=q)
-            context.update({"client":client})
-            try:
-                transaction = Transaction.objects.get(
-                    Q(clientId__exact=client.clientId) & Q(status__exact='OG')
-                )
-                context.update({"transaction":transaction})
-            except Transaction.DoesNotExist:
-                context = {'client': client, 'noTransaction': True}
-            return render(request, 'base/Home-Item/return_item.html', context)
-        except Client.DoesNotExist:
-            context = {'noClient': True}
-            return render(request, 'base/Home-Item/return_item.html', context)
+        context = get_return_client_lookup_context(q)
+        return render(request, 'base/Home-Item/return_item.html', context)
     return render(request, 'base/Home-Item/return_item.html')
 
 def returnItem2(request, pk):
-    transaction = Transaction.objects.get(id=pk)
-    client = Client.objects.get(clientId=transaction.clientId.clientId)
-    name = client.lastName + ', ' + client.firstName + ', ' + client.middleInitial
-    loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
-    overdueDays = 0
-    overdueHours = 0
-    overdueMinutes = 0
-    penalty = ''
-    form = ''
+    transaction = Transaction.objects.select_related("clientId", "itemCat").get(id=pk)
+    assessment = assess_return(transaction)
+    form_class = ReturnItemATransactionForm if assessment.item_type == ItemType.A else ReturnItemBTransactionForm
+    form = form_class(initial=assessment.initial_data)
     loginform = LoginForm()
-    if checkItemType(loanedItem.itemCat) == 'A':
-        overdueDays = getItemTypeAOverdueDays(localtime(transaction.dueDate), client)
-        penalty = calculateTypeAPenalty(overdueDays, client)
-        form = ReturnItemATransactionForm(
-            initial={
-                "clientIDNo": client.clientId,
-                "clientName": name,
-                "itemCat": loanedItem.itemCat,
-                "itemType": "A",
-                "dueDate": localtime(transaction.dueDate),
-                "overDueDays": overdueDays,
-            }
-        )
-    else:
-        overdueHours, overdueMinutes = getItemTypeBOverdueTime(localtime(transaction.dueDate), client)
-        penalty = calculateTypeBPenalty(overdueHours,overdueMinutes, client)
-        form = ReturnItemBTransactionForm(
-            initial={
-                "clientIDNo": client.clientId,
-                "clientName": name,
-                "itemCat": loanedItem.itemCat,
-                "itemType": "B",
-                "dueDate": localtime(transaction.dueDate),
-                "overDueHours": overdueHours,
-                "overDueMinutes": overdueMinutes
-            }
-        )
+
     if request.method == 'POST':
         if 'override' in request.POST:
             loginform = LoginForm(request.POST)
@@ -277,42 +146,20 @@ def returnItem2(request, pk):
                 password = loginform.cleaned_data['password']
                 user = authenticate(request, username=username, password=password)
                 if user:
-                    if checkItemType(loanedItem.itemCat) == 'A':
-                        form.fields['overDueDays'].widget.attrs.pop('readonly')
-                    else:
-                        form.fields['overDueHours'].widget.attrs.pop('readonly', None)
-                        form.fields['overDueMinutes'].widget.attrs.pop('readonly', None)
+                    enable_overdue_override(form, assessment.item_type)
         else:
-            form = None
-            dateofReturn = timezone.localtime(timezone.now())
-            if "A" in request.POST:
+            if ItemType.A in request.POST:
                 form = ReturnItemATransactionForm(request.POST)
-                if form.is_valid():
-                    applyTypeAPenalty(form.cleaned_data["overDueDays"], client)
-                    transaction.overdueDays = form.cleaned_data["overDueDays"]
+                item_type = ItemType.A
             else:
                 form = ReturnItemBTransactionForm(request.POST)
-                if form.is_valid():
-                    applyTypeBPenalty(form.cleaned_data["overDueHours"], form.cleaned_data["overDueMinutes"] , client)
-                    transaction.overdueHours = form.cleaned_data["overDueHours"]
-                    transaction.overdueMinutes = form.cleaned_data["overDueMinutes"]
+                item_type = ItemType.B
 
-            # Modify Transaction Instance in DB
-            transaction.dateReturned = timezone.localtime(timezone.now())
-            transaction.dswsMemRetName = form.cleaned_data["reciever"]
-            transaction.returnRemarks = form.cleaned_data["remarks"]
-            transaction.status = 'C'
-            transaction.save()
-            # Modify the statuses of the respective client, transaction, and loanItem
-            client.borrowing = False
-            client.lastBorrowedDate = dateofReturn
-            client.save()
-            loanedItem.status = 'IS'
-            loanedItem.save()
-
-            return redirect('home')
+            if form.is_valid():
+                complete_return(transaction, item_type, form.cleaned_data)
+                return redirect('home')
     
-    context = {'form':form, 'penalty': penalty, 'itemType': checkItemType(loanedItem.itemCat), "loginform": loginform}
+    context = {'form':form, 'penalty': assessment.penalty, 'itemType': assessment.item_type, "loginform": loginform}
 
 
     return render(request, 'base/Home-Item/return_item2.html', context)
@@ -321,68 +168,50 @@ def report(request, pk):
     offendingClient = Client.objects.get(clientId=pk)
     reportedItem = offendingClient.lastBorrowedItem
     if request.method == "POST":
-        transaction = Transaction.objects.filter(clientId=offendingClient, itemCat=reportedItem).first()
-        offendingClient.fineAmount = request.POST.get('fineAmount')
-        offendingClient.borrowing = False
-        offendingClient.save()
-        reportedItem.status=request.POST.get("reportType")
-        reportedItem.save()
-        transaction.status=request.POST.get("reportType")
-        transaction.save()
+        report_item_service(
+            offendingClient,
+            fine_amount=request.POST.get('fineAmount'),
+            report_type=request.POST.get("reportType"),
+        )
         return redirect('home')
-    context={"offendingClient":offendingClient, "reportedItem":reportedItem}
+    context={
+        "offendingClient": offendingClient,
+        "reportedItem": reportedItem,
+        "reportStatusChoices": LoanItemStatus.REPORT_CHOICES,
+    }
     return render(request, 'base/Home-Item/report_item.html', context)
 
 # Overdue Transactions
 def lateTransactions(request):
     currentTime = timezone.localtime(timezone.now())
-    transactions = Transaction.objects.filter(
-        Q(status__exact='OG') & Q(dueDate__lt=currentTime))
-    context = {'currentTime':currentTime, 'transactions':transactions}
+    transactions = Transaction.objects.select_related("clientId", "itemCat").filter(
+        Q(status__exact=Transaction.ONGOING) & Q(dueDate__lt=currentTime))
+    page_obj, page_querystring = paginate_queryset(request, transactions)
+    context = {
+        'currentTime': currentTime,
+        'transactions': page_obj,
+        "page_obj": page_obj,
+        "page_querystring": page_querystring,
+    }
     return render(request, 'base/Home-Item/late_transactions.html', context)
 
 def lateTranscactionDetails(request, pk):
-    transaction = Transaction.objects.get(id=pk)
-    client = Client.objects.get(clientId=transaction.clientId.clientId)
-    loanedItem = LoanItem.objects.get(itemCat = transaction.itemCat.itemCat)
-    overdueDays = 0
-    overdueHours = 0
-    overdueMinutes = 0
-    penalty = ''
-    if checkItemType(loanedItem.itemCat) == 'A':
-        overdueDays = getItemTypeAOverdueDays(localtime(transaction.dueDate), client)
-        penalty = calculateTypeAPenalty(overdueDays, client)
-    else:
-        overdueHours, overdueMinutes = getItemTypeBOverdueTime(localtime(transaction.dueDate), client)
-        penalty = calculateTypeBPenalty(overdueHours,overdueMinutes, client)
-    context = {'transaction':transaction, 'client':client, 
-               'loanedItem': loanedItem, 'itemType': checkItemType(loanedItem.itemCat), 
-               'penalty': penalty, 'overDueDays': overdueDays, 'overDueHours': overdueHours, 
-               'overDueMinutes': overdueMinutes}
+    transaction = Transaction.objects.select_related("clientId", "itemCat").get(id=pk)
+    assessment = assess_return(transaction)
+    context = {'transaction':transaction, 'client':transaction.clientId, 
+               'loanedItem': transaction.itemCat, 'itemType': assessment.item_type, 
+               'penalty': assessment.penalty, 'overDueDays': assessment.overdue_days, 'overDueHours': assessment.overdue_hours, 
+               'overDueMinutes': assessment.overdue_minutes}
     return render(request, 'base/Home-Item/late_transactions_detail.html', context)
 
 # ADMIN PANELS
 @login_required(login_url='login')
 def adminDashboard(request):
     if "toggleFinalsWeek" in request.POST:
-        date = datetime.strptime(request.POST.get('firstDay'), '%Y-%m-%d')
-        dateWeekDay =  date.weekday()
-        weekday = True
-        while weekday:
-            try:
-                blockedDate = BlockOutDate.objects.get(dateBlocked=date.date())
-            except BlockOutDate.DoesNotExist:    
-                blockOutDate = BlockOutDate.objects.create(
-                    dateBlocked = date.date(),
-                    description = 'FINALS'
-                )
-            date += timedelta(days=1)
-            dateWeekDay +=1
-            if dateWeekDay == 5:
-                weekday=False
+        block_finals_weekdays(request.POST.get('firstDay'))
         return redirect('admin-dashboard')
     elif 'blockGradWaiting' in request.POST:
-        clients = Client.objects.filter(graduating=True).update(gradWaiting=True)
+        block_graduating_clients(Client)
         return redirect('admin-dashboard')
     return render(request, 'base/admin_page.html')
 
@@ -392,18 +221,21 @@ def adminDashboard(request):
 def itemPanel(request):
     form = LoanItemForm()
     duplicateItem = False
+    items = LoanItem.objects.all().order_by("itemCat")
+    filtered = False
+
     if request.method == 'GET':
         if request.GET.get('getItemBtn'):
             search_param = request.GET.get('itemCatQuery')
             if search_param == '':
                 pass
             else:
-                search_item = LoanItem.objects.filter(itemCat=search_param)
-                return render(request, 'base/Admin-Item/item_panel.html', {'items': search_item})
+                items = LoanItem.objects.filter(itemCat=search_param).order_by("itemCat")
         elif request.GET.get('filterLoanedItemsBtn'):
             if request.GET.get('filter4LoanedItems') == 'on':
-                loaned_items = LoanItem.objects.filter(status='LO')
-                return render(request, 'base/Admin-Item/item_panel.html', {"items": loaned_items, 'filtered': True})
+                items = LoanItem.objects.filter(status=LoanItem.LOANEDOUT).order_by("itemCat")
+                filtered = True
+
     if request.method == 'POST':
         form = LoanItemForm(request.POST)
         if form.is_valid():
@@ -412,15 +244,29 @@ def itemPanel(request):
         else:
             duplicateItem = True
             form = LoanItemForm()
-    items = LoanItem.objects.all()
-    context = {"items": items, 'filtered': False, "form":form, "duplicate": duplicateItem}        
+
+    page_obj, page_querystring = paginate_queryset(request, items)
+    context = {
+        "items": page_obj,
+        "page_obj": page_obj,
+        "page_querystring": page_querystring,
+        'filtered': filtered,
+        "form": form,
+        "duplicate": duplicateItem,
+    }        
     return render(request, 'base/Admin-Item/item_panel.html', context)
 
 @login_required(login_url='login')
 def itemDetailView(request, pk):
     loanItem = LoanItem.objects.get(itemCat=pk)
-    transactionHistory = Transaction.objects.filter(itemCat=loanItem)
-    context = {"item": loanItem,"transactions":transactionHistory}
+    transactionHistory = Transaction.objects.select_related("clientId", "itemCat").filter(itemCat=loanItem)
+    page_obj, page_querystring = paginate_queryset(request, transactionHistory)
+    context = {
+        "item": loanItem,
+        "transactions": page_obj,
+        "page_obj": page_obj,
+        "page_querystring": page_querystring,
+    }
     return render(request, 'base/Admin-Item/loanitem_detail.html', context)
 
 @login_required(login_url='login')
@@ -451,27 +297,41 @@ def deleteItem(request, pk):
 # CLIENTS
 @login_required(login_url='login')
 def clientPanel(request):
+    clients = Client.objects.select_related("lastBorrowedItem").all().order_by("lastName", "firstName")
+    filtered = False
+
     if request.method == 'GET':
         if request.GET.get('getClientBtn'):
             search_param = request.GET.get('clientIdQuery')
             if search_param == '':
                 pass
             else:
-                search_client = Client.objects.filter(clientId=search_param)
-                return render(request, 'base/Admin-Client/client_panel.html', {'clients': search_client})
+                clients = Client.objects.select_related("lastBorrowedItem").filter(clientId=search_param).order_by("lastName", "firstName")
         elif request.GET.get('filterBorrowingClientsBtn'):
             if request.GET.get('filter4BorrowingClients') == 'on':
-                borrowing_clients = Client.objects.filter(borrowing=True)
-                return render(request, 'base/Admin-Client/client_panel.html', {"clients": borrowing_clients, 'filtered': True})
-    clients = Client.objects.all()
-    context = {'clients': clients, 'filtered': False}
+                clients = Client.objects.select_related("lastBorrowedItem").filter(borrowing=True).order_by("lastName", "firstName")
+                filtered = True
+
+    page_obj, page_querystring = paginate_queryset(request, clients)
+    context = {
+        'clients': page_obj,
+        "page_obj": page_obj,
+        "page_querystring": page_querystring,
+        'filtered': filtered,
+    }
     return render(request, 'base/Admin-Client/client_panel.html', context)
 
 @login_required(login_url='login')
 def clientDetails(request, pk):
-    client = Client.objects.get(clientId=pk)
-    transactions = Transaction.objects.filter(clientId=client)
-    context = {'client': client, 'transactions': transactions}
+    client = Client.objects.select_related("lastBorrowedItem").get(clientId=pk)
+    transactions = Transaction.objects.select_related("clientId", "itemCat").filter(clientId=client)
+    page_obj, page_querystring = paginate_queryset(request, transactions)
+    context = {
+        'client': client,
+        'transactions': page_obj,
+        "page_obj": page_obj,
+        "page_querystring": page_querystring,
+    }
     return render(request, 'base/Admin-Client/client_details.html', context)
 
 @login_required(login_url='login')
@@ -494,39 +354,34 @@ def liftClientPenalty(request, pk):
     client = Client.objects.get(clientId=pk)
     if request.method == 'POST':
         choice = request.POST.get("liftType", "")
-        if choice == "All":
-            client.blackListed = False
-            client.holdOrder = False
-            client.excuseLetter = False
-            client.fineAmount = 0
-            client.temporaryBlackList = False
-        elif choice == "BL":
-            client.blackListed = True
-            client.holdOrder = False
-            client.excuseLetter = False
-            client.fineAmount = 0
-            client.temporaryBlackList = False
-        elif choice == "TBL":
-            client.temporaryBlackList = False
-            client.excuseLetter = False
-            client.holdOrder = False
-            client.fineAmount = 0
-        elif choice == "RF":
-            client.fineAmount = 0
-        elif choice == "W":
-            client.warningCount = 0 if client.warningCount == 0 else client.warningCount - 1
-        client.save()
+        lift_client_penalty(client, choice)
         return redirect('client-details', pk=client.clientId)
 
                 
-    return render(request, 'base/Admin-Client/lift_client_penalty.html', {'client': client})
+    return render(
+        request,
+        'base/Admin-Client/lift_client_penalty.html',
+        {'client': client, 'penaltyLiftChoices': PenaltyLiftChoice.CHOICES},
+    )
 
 @login_required(login_url='login')  
 def penalizedClients(request):
-    clients = Client.objects.filter(Q(blackListed=True) | 
-                                    Q(temporaryBlackList=True) | 
-                                    Q(fineAmount__gt=0, blackListed=False, temporaryBlackList=False))
-    context={"clients":clients}
+    clients = (
+        Client.objects
+        .select_related("lastBorrowedItem")
+        .filter(
+            Q(blackListed=True) |
+            Q(temporaryBlackList=True) |
+            Q(fineAmount__gt=0, blackListed=False, temporaryBlackList=False)
+        )
+        .order_by("lastName", "firstName")
+    )
+    page_obj, page_querystring = paginate_queryset(request, clients)
+    context = {
+        "clients": page_obj,
+        "page_obj": page_obj,
+        "page_querystring": page_querystring,
+    }
     return render(request, 'base/Admin-Client/penalized_clients.html', context)
 
 # Block Dates
@@ -537,14 +392,10 @@ def blockOutDate(request):
     isBlockedAlready = False
     if request.method == 'POST':
         if form.is_valid():
-            # Check for Duplicates
-            if BlockOutDate.objects.filter(dateBlocked=form.cleaned_data["blockDate"]).exists():
-                isBlockedAlready = True
-            else:
-                blockOutDate = BlockOutDate.objects.create(
-                    dateBlocked = form.cleaned_data["blockDate"],
-                    description = form.cleaned_data["description"]
-                )
+            isBlockedAlready = not create_blockout_date(
+                form.cleaned_data["blockDate"],
+                form.cleaned_data["description"],
+            )
             form = BlockDateForm()
     blockedDates = BlockOutDate.objects.all()
     context = {'blockedDates': blockedDates, "form": form, "alreadyBlocked": isBlockedAlready}
@@ -555,23 +406,18 @@ def blockOutTime(request):
     context = {}
     isBlockedAlready = False
     if request.method == 'POST':
-        # Check for duplicates
-        dateInput = datetime.strptime(request.POST.get('dateInput'), '%Y-%m-%d')
-        startDateTime = datetime.strptime(request.POST.get('startTime'), '%H:%M')
-        finalStartDateTime = startDateTime.replace(year=dateInput.year, month=dateInput.month, day=dateInput.day)
-        endDateTime = datetime.strptime(request.POST.get('endTime'), '%H:%M')
-        finalEndDateTime = endDateTime.replace(year=dateInput.year, month=dateInput.month, day=dateInput.day)
-        if BlockOutTime.objects.filter(dateBlocked=dateInput.date()).exists():
-            isBlockedAlready = True
-        else:
-            blockOutTime = BlockOutTime.objects.create(
-                dateBlocked = dateInput.date(),
-                description = request.POST.get('descriptionInput'),
-                timeStart = finalStartDateTime,
-                timeEnd = finalEndDateTime
-            )
+        isBlockedAlready = not create_blockout_time(
+            request.POST.get('dateInput'),
+            request.POST.get('startTime'),
+            request.POST.get('endTime'),
+            request.POST.get('descriptionInput'),
+        )
     blockedTimes = BlockOutTime.objects.all()
-    context = {"blockedTimes": blockedTimes, "alreadyBlocked": isBlockedAlready}
+    context = {
+        "blockedTimes": blockedTimes,
+        "alreadyBlocked": isBlockedAlready,
+        "timeConstraints": BLOCK_TIME_INPUT_CONSTRAINTS,
+    }
     return render(request, 'base/Admin-Blockout/block_time.html', context)
 
     

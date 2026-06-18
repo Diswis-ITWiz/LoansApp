@@ -31,11 +31,11 @@
                     <div class="row">
                         <div class="col">
                             <label for="startTime"> Time Start</label>
-                            <input type="time" class="form-control" id="startTime" name="startTime" min="09:30" max="17:00" required>
+                            <input type="time" class="form-control" id="startTime" name="startTime" min="{{ timeConstraints.start_min }}" max="{{ timeConstraints.start_max }}" required>
                         </div>
                         <div class="col">
                             <label for="endTime"> Time End</label>
-                            <input type="time" class="form-control" id="endTime" name="endTime" min="09:30" max="17:00" required>
+                            <input type="time" class="form-control" id="endTime" name="endTime" min="{{ timeConstraints.end_min }}" max="{{ timeConstraints.end_max }}" required>
                         </div>
                     </div>
                     <div class="row">

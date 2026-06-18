@@ -1,10 +1,8 @@
 from django.core.management.base import BaseCommand
-from base.models import *
-from base.helpers import *
-from django.db.models import Q
-from datetime import date, datetime, timedelta
+from base.models import Transaction
 from django.utils import timezone
-from django.utils.timezone import localtime
+from base.services.emailing import send_deadline_email
+from base.services.item_types import get_item_type_name
 
 class Command(BaseCommand):
     help = "This command send emails at the beginning of the day to inform clients of their due items"
@@ -13,11 +11,11 @@ class Command(BaseCommand):
         # Get date today
         today = timezone.localtime(timezone.now()).date()
         # Query database for all ongoing transactions
-        ongoing = Transaction.objects.filter(status='OG')
+        ongoing = Transaction.objects.select_related("clientId", "itemCat").filter(status=Transaction.ONGOING)
         for x in ongoing:
             if x.dueDate.date() == today:
-                sendDeadlineEmail(x.itemCat.itemCat, 
-                                getItemTypeName(x.itemCat.itemCat), 
+                send_deadline_email(x.itemCat.itemCat, 
+                                get_item_type_name(x.itemCat.itemCat), 
                                 x.dateLoaned.strftime("%m/%d/%Y %I:%M %p"), 
                                 x.dueDate.strftime("%m/%d/%Y %I:%M %p"), 
                                 x.clientId)

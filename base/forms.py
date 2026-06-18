@@ -2,6 +2,12 @@ from django.forms import ModelForm
 from django import forms
 from .models import Client, Transaction, LoanItem, BlockOutDate, BlockOutTime
 from .widgets import DatePickerInput, TimePickerInput, DateTimePickerInput
+from .constants import (
+    BLOCK_TIME_END_MAX,
+    BLOCK_TIME_END_MIN,
+    BLOCK_TIME_START_MAX,
+    BLOCK_TIME_START_MIN,
+)
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
@@ -144,8 +150,8 @@ class BlockTimeForm(forms.Form):
     blockDate = forms.DateField(
         widget = DatePickerInput()
     )
-    blockTimeStart = forms.TimeField(widget=TimePickerInput(attrs={"min":"09:00", "max":"16:30"}))
-    blockTimeEnd = forms.TimeField(widget=TimePickerInput(attrs={"min":"09:30", "max":"17:00"}))
+    blockTimeStart = forms.TimeField(widget=TimePickerInput(attrs={"min": BLOCK_TIME_START_MIN, "max": BLOCK_TIME_START_MAX}))
+    blockTimeEnd = forms.TimeField(widget=TimePickerInput(attrs={"min": BLOCK_TIME_END_MIN, "max": BLOCK_TIME_END_MAX}))
     description = forms.CharField(
         widget = forms.Textarea(attrs={'rows':'2'}),
         required=False

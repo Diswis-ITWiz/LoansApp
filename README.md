@@ -2,33 +2,77 @@
 
 The Loans App is designed to be an internal web application facilitate, track, and oversee loans transactions for the DSWS loans committee.
 
-## Installation
+## Prerequisites
 
-Install the following prerequisites prior to importing the necessary python packages: 
-- Xampp
-- Python 3.X
+- Python 3.10-3.12. The pinned dependency set is not intended for Python 3.13+ without package upgrades.
+- XAMPP or another local MySQL server
+- MySQL client build prerequisites required by `mysqlclient`
 
-Create a Virtual Environment:
-```bash
-pip install virtualenv
-virtualenv <virtual env name>
-<virtual env name>\scripts\activate
+## Setup
+
+From this project directory, create and activate a virtual environment:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\activate
 ```
-Afterwards, import the following packages inside the virtual environment
-```bash
-pip install Django==<5.0.4 or lower>
-pip install mysqlclient
-pip install django-environ
-pip install django-bootstrap-v5
-pip install numpy
+
+Install the pinned Python dependencies:
+
+```powershell
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
-Create a local repository using the following file structure:
 
-Main Folder
+Create a MySQL database for the application, then copy the environment template:
 
-* Virtual Environment
+```powershell
+copy .env.example .env
+```
 
-* Local Repository
+Edit `.env` with the real database credentials, Django secret key, and Gmail app password.
 
+Apply migrations and create an admin user:
 
-Copy .env file that is provided by the IT officer into the repository
+```powershell
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+## Run The Application
+
+Start the development server from the project directory:
+
+```powershell
+python manage.py runserver
+```
+
+On Windows, `startup.bat` performs the same project-local startup after `.venv` has been created and dependencies have been installed:
+
+```powershell
+.\startup.bat
+```
+
+You can pass normal Django `runserver` arguments through the script:
+
+```powershell
+.\startup.bat 127.0.0.1:8001
+```
+
+## Run Tests
+
+The test settings use SQLite and dummy email settings so tests can run without a local `.env` or MySQL database:
+
+```powershell
+python manage.py test --settings=loans.test_settings
+```
+
+## Email Reminder Commands
+
+These management commands can be run manually or scheduled with Windows Task Scheduler:
+
+```powershell
+python manage.py senddeadlineemails
+python manage.py sendoverdueitemaemails
+python manage.py sendoverdueitembemails
+```
