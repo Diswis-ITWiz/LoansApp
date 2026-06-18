@@ -39,6 +39,17 @@ These changes improve code readability and admin usability without intentionally
 
 - Removed wildcard imports under `base/`.
 - Replaced them with explicit imports in views and management commands.
+- Removed `base/helpers.py` after confirming production Python code no longer imports it.
+
+### Type Hints
+
+- Added type hints to the higher-value boundaries:
+  - Service-layer functions.
+  - View-service functions.
+  - Django view function signatures.
+  - Management command `handle` methods.
+  - Model `__str__` methods.
+- Form constructors and test method signatures were intentionally left mostly untouched to avoid low-value noise.
 
 ### Model Readability
 
@@ -150,9 +161,9 @@ Suggested verification:
 - Confirm forms still render the expected choices.
 - Confirm report-item, penalty-lift, and blockout pages still submit expected values.
 
-## 7. Hard: Service Layer Extraction
+## 7. Hard: Service Layer And View-Service Extraction
 
-This is high-value, but it touches the core workflows. It should be applied with tests around loaning, returning, reporting, overdue behavior, and emails.
+This is high-value, but it touches the core workflows. It should be applied with tests around loaning, returning, reporting, overdue behavior, emails, and key admin list pages.
 
 - Added `base/services/` modules:
   - `calendar_rules.py`: no-class day and closing-time rules.
@@ -167,11 +178,11 @@ This is high-value, but it touches the core workflows. It should be applied with
   - `clients.py`: loan/return client lookup context helpers.
 - Added `base/view_services/` modules:
   - `pagination.py`: shared pagination helper.
-  - `loan_transaction_views.py`: loan-item request, form, context, and email orchestration.
-  - `return_views.py`: return-item form, override, submission, and context orchestration.
+  - `loan_transaction_views.py`: loan-item GET/POST request, form, context, transaction, and email orchestration.
+  - `return_views.py`: return-item form selection, override authentication, submission, and context orchestration.
   - `item_panel.py`: item panel form creation and search/filter queryset handling.
   - `client_panel.py`: client panel search/filter queryset handling.
-- Converted `base/helpers.py` into a compatibility facade that re-exports service functions for older imports.
+- Removed `base/helpers.py` after moving code to explicit service/view-service imports.
 - Updated `base/views.py` to delegate business logic into services and page orchestration into view services.
 - Cleaned management command imports.
 - Preserved the existing Type B overdue email patch path for tests by keeping the alias import.
@@ -183,6 +194,8 @@ Suggested verification:
 - Test reporting an item as damaged or lost.
 - Test late transaction detail calculations.
 - Test client lookup behavior for eligible, borrowing, blacklisted, temporarily blacklisted, and graduating-waiting clients.
+- Test item panel create/search/filter behavior.
+- Test client panel search/filter behavior.
 - Test blockout date/time creation.
 - Test reminder email commands in a safe environment.
 
@@ -213,4 +226,11 @@ Suggested verification:
 - Tests should ideally be added before applying service-layer and transaction-safety changes.
 - Constants centralization should preserve existing database values exactly.
 - Service extraction should be treated as a workflow refactor, not a cosmetic cleanup.
+- `base/services/` should stay focused on business/domain rules.
+- `base/view_services/` should hold Django request, form, context, pagination, and page orchestration helpers.
 - Transaction-safety changes should be applied only after the core workflow tests are in place.
+
+```powershell
+python -m py_compile base\views.py base\view_services\client_panel.py base\view_services\item_panel.py base\view_services\loan_transaction_views.py base\view_services\return_views.py base\view_services\pagination.py
+```
+
