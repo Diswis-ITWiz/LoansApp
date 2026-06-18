@@ -85,7 +85,7 @@ Suggested verification:
 
 These changes are technically straightforward, but they change the user-facing behavior of long tables.
 
-- Added shared pagination helper: `base/services/pagination.py`.
+- Added shared pagination helper: `base/view_services/pagination.py`.
 - Added shared pagination partial: `base/templates/base/_pagination.html`.
 - Added pagination to:
   - Item panel.
@@ -165,9 +165,14 @@ This is high-value, but it touches the core workflows. It should be applied with
   - `reporting.py`: damaged/lost item reporting.
   - `blockouts.py`: blockout date/time and finals-week helpers.
   - `clients.py`: loan/return client lookup context helpers.
+- Added `base/view_services/` modules:
   - `pagination.py`: shared pagination helper.
+  - `loan_transaction_views.py`: loan-item request, form, context, and email orchestration.
+  - `return_views.py`: return-item form, override, submission, and context orchestration.
+  - `item_panel.py`: item panel form creation and search/filter queryset handling.
+  - `client_panel.py`: client panel search/filter queryset handling.
 - Converted `base/helpers.py` into a compatibility facade that re-exports service functions for older imports.
-- Updated `base/views.py` to delegate business logic into services.
+- Updated `base/views.py` to delegate business logic into services and page orchestration into view services.
 - Cleaned management command imports.
 - Preserved the existing Type B overdue email patch path for tests by keeping the alias import.
 
@@ -209,4 +214,3 @@ Suggested verification:
 - Constants centralization should preserve existing database values exactly.
 - Service extraction should be treated as a workflow refactor, not a cosmetic cleanup.
 - Transaction-safety changes should be applied only after the core workflow tests are in place.
-

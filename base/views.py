@@ -5,15 +5,15 @@ from base.services.blockouts import (
     create_blockout_date,
     create_blockout_time,
 )
-from base.services.client_panel import get_client_panel_queryset
 from base.services.clients import get_loan_client_lookup_context, get_return_client_lookup_context
-from base.services.item_panel import get_empty_item_form, get_item_panel_queryset, handle_item_create
-from base.services.loan_transaction_views import handle_loan_transaction_get, handle_loan_transaction_post
-from base.services.pagination import paginate_queryset
 from base.services.penalties import lift_client_penalty
 from base.services.reporting import report_item as report_item_service
-from base.services.return_views import build_return_item_context, get_return_form, handle_return_item_post
 from base.services.returns import assess_return
+from base.view_services.client_panel import get_client_panel_queryset
+from base.view_services.item_panel import get_empty_item_form, get_item_panel_queryset, handle_item_create
+from base.view_services.loan_transaction_views import handle_loan_transaction_get, handle_loan_transaction_post
+from base.view_services.pagination import paginate_queryset
+from base.view_services.return_views import build_return_item_context, get_return_form, handle_return_item_post
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -344,6 +344,5 @@ def adminLogin(request: HttpRequest) -> HttpResponse:
 def adminLogout(request: HttpRequest) -> HttpResponse:
     logout(request)
     return redirect('home')
-
 
 
