@@ -107,9 +107,3 @@ def lift_client_penalty(client: Client, choice: str) -> Client:
         client.warningCount = 0 if client.warningCount == 0 else client.warningCount - 1
     client.save()
     return client
-
-
-calculateTypeAPenalty = calculate_type_a_penalty
-applyTypeAPenalty = apply_type_a_penalty
-calculateTypeBPenalty = calculate_type_b_penalty
-applyTypeBPenalty = apply_type_b_penalty

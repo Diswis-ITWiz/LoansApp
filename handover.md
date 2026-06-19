@@ -40,6 +40,7 @@ These changes improve code readability and admin usability without intentionally
 - Removed wildcard imports under `base/`.
 - Replaced them with explicit imports in views and management commands.
 - Removed `base/helpers.py` after confirming production Python code no longer imports it.
+- Removed service-level camelCase compatibility aliases after updating tests to use snake_case service functions.
 
 ### Type Hints
 
@@ -233,4 +234,3 @@ Suggested verification:
 ```powershell
 python -m py_compile base\views.py base\view_services\client_panel.py base\view_services\item_panel.py base\view_services\loan_transaction_views.py base\view_services\return_views.py base\view_services\pagination.py
 ```
-

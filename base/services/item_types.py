@@ -12,7 +12,3 @@ def get_item_type_name(item_cat: str) -> str | None:
         if item_cat.startswith(prefix):
             return item_type_name
     return None
-
-
-checkItemType = check_item_type
-getItemTypeName = get_item_type_name

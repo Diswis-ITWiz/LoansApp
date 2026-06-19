@@ -189,9 +189,3 @@ def send_overdue_item_b_email(
     )
     msg = TransactionEmailThread(subject_matter, message, client.email, template)
     msg.start()
-
-
-sendTransactionEmail = send_transaction_email
-sendDeadlineEmail = send_deadline_email
-sendOverdueItemAEmail = send_overdue_item_a_email
-sendOverdueItemBEmail = send_overdue_item_b_email

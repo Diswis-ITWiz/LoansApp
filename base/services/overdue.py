@@ -104,7 +104,3 @@ def get_item_type_b_overdue_time(due_date: datetime, client: Client) -> tuple[in
     overdue_hours = math.floor(overdue_time.total_seconds() // 3600)
     overdue_minutes = math.floor((overdue_time.seconds // 60) % 60)
     return overdue_hours, overdue_minutes
-
-
-getItemTypeAOverdueDays = get_item_type_a_overdue_days
-getItemTypeBOverdueTime = get_item_type_b_overdue_time

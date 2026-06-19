@@ -29,7 +29,3 @@ def get_closing_time(value: datetime) -> datetime:
     if value.weekday() == WEEKDAY_WEDNESDAY:
         return value.replace(hour=WEDNESDAY_CLOSING_HOUR, minute=0, second=0, microsecond=0)
     return value.replace(hour=REGULAR_CLOSING_HOUR, minute=0, second=0, microsecond=0)
-
-
-ifNoClasses = if_no_classes
-getClosingTime = get_closing_time
