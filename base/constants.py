@@ -54,6 +54,7 @@ ITEM_TYPE_NAMES = (
     ("D", "Dictionary"),
     ("S", "Speaker"),
     ("U", "Umbrella"),
+    ("P", "Power Bank")
 )
 
 WEEKDAY_WEDNESDAY = 2
