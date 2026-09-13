@@ -1,6 +1,11 @@
-# Use Python 3.10-3.12 with these pins.
-Django==5.0.4
+asgiref==3.12.1
+beautifulsoup4==4.15.0
+Django==4.2.30
 django-bootstrap-v5==1.0.11
-django-environ==0.11.2
-mysqlclient==2.2.4
-numpy==1.26.4
+django-environ==0.14.0
+mysqlclient==2.2.8
+numpy==2.5.1
+soupsieve==2.9.2
+sqlparse==0.5.5
+typing_extensions==4.16.0
+tzdata==2026.3

@@ -2,31 +2,45 @@ import threading
 from datetime import datetime
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
 from base.models import Client
 from base.services.penalties import calculate_type_a_penalty, calculate_type_b_penalty
 
+TRANSACTION_EMAIL_CC = ["dswsslr@gmail.com"]
 
 class TransactionEmailThread(threading.Thread):
-    def __init__(self, subject: str, message: str, email: str, template: str) -> None:
+    def __init__(
+        self,
+        subject: str,
+        message: str,
+        email: str,
+        template: str,
+        cc: list[str] | None = None,
+    ) -> None:
         self.subject = subject
         self.message = message
         self.email_to = email
         self.template = template
+        self.cc = cc or []
         threading.Thread.__init__(self)
 
     def run(self) -> None:
         email_from = settings.EMAIL_HOST_USER
-        send_mail(
-            self.subject,
-            self.message,
-            email_from,
-            recipient_list=[self.email_to],
-            html_message=self.template,
-            fail_silently=True,
+
+        email = EmailMessage(
+            subject=self.subject,
+            body=self.message,
+            from_email=email_from,
+            to=[self.email_to],
+            cc=self.cc,
         )
+
+        email.content_subtype = "html"
+        email.body = self.template
+
+        email.send(fail_silently=True)
 
 
 def send_transaction_email(
@@ -48,7 +62,7 @@ def send_transaction_email(
                 Due Date: {due_date}
                 --------------------
                 If you have any concerns or inquiries, contact us at:
-                Email: dsws.loans@gmail.com
+                Email: dswsslr@gmail.com
 
                 Thank you and have a great day!
                 """
@@ -61,7 +75,13 @@ def send_transaction_email(
         },
     )
 
-    msg = TransactionEmailThread(subject_matter, message, client.email, template)
+    msg = TransactionEmailThread(
+        subject_matter,
+        message,
+        client.email,
+        template,
+        cc=TRANSACTION_EMAIL_CC,
+    )
     msg.start()
 
 
@@ -90,7 +110,7 @@ def send_deadline_email(
 
                 If you have any concerns or inquiries,
                 please feel free to reply to this email or contact us at:
-                Email: dsws.loans@gmail.com
+                Email: dswsslr@gmail.com
 
                 Thank you and have a great day!
                 """
@@ -102,7 +122,13 @@ def send_deadline_email(
             "dueDate": due_date,
         },
     )
-    msg = TransactionEmailThread(subject_matter, message, client.email, template)
+    msg = TransactionEmailThread(
+            subject_matter,
+            message,
+            client.email,
+            template,
+            cc=TRANSACTION_EMAIL_CC,
+        )
     msg.start()
 
 
@@ -131,7 +157,7 @@ def send_overdue_item_a_email(
                 Penalty: {penalty}
                 --------------------
                 If you have any concerns or inquiries, contact us at:
-                Email: dsws.loans@gmail.com
+                Email: dswsslr@gmail.com
                 """
     template = render_to_string(
         template_name="base/Email-Templates/overdue_item_a_email.html",
@@ -142,7 +168,13 @@ def send_overdue_item_a_email(
             "penalty": penalty,
         },
     )
-    msg = TransactionEmailThread(subject_matter, message, client.email, template)
+    msg = TransactionEmailThread(
+            subject_matter,
+            message,
+            client.email,
+            template,
+            cc=TRANSACTION_EMAIL_CC,
+        )
     msg.start()
 
 
@@ -175,7 +207,7 @@ def send_overdue_item_b_email(
                 Penalty: {penalty}
                 --------------------
                 If you have any concerns or inquiries, contact us at:
-                Email: dsws.loans@gmail.com
+                Email: dswsslr@gmail.com
                 """
     template = render_to_string(
         template_name="base/Email-Templates/overdue_item_b_email.html",
@@ -187,5 +219,11 @@ def send_overdue_item_b_email(
             "penalty": penalty,
         },
     )
-    msg = TransactionEmailThread(subject_matter, message, client.email, template)
+    msg = TransactionEmailThread(
+            subject_matter,
+            message,
+            client.email,
+            template,
+            cc=TRANSACTION_EMAIL_CC,
+        )
     msg.start()
