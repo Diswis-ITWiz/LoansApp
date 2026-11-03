@@ -24,12 +24,14 @@ class Command(BaseCommand):
         for x in overdueItems:
             # Check if their overdue by comparing the current date with their due date
             # If late calculate overdue
+            due_date = timezone.localtime(x.dueDate)
+            loan_date = timezone.localtime(x.dateLoaned)
             if x.dueDate < today:
-                overdueHours, overdueMinutes = get_item_type_b_overdue_time(x.dueDate, x.clientId)
+                overdueHours, overdueMinutes = get_item_type_b_overdue_time(due_date, x.clientId)
                 sendOverdueItemBEmail(x.itemCat.itemCat, 
                                       get_item_type_name(x.itemCat.itemCat),
-                                      x.dateLoaned,
-                                      x.dueDate,
+                                      loan_date,
+                                      due_date,
                                       x.clientId,
                                       overdueHours,
                                       overdueMinutes

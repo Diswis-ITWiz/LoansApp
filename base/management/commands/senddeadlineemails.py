@@ -13,11 +13,16 @@ class Command(BaseCommand):
         # Query database for all ongoing transactions
         ongoing = Transaction.objects.select_related("clientId", "itemCat").filter(status=Transaction.ONGOING)
         for x in ongoing:
-            if x.dueDate.date() == today:
-                send_deadline_email(x.itemCat.itemCat, 
-                                get_item_type_name(x.itemCat.itemCat), 
-                                x.dateLoaned.strftime("%m/%d/%Y %I:%M %p"), 
-                                x.dueDate.strftime("%m/%d/%Y %I:%M %p"), 
-                                x.clientId)
+            due_date = timezone.localtime(x.dueDate)
+            loan_date = timezone.localtime(x.dateLoaned)
+
+            if due_date.date() == today:
+                send_deadline_email(
+                    x.itemCat.itemCat,
+                    get_item_type_name(x.itemCat.itemCat),
+                    loan_date.strftime("%m/%d/%Y %I:%M %p"),
+                    due_date.strftime("%m/%d/%Y %I:%M %p"),
+                    x.clientId,
+                )
         stuff = 'This command send emails at the beginning of the day to inform clients of their due items'
         self.stdout.write(stuff)

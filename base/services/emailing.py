@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from base.models import Client
 from base.services.penalties import calculate_type_a_penalty, calculate_type_b_penalty
 
-TRANSACTION_EMAIL_CC = ["dswsslr@gmail.com"]
+TRANSACTION_EMAIL_CC = [settings.EMAIL_CC]
 
 class TransactionEmailThread(threading.Thread):
     def __init__(
